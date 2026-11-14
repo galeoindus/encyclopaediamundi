@@ -23,9 +23,9 @@
     "deploy": "node scripts/deploy.mjs"
   },
   "dependencies": {
-    "jsdom": "^29.1.1"
+    "jsdom": "^31.0.0"
   },
   "devDependencies": {
-    "jsdom": "^29.1.1"
+    "jsdom": "^31.0.0"
   }
 }
