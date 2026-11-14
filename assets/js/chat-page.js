@@ -261,6 +261,10 @@ function persistRecent() {
     ...item,
     messages: compactMessagesForStorage(item.messages),
   }));
+  // The rebuild above replaces every object, so any row already on screen now
+  // points at an entry that no longer exists in `recent`. Re-render here, once,
+  // so the list on screen and the list in memory are always the same objects.
+  if (typeof renderRail === 'function' && $('#railList')) renderRail();
   const result = saveChatState({
     local: browserStorage('localStorage'),
     session: browserStorage('sessionStorage'),
@@ -1828,8 +1832,12 @@ function deleteChat(item) {
     requestRun += 1;
     if (controller) controller.abort();
   }
-  const index = recent.indexOf(item);
-  recent = recent.filter((r) => r !== item);
+  // Match by id, not by object identity. `persistRecent()` rebuilds every
+  // entry as a fresh object, so a row rendered before that rebuild holds a
+  // stale reference — and a reference comparison then silently deleted
+  // nothing while still showing the "deleted" toast.
+  const index = recent.findIndex((r) => r.id === item.id);
+  recent = recent.filter((r) => r.id !== item.id);
   persistRecent();
   undoBuffer = { item, index: index < 0 ? 0 : index };
   renderRail();
