@@ -101,12 +101,12 @@ test('every page the sitemap names exists on disk', () => {
 
 test('robots.txt names the sitemap and keeps the pages open', () => {
   const robots = read('robots.txt');
-  assert.match(robots, /Sitemap: https:\/\/encyclopaediamundi\.pages\.dev\/sitemap\.xml/);
+  assert.match(robots, /Sitemap: https:\/\/veridell\.pages\.dev\/sitemap\.xml/);
   assert.match(robots, /User-agent: \*\nAllow: \//);
 });
 
 test('no page claims a canonical host that is not the deployed one', () => {
-  const origin = 'https://encyclopaediamundi.pages.dev';
+  const origin = 'https://veridell.pages.dev';
   for (const page of ['index.html', 'chat/index.html', 'articles/index.html', 'help/index.html']) {
     const html = read(page);
     const canonical = /<link rel="canonical" href="([^"]+)"/.exec(html)?.[1];

@@ -54,7 +54,7 @@ jobs:
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-        run: npx --yes wrangler pages project create encyclopaediamundi --production-branch=main || true
+        run: npx --yes wrangler pages project create veridell --production-branch=main || true
 
       - name: Publish
         if: steps.check.outputs.ready == 'true'
@@ -62,4 +62,4 @@ jobs:
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          command: pages deploy . --project-name=encyclopaediamundi --branch=main --commit-dirty=true
+          command: pages deploy . --project-name=veridell --branch=main --commit-dirty=true

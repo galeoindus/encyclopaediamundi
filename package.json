@@ -1,13 +1,13 @@
 {
-  "name": "encyclopaediamundi",
+  "name": "veridell",
   "version": "1.0.0",
   "private": true,
   "type": "module",
-  "description": "Encyclopaedia Mundi \u2014 a Wikimedia knowledge research and discovery site with a source-backed answer surface.",
-  "homepage": "https://encyclopaediamundi.pages.dev/",
+  "description": "Veridell \u2014 a Wikimedia knowledge research and discovery site with a source-backed answer surface.",
+  "homepage": "https://veridell.pages.dev/",
   "repository": {
     "type": "git",
-    "url": "https://github.com/galeoindus/encyclopaediamundi.git"
+    "url": "https://github.com/galeoindus/veridell.git"
   },
   "license": "MIT",
   "engines": {

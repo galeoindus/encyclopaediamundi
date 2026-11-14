@@ -34,9 +34,9 @@ const NAV = [
 function paintBar() {
   bar.replaceChildren(
     h('div', { class: 'em-bar-in' },
-      h('a', { class: 'em-brand', href: '#/', 'aria-label': 'Encyclopaedia Mundi home' },
+      h('a', { class: 'em-brand', href: '#/', 'aria-label': 'Veridell home' },
         h('span', { class: 'em-brand-mark', html: MARK }),
-        h('span', { class: 'em-brand-word', text: 'Encyclopaedia Mundi' })),
+        h('span', { class: 'em-brand-word', text: 'Veridell' })),
       h('nav', { class: 'em-nav', 'aria-label': 'Primary' },
         ...NAV.map(([href, label]) => h('a', { href, text: label }))),
       h('label', { class: 'em-sr', for: 'em-lang', text: 'Source language' }),
@@ -91,7 +91,7 @@ async function render() {
   paintBar();
 
   if (path === '/' || path === '') {
-    document.title = 'Encyclopaedia Mundi — every answer, with its source';
+    document.title = 'Veridell — every answer, with its source';
     mount(homeView({ go, lang: state.lang }));
     return;
   }
@@ -99,7 +99,7 @@ async function render() {
   if (path === '/ask') {
     const question = (params.get('q') || '').trim();
     if (!question) { go('#/'); return; }
-    document.title = `${clip(question, 60)} — Encyclopaedia Mundi`;
+    document.title = `${clip(question, 60)} — Veridell`;
     mount(loadingView('Reading the article…'));
     try {
       const { answer } = await loadAnswer({ question, depth: state.depth, lang: state.lang });
@@ -130,7 +130,7 @@ async function render() {
 
   if (path.startsWith('/article/')) {
     const title = decodeURIComponent(path.slice('/article/'.length));
-    document.title = `${title.replace(/_/g, ' ')} — Encyclopaedia Mundi`;
+    document.title = `${title.replace(/_/g, ' ')} — Veridell`;
     mount(loadingView('Reading the article…'));
     try {
       const { answer } = await loadAnswer({ question: title.replace(/_/g, ' '), depth: state.depth, lang: state.lang });
@@ -147,19 +147,19 @@ async function render() {
     return;
   }
 
-  if (path === '/explore') { document.title = 'Explore — Encyclopaedia Mundi'; mount(exploreView({ go, lang: state.lang })); return; }
-  if (path === '/today') { document.title = 'On this day — Encyclopaedia Mundi'; mount(todayView({ go, lang: state.lang })); return; }
-  if (path === '/sources') { document.title = 'Sources — Encyclopaedia Mundi'; mount(sourcesView()); return; }
-  if (path === '/saved') { document.title = 'Saved — Encyclopaedia Mundi'; mount(savedView({ go })); return; }
+  if (path === '/explore') { document.title = 'Explore — Veridell'; mount(exploreView({ go, lang: state.lang })); return; }
+  if (path === '/today') { document.title = 'On this day — Veridell'; mount(todayView({ go, lang: state.lang })); return; }
+  if (path === '/sources') { document.title = 'Sources — Veridell'; mount(sourcesView()); return; }
+  if (path === '/saved') { document.title = 'Saved — Veridell'; mount(savedView({ go })); return; }
 
   if (path === '/library') {
     const query = (params.get('q') || '').trim();
-    document.title = 'Library — Encyclopaedia Mundi';
+    document.title = 'Library — Veridell';
     mount(await libraryView({ query, go, lang: state.lang }));
     return;
   }
 
-  document.title = 'Not found — Encyclopaedia Mundi';
+  document.title = 'Not found — Veridell';
   mount(noteView({
     title: 'That page does not exist',
     body: 'Every route lives on the home page: search a subject there, or open the library.',

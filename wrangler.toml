@@ -1,4 +1,4 @@
-# Encyclopaedia Mundi — Cloudflare Pages configuration.
+# Veridell — Cloudflare Pages configuration.
 #
 # A static site with no build step, plus Pages Functions in ./functions, so
 # Pages only needs to know where the files are.
@@ -7,8 +7,8 @@
 #
 # or by hand — the first command is the one that is easy to forget:
 #
-#   npx wrangler pages project create encyclopaediamundi --production-branch=main
-#   npx wrangler pages deploy . --project-name=encyclopaediamundi
+#   npx wrangler pages project create veridell --production-branch=main
+#   npx wrangler pages deploy . --project-name=veridell
 #
 # A Pages project belongs to the account that created it. A fresh Cloudflare
 # account therefore has none, and `pages deploy` answers "Project not found"
@@ -16,9 +16,9 @@
 #
 # The project name, SITE.origin here and the canonical host in index.html,
 # robots.txt, sitemap.xml and the built pages are one identity:
-# https://encyclopaediamundi.pages.dev/
+# https://veridell.pages.dev/
 
-name = "encyclopaediamundi"
+name = "veridell"
 compatibility_date = "2026-01-01"
 pages_build_output_dir = "."
 

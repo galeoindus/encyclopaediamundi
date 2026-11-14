@@ -1,4 +1,4 @@
-# Encyclopaedia Mundi — https://encyclopaediamundi.pages.dev/
+# Veridell — https://veridell.pages.dev/
 #
 # Every page the site serves is meant to be read, so nothing is closed except
 # the things that are not pages: the Functions bundle and the build scripts.
@@ -28,7 +28,7 @@ Allow: /
 User-agent: Google-Extended
 Allow: /
 
-Sitemap: https://encyclopaediamundi.pages.dev/sitemap.xml
+Sitemap: https://veridell.pages.dev/sitemap.xml
 
 # A plain-text description of the site for language models.
-LLMs-Txt: https://encyclopaediamundi.pages.dev/llms.txt
+LLMs-Txt: https://veridell.pages.dev/llms.txt

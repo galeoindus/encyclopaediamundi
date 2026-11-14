@@ -1,4 +1,4 @@
-# Encyclopaedia Mundi — Cloudflare Pages redirects.
+# Veridell — Cloudflare Pages redirects.
 #
 # The app is one document behind a hash router. These keep the short addresses
 # people type working, and give the crawlable directories their trailing slash.

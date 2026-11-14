@@ -20,7 +20,7 @@ import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
-const ORIGIN = process.env.SITE_ORIGIN || 'https://encyclopaediamundi.pages.dev';
+const ORIGIN = process.env.SITE_ORIGIN || 'https://veridell.pages.dev';
 const articles = JSON.parse(readFileSync(join(ROOT, 'data/articles.json'), 'utf8'));
 
 const esc = (value) => String(value ?? '').replace(/[&<>"']/g, (c) => (
@@ -39,10 +39,10 @@ const NAV = `<nav class="em-nav" aria-label="Primary">
 const FOOT = `<footer class="em-foot">
   <div class="em-foot-in">
     <div class="em-foot-col"><strong>Read</strong><a href="/articles/">Articles</a><a href="/topics/">Topics</a><a href="/#/library">Library</a><a href="/#/today">On this day</a></div>
-    <div class="em-foot-col"><strong>About</strong><a href="/how-it-works/">How it works</a><a href="/help/">Help</a><a href="/#/sources">Sources</a><a href="https://github.com/galeoindus/encyclopaediamundi" target="_blank" rel="noopener noreferrer">GitHub</a></div>
+    <div class="em-foot-col"><strong>About</strong><a href="/how-it-works/">How it works</a><a href="/help/">Help</a><a href="/#/sources">Sources</a><a href="https://github.com/galeoindus/veridell" target="_blank" rel="noopener noreferrer">GitHub</a></div>
     <div class="em-foot-col"><strong>Talk</strong><a href="/chat/">Amigo chat</a><a href="/questions/">Questions</a><a href="/research/">Research desk</a></div>
   </div>
-  <div class="em-foot-in"><p>Wikipedia text is available under CC BY-SA 4.0 and Wikidata under CC0 1.0. Encyclopaedia Mundi is an independent reader, not affiliated with or endorsed by the Wikimedia Foundation.</p></div>
+  <div class="em-foot-in"><p>Wikipedia text is available under CC BY-SA 4.0 and Wikidata under CC0 1.0. Veridell is an independent reader, not affiliated with or endorsed by the Wikimedia Foundation.</p></div>
 </footer>`;
 
 function shell({ title, description, path, body, jsonLd = '', noindex = false }) {
@@ -60,7 +60,7 @@ function shell({ title, description, path, body, jsonLd = '', noindex = false })
 <meta name="theme-color" content="#0e1512" media="(prefers-color-scheme: dark)">
 <meta name="color-scheme" content="light dark">
 <meta property="og:type" content="article">
-<meta property="og:site_name" content="Encyclopaedia Mundi">
+<meta property="og:site_name" content="Veridell">
 <meta property="og:title" content="${esc(title)}">
 <meta property="og:description" content="${esc(description)}">
 <meta property="og:url" content="${url}">
@@ -73,7 +73,7 @@ ${jsonLd ? `<script type="application/ld+json">${jsonLd}</script>` : ''}
 <body data-page="static">
 <a class="em-skip" href="#content">Skip to the content</a>
 <header class="em-bar"><div class="em-bar-in">
-  <a class="em-brand" href="/" aria-label="Encyclopaedia Mundi home">${MARK}<span class="em-brand-word">Encyclopaedia Mundi</span></a>
+  <a class="em-brand" href="/" aria-label="Veridell home">${MARK}<span class="em-brand-word">Veridell</span></a>
   ${NAV}
 </div></header>
 <main class="em-main" id="content">
@@ -115,7 +115,7 @@ function articlePage(article) {
     inLanguage: 'en',
     isBasedOn: `https://en.wikipedia.org/wiki/${encodeURIComponent(article.title.replace(/ /g, '_'))}`,
     license: 'https://creativecommons.org/licenses/by-sa/4.0/',
-    publisher: { '@type': 'Organization', name: 'Encyclopaedia Mundi', url: `${ORIGIN}/` },
+    publisher: { '@type': 'Organization', name: 'Veridell', url: `${ORIGIN}/` },
   });
 
   const body = `<article class="em-answer em-column">
@@ -141,7 +141,7 @@ function articlePage(article) {
 </article>`;
 
   return shell({
-    title: `${article.title} — Encyclopaedia Mundi`,
+    title: `${article.title} — Veridell`,
     description: article.description || article.lead.slice(0, 155),
     path,
     body,
@@ -159,7 +159,7 @@ function articleIndex() {
     </a>`).join('');
 
   return shell({
-    title: 'Articles — Encyclopaedia Mundi',
+    title: 'Articles — Veridell',
     description: 'Thirteen complete, indexable articles: lead, key facts, numbered sections and the source behind each one.',
     path: '/articles/',
     body: `<div class="em-page em-column">
@@ -184,7 +184,7 @@ function topicsPage() {
     </section>`).join('');
 
   return shell({
-    title: 'Topics — Encyclopaedia Mundi',
+    title: 'Topics — Veridell',
     description: 'Every subject the site has written about, grouped, with the article that covers it.',
     path: '/topics/',
     body: `<div class="em-page em-column"><h1>Topics</h1>
@@ -210,7 +210,7 @@ function questionsPage() {
   const rows = questions.map(([question, href]) => `<a class="em-card" href="${href}"><strong>${esc(question)}</strong><span>Open the article behind the answer</span></a>`).join('');
 
   return shell({
-    title: 'Questions — Encyclopaedia Mundi',
+    title: 'Questions — Veridell',
     description: 'The questions this site is built to answer, each with the article behind it.',
     path: '/questions/',
     body: `<div class="em-page em-column"><h1>Questions</h1>
@@ -221,7 +221,7 @@ function questionsPage() {
 
 function helpPage() {
   return shell({
-    title: 'Help — Encyclopaedia Mundi',
+    title: 'Help — Veridell',
     description: 'How to ask, what the badges mean, where the answers come from, and what the site stores.',
     path: '/help/',
     body: `<div class="em-page em-column">
@@ -252,7 +252,7 @@ function helpPage() {
 
 function howItWorksPage() {
   return shell({
-    title: 'How it works — Encyclopaedia Mundi',
+    title: 'How it works — Veridell',
     description: 'Ask, research, filter, explain, cite: the five steps between a question and an answer with its source.',
     path: '/how-it-works/',
     body: `<div class="em-page em-column">
@@ -286,7 +286,7 @@ function howItWorksPage() {
 
 function researchPage() {
   return shell({
-    title: 'Research desk — Encyclopaedia Mundi',
+    title: 'Research desk — Veridell',
     description: 'A research-shaped view: ask, and read the answer as topics with the source sentences kept intact.',
     path: '/research/',
     body: `<div class="em-page em-column">

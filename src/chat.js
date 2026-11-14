@@ -55,7 +55,7 @@ function persist() {
 
 function emptyState() {
   return h('div', { class: 'em-chat-empty' },
-    h('div', { class: 'em-hero-eyebrow' }, h('span', { class: 'em-dot' }), 'Encyclopaedia Mundi · AI Mode'),
+    h('div', { class: 'em-hero-eyebrow' }, h('span', { class: 'em-dot' }), 'Veridell · AI Mode'),
     h('h1', { html: 'Ask <em>Amigo</em> anything.' }),
     h('p', { text: 'A question, a paragraph, a file — answered in plain language, with sources when the answer makes a factual claim.' }),
     h('div', { class: 'em-starters' },

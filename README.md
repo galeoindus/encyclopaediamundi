@@ -1,4 +1,4 @@
-# Encyclopaedia Mundi
+# Veridell
 
 **Every answer, with its source.**
 
@@ -83,8 +83,8 @@ the account has none, builds the pages and uploads. By hand it is two commands,
 and the first is the one people forget:
 
 ```bash
-npx wrangler pages project create encyclopaediamundi --production-branch=main
-npx wrangler pages deploy . --project-name=encyclopaediamundi
+npx wrangler pages project create veridell --production-branch=main
+npx wrangler pages deploy . --project-name=veridell
 ```
 
 **A fresh Cloudflare account has no Pages projects.** A project belongs to the
@@ -104,7 +104,7 @@ Either remove the Cloudflare Pages app's access to that repository on GitHub
 (Settings → Applications → Cloudflare Pages → Configure), or deploy by upload
 as above, which needs no Git connection at all.
 
-The host is `https://encyclopaediamundi.pages.dev/`. If you deploy under a
+The host is `https://veridell.pages.dev/`. If you deploy under a
 different name, change it in one commit in: `wrangler.toml`, `index.html`,
 `chat/index.html`, `robots.txt`, `llms.txt`, `scripts/build-pages.mjs` (the
 `ORIGIN` constant) and rebuild.
@@ -126,5 +126,5 @@ nothing about the caller is ever returned to the browser.
 ## Licences
 
 Code: MIT. Wikipedia text: CC BY-SA 4.0. Wikidata: CC0 1.0. Wikimedia Commons
-images carry their own licence. Encyclopaedia Mundi is an independent reader and
+images carry their own licence. Veridell is an independent reader and
 is not affiliated with or endorsed by the Wikimedia Foundation.

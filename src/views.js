@@ -58,7 +58,7 @@ function sourceList(sources) {
 export function homeView({ go, lang }) {
   const wrap = h('div', {});
   const hero = h('section', { class: 'em-hero' },
-    h('div', { class: 'em-hero-eyebrow' }, h('span', { class: 'em-dot' }), 'Encyclopaedia Mundi'),
+    h('div', { class: 'em-hero-eyebrow' }, h('span', { class: 'em-dot' }), 'Veridell'),
     h('h1', { html: 'Every answer, <em>with its source</em>.' }),
     h('p', { text: 'Ask in your own words. The answer is built from Wikipedia and Wikidata, and every sentence can be traced back to the article it came from.' }),
     askBox({ onSubmit: (query) => go(`#/ask?q=${encodeURIComponent(query)}`) }),
@@ -303,7 +303,7 @@ export function sourcesView() {
       h('p', {}, h('a', { href: url, target: '_blank', rel: 'noopener noreferrer', text: url.replace('https://', '') }))));
   }
   wrap.append(h('section', { class: 'em-section' }, h('h2', { text: 'What this site is not' }),
-    h('p', { text: 'Encyclopaedia Mundi is an independent reader. It is not affiliated with or endorsed by the Wikimedia Foundation, and it does not claim that a summary replaces the article it came from.' })));
+    h('p', { text: 'Veridell is an independent reader. It is not affiliated with or endorsed by the Wikimedia Foundation, and it does not claim that a summary replaces the article it came from.' })));
   return wrap;
 }
 
