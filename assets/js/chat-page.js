@@ -786,6 +786,9 @@ function renderQuestion(text) {
 function renderAnswer(a, { store = false, animate = true } = {}) {
   const prefix = `s${Date.now().toString(36)}`;
   const box = el('article', 'a');
+  // One short entrance, defined in refine.css, and skipped entirely for a
+  // reader who asked the system for less motion.
+  if (animate && !prefersReducedMotion()) box.classList.add('vd-enter');
   const inner = el('div', 'a-body');
   box.append(inner);
 
@@ -1059,12 +1062,20 @@ function renderNote(title, body, retryQuestion, depth) {
   scrollDown();
 }
 
-function scrollDown() {
+function scrollDown(force = true) {
   // On the welcome screen the scroller is centred, and scrolling it to the
   // bottom pushed the greeting up under the header — the mark was cut in half
   // on a phone. There is nothing to follow down until a question is asked.
   if (document.body.classList.contains('is-empty')) return;
   const main = $('#main');
+  // A reader who has scrolled up to re-read an earlier answer must not be
+  // dragged back down every time a token arrives. Follow the answer only while
+  // the reader is still near the bottom; otherwise leave them where they are
+  // and let the "Latest" button offer the way back.
+  if (!force) {
+    const away = main.scrollHeight - main.scrollTop - main.clientHeight;
+    if (away > 160) return;
+  }
   main.scrollTop = main.scrollHeight;
 }
 
@@ -1095,6 +1106,12 @@ function createStreamPreview() {
   body.setAttribute('aria-live', 'off');
   body.dir = 'auto';
   inner.append(meta, body);
+  // The caret marks the exact point text is being added, so a slow model reads
+  // as "still writing" rather than "stuck". It is decorative and silent to a
+  // screen reader; the badge in the meta line already says Writing.
+  const caret = el('span', 'vd-caret');
+  caret.setAttribute('aria-hidden', 'true');
+  body.after(caret);
   article.append(inner);
   $('#thread').append(article);
   let content = '';
@@ -1105,10 +1122,10 @@ function createStreamPreview() {
       body.textContent = content;
       if (content.length - lastScrollAt > 120) {
         lastScrollAt = content.length;
-        scrollDown();
+        scrollDown(false);
       }
     },
-    remove() { article.remove(); },
+    remove() { caret.remove(); article.remove(); },
   };
 }
 

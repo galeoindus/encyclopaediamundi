@@ -1,6 +1,6 @@
 /* Veridell — generated stylesheet bundle. Do not edit.
- * Built from 10 sheets in cascade order:
- * styles.css > app.css > responsive.css > system.css > article-layout.css > mobile.css > polish.css > design-system.css > amigo-ui.css > preferences.css
+ * Built from 11 sheets in cascade order:
+ * styles.css > app.css > responsive.css > system.css > article-layout.css > mobile.css > polish.css > design-system.css > amigo-ui.css > preferences.css > refine.css
  */
 /* ── styles.css ── */
 :root { color-scheme: light dark; --ivory: #f5f0e6; --forest: #173b32; --charcoal: #242824; --copper: #b46a45; --sage: #c8d5c3; --sand: #e8dfd0; --bg: var(--ivory); --surface: #fbf8f1; --surface-2: var(--sand); --text: var(--charcoal); --muted: #5c6259; --faint: #5b6258; --ok: #1f5c48; --warn: #8a4a24; --danger: #9b2c2c; --border: #e0d6c4; --border-2: #cfc3ac; --focus: var(--copper-ink); --primary: var(--forest); --accent: var(--copper); --copper-ink: #9a5636; --copper-deep: #8a4f24; --forest-ink: #173b32; --accent-2: #44705f; --on-primary: #f7f4ec; --topbar-h: 62px; --radius-xl: 24px; --radius-lg: 20px; --radius: 16px; --radius-sm: 14px; --radius-xs: 12px; --shadow-sm: 0 1px 2px rgba(36, 40, 36, .06); --shadow: 0 1px 2px rgba(36, 40, 36, .05), 0 12px 28px -14px rgba(23, 59, 50, .22); --shadow-lg: 0 2px 6px rgba(36, 40, 36, .06), 0 34px 60px -30px rgba(23, 59, 50, .38); --maxw: 1200px; --font-head: 'Iowan Old Style', 'Palatino Linotype', Palatino, Georgia, 'Tiro Devanagari Hindi', serif; --font-body: system-ui, -apple-system, 'Segoe UI', Roboto, 'Noto Sans Devanagari', 'Helvetica Neue', Arial, sans-serif; --mono: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, monospace; }
@@ -7442,4 +7442,162 @@ body.amigo-chat .a-actions button:focus-visible {
 }
 @media (prefers-reduced-motion: reduce) {
   body.amigo-chat .a-actions button { transition: none; }
+}
+
+/* ── refine.css ── */
+/* Veridell — the finishing layer.
+ *
+ * Loaded last on every page, after every other sheet, so it can settle the
+ * details that make a site feel made rather than assembled: one easing curve,
+ * one focus ring, one transition speed, and a quiet set of hover states.
+ *
+ * It changes no layout. Every rule here touches colour, shadow, radius, motion
+ * or spacing *inside* a box that already exists — so it cannot break a screen
+ * that the earlier layers laid out, and removing it returns the site exactly
+ * to where it was.
+ */
+
+:root {
+  /* One curve for everything that moves, and one duration ramp. A site feels
+     smooth when the same motion happens at the same speed everywhere, not when
+     any single animation is clever. */
+  --vd-ease: cubic-bezier(.22, .61, .36, 1);
+  --vd-ease-out: cubic-bezier(.16, 1, .3, 1);
+  --vd-fast: 120ms;
+  --vd-base: 180ms;
+  --vd-slow: 320ms;
+
+  /* One ring, used by every focusable thing. */
+  --vd-ring: 0 0 0 3px color-mix(in srgb, var(--accent, #b46a45) 30%, transparent);
+
+  /* Shadows that sit on paper rather than float above it. */
+  --vd-lift-1: 0 1px 2px color-mix(in srgb, var(--charcoal, #242824) 6%, transparent);
+  --vd-lift-2: 0 2px 4px color-mix(in srgb, var(--charcoal, #242824) 5%, transparent),
+               0 12px 24px -14px color-mix(in srgb, var(--forest, #173b32) 26%, transparent);
+}
+
+/* ── motion: one speed, one curve ──────────────────────────────────────── */
+a, button, .btn, .card, .q-card, .cat-card, .side-link, .mode-btn, .depth-btn,
+.chip, .src-chip, .followup, input, textarea, select, .searchbar {
+  transition:
+    background-color var(--vd-base) var(--vd-ease),
+    border-color var(--vd-base) var(--vd-ease),
+    color var(--vd-fast) var(--vd-ease),
+    box-shadow var(--vd-base) var(--vd-ease),
+    transform var(--vd-fast) var(--vd-ease);
+}
+
+/* A press should feel like a press, and never move the thing under the finger
+   far enough to change what is being clicked. */
+button:active:not(:disabled), .btn:active:not(:disabled) { transform: translateY(1px) scale(.994); }
+
+/* ── focus: visible, consistent, never a surprise ──────────────────────── */
+:focus-visible {
+  outline: 2px solid var(--accent, #b46a45);
+  outline-offset: 2px;
+  box-shadow: var(--vd-ring);
+}
+
+/* ── links inside prose: quiet until touched ───────────────────────────── */
+.prose a, .page a, .answer a {
+  text-decoration-color: color-mix(in srgb, currentColor 35%, transparent);
+  text-underline-offset: 2px;
+  transition: text-decoration-color var(--vd-fast) var(--vd-ease), color var(--vd-fast) var(--vd-ease);
+}
+.prose a:hover, .page a:hover, .answer a:hover {
+  text-decoration-color: currentColor;
+}
+
+/* ── surfaces: one lift, on hover only, and only where a pointer exists ── */
+@media (hover: hover) and (pointer: fine) {
+  .card:hover, .q-card:hover, .cat-card:hover, .dash-action:hover {
+    box-shadow: var(--vd-lift-2);
+    transform: translateY(-2px);
+  }
+  .side-link:hover, .bottom-nav a:hover { background: color-mix(in srgb, var(--accent, #b46a45) 8%, transparent); }
+}
+
+/* ── the chat: rhythm, not decoration ──────────────────────────────────── */
+/* A thread reads as a stack of answers, so the gap between turns is the most
+   important measurement on the page. It is set once here rather than in five
+   layered sheets. */
+.chat-thread, .thread, .messages { scroll-behavior: smooth; }
+@media (prefers-reduced-motion: reduce) {
+  .chat-thread, .thread, .messages { scroll-behavior: auto; }
+}
+
+/* The streaming caret: a quiet pulse at the end of the sentence being written,
+   never a blinking block that fights the text. */
+.vd-caret {
+  display: inline-block;
+  width: 2px;
+  height: 1em;
+  margin-left: 2px;
+  vertical-align: -.15em;
+  border-radius: 1px;
+  background: currentColor;
+  opacity: .55;
+  animation: vd-caret 1s steps(2, start) infinite;
+}
+@keyframes vd-caret { 50% { opacity: 0; } }
+
+/* Answers arrive rather than appear. Short, and out of the way. */
+.vd-enter { animation: vd-enter var(--vd-slow) var(--vd-ease-out) both; }
+@keyframes vd-enter {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: none; }
+}
+
+/* ── the composer ──────────────────────────────────────────────────────── */
+/* The composer is the one control a reader touches every turn, so it gets the
+   only shadow on the page that responds to focus. */
+.composer, .searchbar {
+  transition: border-color var(--vd-base) var(--vd-ease),
+              box-shadow var(--vd-base) var(--vd-ease),
+              background-color var(--vd-base) var(--vd-ease);
+}
+.composer:focus-within, .searchbar:focus-within {
+  border-color: color-mix(in srgb, var(--accent, #b46a45) 70%, var(--border-2, #cfc3ac));
+  box-shadow: var(--vd-ring), var(--vd-lift-1);
+}
+
+/* ── small type details ────────────────────────────────────────────────── */
+/* Numbers that change — counts, timings, versions — must not reflow the line
+   they sit in as they change. */
+.foot-version, .foot-build, .credit-build, .meta, .meta-row, .src-count, .kbd {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum" 1;
+}
+
+/* ── the scrollbar: thin, quiet, and only where there is one ───────────── */
+* { scrollbar-width: thin; }
+*::-webkit-scrollbar { width: 10px; height: 10px; }
+*::-webkit-scrollbar-thumb {
+  border: 3px solid transparent;
+  border-radius: 999px;
+  background-clip: content-box;
+  background-color: color-mix(in srgb, var(--border-2, #cfc3ac) 85%, transparent);
+}
+*::-webkit-scrollbar-thumb:hover {
+  background-color: color-mix(in srgb, var(--accent, #b46a45) 55%, transparent);
+}
+
+/* ── selection ─────────────────────────────────────────────────────────── */
+::selection { background: color-mix(in srgb, var(--accent, #b46a45) 26%, transparent); }
+
+/* ── respect the reader's settings, completely ─────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: .001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .001ms !important;
+    scroll-behavior: auto !important;
+  }
+  .card:hover, .q-card:hover, .cat-card:hover, .dash-action:hover { transform: none; }
+}
+
+/* Windows high-contrast and forced-colours: keep every control legible. */
+@media (forced-colors: active) {
+  .btn, button, .card, .composer { border: 1px solid ButtonBorder; }
+  :focus-visible { outline: 2px solid Highlight; box-shadow: none; }
 }

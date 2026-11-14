@@ -29,14 +29,18 @@ test('the composer is a row of the column, not a sticky element in the scroller'
 
 test('the final chat refinement follows the layout/squircle layer', () => {
   const sheets = stylesheetOrder('chat/index.html');
-  assert.equal(sheets.at(-6), 'chat-atelier.css', sheets.join(' > '));
-  assert.equal(sheets.at(-5), 'chat-experience.css', sheets.join(' > '));
-  assert.equal(sheets.at(-4), 'chat-capabilities.css', sheets.join(' > '));
+  assert.equal(sheets.at(-7), 'chat-atelier.css', sheets.join(' > '));
+  assert.equal(sheets.at(-6), 'chat-experience.css', sheets.join(' > '));
+  assert.equal(sheets.at(-5), 'chat-capabilities.css', sheets.join(' > '));
   // The accessibility preferences layer settles the tokens…
-  assert.equal(sheets.at(-3), 'preferences.css', sheets.join(' > '));
-  assert.equal(sheets.at(-2), 'chat-ai-mode.css', sheets.join(' > '));
-  // …and the AI Mode surface, the search-shaped layer, has the last word.
-  assert.equal(sheets.at(-1), 'chat-google-mode.css', sheets.join(' > '));
+  assert.equal(sheets.at(-4), 'preferences.css', sheets.join(' > '));
+  assert.equal(sheets.at(-3), 'chat-ai-mode.css', sheets.join(' > '));
+  // …and the AI Mode surface, the search-shaped layer, has the last word on
+  // layout.
+  assert.equal(sheets.at(-2), 'chat-google-mode.css', sheets.join(' > '));
+  // After every layout layer, refine.css settles motion, focus and shadows —
+  // it touches no box that an earlier layer placed, so it can safely be last.
+  assert.equal(sheets.at(-1), 'refine.css', sheets.join(' > '));
   assert.ok(sheets.indexOf('squircle.css') < sheets.indexOf('chat-atelier.css'));
   assert.match(css, /corner-shape: squircle/);
   // The header comment wraps, so match the declared design language without
