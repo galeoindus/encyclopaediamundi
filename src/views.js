@@ -77,7 +77,10 @@ export function homeView({ go, lang, articles = [], feed = null }) {
   wrap.append(h('section', { class: 'em-section' }, sectionHead('Browse by subject'), categories));
 
   // ── the front page, as Wikimedia publishes it ─────────────────────────
-  if (feed?.articleOfTheDay) {
+  // Only a picture-led article of the day is shown. The feed sometimes leads
+  // with an article that has no image at all; a card with an empty grey panel
+  // is worse than no card, so that day the section simply does not appear.
+  if (feed?.articleOfTheDay?.image) {
     const aotd = feed.articleOfTheDay;
     const card = h('a', {
       class: 'em-aotd',
