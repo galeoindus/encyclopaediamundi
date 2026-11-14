@@ -36,13 +36,12 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Verify the repository
+      # One command, every check, in the order that fails fastest. `--full`
+      # includes the suite, because a Monday run has no pull request to lean on.
+      - name: Doctor (modules, pages, deep audit, drift, tests)
         env:
           BUILD_COMMIT: ${{ github.sha }}
-        run: npm run stamp:build && npm run verify
-
-      - name: Weekly drift audit
-        run: node scripts/weekly-audit.mjs | tee -a "$GITHUB_STEP_SUMMARY"
+        run: npm run stamp:build && npm run doctor:full | tee -a "$GITHUB_STEP_SUMMARY"
 
       - name: Live site smoke check
         run: |

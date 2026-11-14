@@ -4,7 +4,7 @@
 
 ## Checks
 
-- [ ] `npm run verify` passes (syntax, build, tests)
+- [ ] `npm run doctor:full` passes (modules, pages, deep audit, drift, tests)
 - [ ] If a page changed, it still works at 360 px wide
 - [ ] If an answer changed, it still cites what it claims
 - [ ] No new absolute `/asset` path (they break under a sub-folder)

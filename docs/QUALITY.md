@@ -1,9 +1,10 @@
 # Quality report — main branch
 
-Verified locally on 14 November 2026 for v6.0.0, on Node.js 20.20.2 and npm 10.8.2.
+Verified locally on 14 November 2026 for v6.1.0, on Node.js 20.20.2 and npm 10.8.2.
 
 | Check | Command / evidence | Status |
 |---|---|---|
+| One-command pass | `npm run doctor:full` | **all 5 checks passed — 75 s** |
 | Unit and integration tests | `npm test` | **270 passed, 0 failed, 0 skipped** |
 | Module, import and version check | `npm run check` | **pass** — 48 modules parsed, every import resolves, no leftover debug, one version everywhere |
 | Site audit | Included in `npm run check` | **pass** — 53 JavaScript files parsed, 22 HTML pages checked, local asset paths and build IDs consistent |
@@ -19,12 +20,13 @@ Verified locally on 14 November 2026 for v6.0.0, on Node.js 20.20.2 and npm 10.8
 
 - Repository: `galeoindus/veridell`
 - Branch: `main`
-- Product: Veridell 6.0.0
+- Product: Veridell 6.1.0
 - Node.js: `20.20.2`
 - npm: `10.8.2`
 
 ## What the checks establish
 
+- `npm run doctor:full` ran five checks in one pass — modules (9.3 s), pages (9.9 s), the deep file-by-file audit (13.5 s), the drift audit (2.7 s) and the suite (39.7 s) — and all five passed.
 - The test suite completed with 270 passing tests and no failures, cancellations or skips.
 - The module check parsed 48 modules and verified that every named import resolves to a real export.
 - The site audit ran as part of `npm run check` and found no broken local asset path, no mixed build ID and no stale version.

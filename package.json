@@ -1,6 +1,6 @@
 {
   "name": "veridell",
-  "version": "6.0.0",
+  "version": "6.1.0",
   "private": true,
   "type": "module",
   "description": "Veridell — a privacy-first Wikimedia research and discovery platform with Amigo multi-turn AI conversation, cited answers and local chat history.",
@@ -28,6 +28,8 @@
     "check": "node scripts/check.mjs && node scripts/audit-site.mjs",
     "test": "node --test",
     "verify": "npm run check && npm run test",
+    "doctor": "node scripts/doctor.mjs",
+    "doctor:full": "node scripts/doctor.mjs --full",
     "articles": "python3 scripts/gen_articles.py",
     "stamp:build": "node scripts/stamp-build.mjs",
     "audit:site": "node scripts/audit-site.mjs",

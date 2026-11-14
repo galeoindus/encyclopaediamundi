@@ -28,3 +28,10 @@ jobs:
         env:
           BUILD_COMMIT: ${{ github.sha }}
         run: npm run stamp:build && npm run verify
+
+      # `verify` answers "does it still work". `doctor` adds the two checks a
+      # push does not otherwise run: the deep file-by-file audit and the drift
+      # audit (a page nothing links to, an article outside the sitemap). Both
+      # are cheap, so they run on every push rather than only on Mondays.
+      - name: Deep and drift checks
+        run: npm run doctor

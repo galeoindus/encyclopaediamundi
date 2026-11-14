@@ -263,8 +263,53 @@ veridell/
 │       ├── answerui.js        the shared answer architecture
 │       ├── ui.js · icons.js · components.js · composer.js
 │       └── views/             home, search, ask, article, pages
+├── functions/api/             the Pages Functions (ask, models, speech, image)
+├── scripts/                   build, audit, release and maintenance scripts
+├── test/                      the suite, one file per concern
+├── docs/                      design, quality, audit, contribution, runbook
+├── CHANGELOG.md               what changed, release by release
 └── package.json
 ```
+
+---
+
+## Keeping it organised
+
+The repository is meant to stay readable a year from now, so the rules are
+short and they are enforced rather than remembered.
+
+**One command tells you whether the tree is still well:**
+
+```bash
+npm run doctor        # modules, pages, deep audit, drift — about 35 seconds
+npm run doctor:full   # the same, then the 270-test suite
+```
+
+It runs the checks in the order that fails fastest and prints one verdict. CI
+runs it on every push and the weekly health workflow runs the full version on
+Mondays, so drift is caught by a machine before a reader finds it.
+
+**Where things are written down.** [docs/](docs/README.md) is the index.
+[docs/MAINTENANCE.md](docs/MAINTENANCE.md) is the runbook — what to run, how
+often, what each failure means, how to add an article, how to release, and what
+must never be committed. [docs/QUALITY.md](docs/QUALITY.md) names the command
+and the commit behind every check it claims, and says plainly which checks were
+not run. [docs/AUDIT.md](docs/AUDIT.md) is append-only: a new release prepends a
+section and old ones are never rewritten.
+
+**The rules the tree holds itself to.**
+
+- One version, written by `npm run stamp:build`, in `package.json`, every page,
+  `config.js` and `assets/version.json`. `npm run check` fails if they disagree.
+- One name, in the package, the manifest, `wrangler.toml`, the canonical host
+  and the meta tags. `test/identity.test.mjs` fails if a second one appears.
+- Every page carries a skip link that lands on an id that exists, a canonical
+  address and structured data. The same test checks all three, on all 22 pages.
+- Generated files — the four CSS bundles, `sitemap.xml`, `assets/version.json` —
+  are written by scripts. A diff in one of them means a script ran, not that
+  someone typed.
+- A key never enters the tree. `weekly-audit.mjs` scans every text file for the
+  shapes of one.
 
 ---
 
