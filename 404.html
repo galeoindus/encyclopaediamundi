@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Not found — Encyclopaedia Mundi</title>
+<meta name="robots" content="noindex, follow">
+<meta name="theme-color" content="#f7f3ea" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0e1512" media="(prefers-color-scheme: dark)">
+<link rel="icon" href="/assets/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="/styles/site.css">
+</head>
+<body>
+<main class="em-main">
+  <div class="em-page em-column" style="padding-top:12vh">
+    <h1>That page is not here</h1>
+    <p class="em-sub">The address may have changed, or the page may never have existed. Everything the site knows is one search away.</p>
+    <form class="em-ask" role="search" onsubmit="event.preventDefault(); location.href='/#/ask?q=' + encodeURIComponent(this.q.value)">
+      <label class="em-sr" for="q404">Search</label>
+      <input id="q404" name="q" type="search" placeholder="Search a subject…" autocomplete="off">
+      <button class="em-ask-go" type="submit" aria-label="Search">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m19.5 19.5-4.3-4.3"/></svg>
+      </button>
+    </form>
+    <p style="margin-top:20px"><a href="/">Home</a> · <a href="/articles/">Articles</a> · <a href="/chat/">Amigo chat</a></p>
+  </div>
+</main>
+</body>
+</html>

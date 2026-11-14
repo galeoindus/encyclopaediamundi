@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>How it works — Encyclopaedia Mundi</title>
+<meta name="description" content="Ask, research, filter, explain, cite: the five steps between a question and an answer with its source.">
+<link rel="canonical" href="https://encyclopaediamundi.pages.dev/how-it-works/">
+<meta name="robots" content="index, follow, max-image-preview:large">
+<meta name="theme-color" content="#f7f3ea" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0e1512" media="(prefers-color-scheme: dark)">
+<meta name="color-scheme" content="light dark">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Encyclopaedia Mundi">
+<meta property="og:title" content="How it works — Encyclopaedia Mundi">
+<meta property="og:description" content="Ask, research, filter, explain, cite: the five steps between a question and an answer with its source.">
+<meta property="og:url" content="https://encyclopaediamundi.pages.dev/how-it-works/">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/assets/favicon.svg" type="image/svg+xml">
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="stylesheet" href="/styles/site.css">
+
+</head>
+<body data-page="static">
+<a class="em-skip" href="#content">Skip to the content</a>
+<header class="em-bar"><div class="em-bar-in">
+  <a class="em-brand" href="/" aria-label="Encyclopaedia Mundi home"><span class="em-brand-mark" aria-hidden="true"><svg viewBox="0 0 96 96" role="img" focusable="false">
+  <path d="M48 8 78 24v40L48 80 18 64V24z" fill="#1c6a56"/>
+  <path d="M48 22 66 32v24L48 66 30 56V32z" fill="#f7f3ea" opacity=".92"/>
+  <path d="M48 34 57 39v11l-9 5-9-5V39z" fill="#a8622c"/></svg></span><span class="em-brand-word">Encyclopaedia Mundi</span></a>
+  <nav class="em-nav" aria-label="Primary">
+  <a href="/">Home</a><a href="/articles/">Articles</a><a href="/topics/">Topics</a>
+  <a href="/questions/">Questions</a><a href="/help/">Help</a><a href="/chat/">Amigo</a>
+</nav>
+</div></header>
+<main class="em-main" id="content">
+<div class="em-page em-column">
+      <h1>How it works</h1>
+      <p class="em-sub">Five steps between a question and an answer you can check.</p>
+
+      <h2>1 · Ask</h2>
+      <p>The question goes to the Wikipedia search API in the language you chose. Nothing is sent to a model yet.</p>
+
+      <h2>2 · Research</h2>
+      <p>The best-matching article is fetched in full, with its sections, and cleaned: navigation boxes, edit links, footnote markers and tables of metadata are dropped.</p>
+
+      <h2>3 · Filter</h2>
+      <p>The article is split into a lead and numbered sections, and its sentences are scored against your question. The sentences that answer it move to the top.</p>
+
+      <h2>4 · Explain</h2>
+      <p>If you are in the chat, the selected passages are handed to the model with one instruction: answer only from these, and cite them. If no article matches, the question is answered as conversation and labelled as such.</p>
+
+      <h2>5 · Cite</h2>
+      <p>Every citation points at a real passage, and every passage points at the article it came from. A marker that points at nothing is removed before the answer is shown.</p>
+
+      <h2>What the site will not do</h2>
+      <ul>
+        <li>It will not invent a citation to look authoritative.</li>
+        <li>It will not present a model’s memory as a sourced fact.</li>
+        <li>It will not claim to replace the article it summarises.</li>
+      </ul>
+    </div>
+</main>
+<footer class="em-foot">
+  <div class="em-foot-in">
+    <div class="em-foot-col"><strong>Read</strong><a href="/articles/">Articles</a><a href="/topics/">Topics</a><a href="/#/library">Library</a><a href="/#/today">On this day</a></div>
+    <div class="em-foot-col"><strong>About</strong><a href="/how-it-works/">How it works</a><a href="/help/">Help</a><a href="/#/sources">Sources</a><a href="https://github.com/galeoindus/encyclopaediamundi-site" target="_blank" rel="noopener noreferrer">GitHub</a></div>
+    <div class="em-foot-col"><strong>Talk</strong><a href="/chat/">Amigo chat</a><a href="/questions/">Questions</a><a href="/research/">Research desk</a></div>
+  </div>
+  <div class="em-foot-in"><p>Wikipedia text is available under CC BY-SA 4.0 and Wikidata under CC0 1.0. Encyclopaedia Mundi is an independent reader, not affiliated with or endorsed by the Wikimedia Foundation.</p></div>
+</footer>
+<script type="module" src="/src/static.js"></script>
+</body>
+</html>

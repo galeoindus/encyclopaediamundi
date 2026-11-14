@@ -1,0 +1,25 @@
+{
+  "name": "encyclopaediamundi-site",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Encyclopaedia Mundi \u2014 a Wikimedia knowledge research and discovery site with a source-backed answer surface.",
+  "homepage": "https://encyclopaediamundi.pages.dev/",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/galeoindus/encyclopaediamundi-site.git"
+  },
+  "license": "MIT",
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "build": "node scripts/build-pages.mjs",
+    "start": "python3 -m http.server 4173",
+    "serve": "python3 -m http.server 4173",
+    "test": "node --test tests/",
+    "check": "node --check src/main.js && node --check src/chat.js && node --check functions/api/ask.js",
+    "verify": "npm run check && npm run build && npm test",
+    "deploy": "node scripts/deploy.mjs"
+  }
+}

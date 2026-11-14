@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Help — Encyclopaedia Mundi</title>
+<meta name="description" content="How to ask, what the badges mean, where the answers come from, and what the site stores.">
+<link rel="canonical" href="https://encyclopaediamundi.pages.dev/help/">
+<meta name="robots" content="index, follow, max-image-preview:large">
+<meta name="theme-color" content="#f7f3ea" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0e1512" media="(prefers-color-scheme: dark)">
+<meta name="color-scheme" content="light dark">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Encyclopaedia Mundi">
+<meta property="og:title" content="Help — Encyclopaedia Mundi">
+<meta property="og:description" content="How to ask, what the badges mean, where the answers come from, and what the site stores.">
+<meta property="og:url" content="https://encyclopaediamundi.pages.dev/help/">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/assets/favicon.svg" type="image/svg+xml">
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="stylesheet" href="/styles/site.css">
+
+</head>
+<body data-page="static">
+<a class="em-skip" href="#content">Skip to the content</a>
+<header class="em-bar"><div class="em-bar-in">
+  <a class="em-brand" href="/" aria-label="Encyclopaedia Mundi home"><span class="em-brand-mark" aria-hidden="true"><svg viewBox="0 0 96 96" role="img" focusable="false">
+  <path d="M48 8 78 24v40L48 80 18 64V24z" fill="#1c6a56"/>
+  <path d="M48 22 66 32v24L48 66 30 56V32z" fill="#f7f3ea" opacity=".92"/>
+  <path d="M48 34 57 39v11l-9 5-9-5V39z" fill="#a8622c"/></svg></span><span class="em-brand-word">Encyclopaedia Mundi</span></a>
+  <nav class="em-nav" aria-label="Primary">
+  <a href="/">Home</a><a href="/articles/">Articles</a><a href="/topics/">Topics</a>
+  <a href="/questions/">Questions</a><a href="/help/">Help</a><a href="/chat/">Amigo</a>
+</nav>
+</div></header>
+<main class="em-main" id="content">
+<div class="em-page em-column">
+      <h1>Help</h1>
+      <p class="em-sub">Short answers to the things people ask about using the site.</p>
+
+      <h2>How do I ask a question?</h2>
+      <p>Type it the way you would say it. “Why is the sky blue” works as well as “Rayleigh scattering”. The site finds the closest article and rebuilds it around your question.</p>
+
+      <h2>What do the badges mean?</h2>
+      <ul>
+        <li><strong>Source-backed</strong> — every factual sentence came from the article, and the source is listed under the answer.</li>
+        <li><strong>General answer</strong> — the assistant answered from its own knowledge because no article matched. There is nothing to cite, so nothing is claimed as cited.</li>
+        <li><strong>From the library</strong> — the answer is this site’s own written article, not a summary of someone else’s.</li>
+      </ul>
+
+      <h2>Does it store my questions?</h2>
+      <p>Your chat history and saved answers live in this browser only. There is no account, no sign-in, and no server-side history. Saved notes are sent only when you turn memory on.</p>
+
+      <h2>Which AI runs it?</h2>
+      <p>By default the free Cloudflare Workers AI allocation. An operator can connect OpenRouter instead, and the chat can run entirely on your own machine through Ollama — in that mode nothing leaves the device.</p>
+
+      <h2>Something is wrong with an answer</h2>
+      <p>Every answer links to the article it came from. If the two disagree, the article is right — the site is a reader, not an authority.</p>
+    </div>
+</main>
+<footer class="em-foot">
+  <div class="em-foot-in">
+    <div class="em-foot-col"><strong>Read</strong><a href="/articles/">Articles</a><a href="/topics/">Topics</a><a href="/#/library">Library</a><a href="/#/today">On this day</a></div>
+    <div class="em-foot-col"><strong>About</strong><a href="/how-it-works/">How it works</a><a href="/help/">Help</a><a href="/#/sources">Sources</a><a href="https://github.com/galeoindus/encyclopaediamundi-site" target="_blank" rel="noopener noreferrer">GitHub</a></div>
+    <div class="em-foot-col"><strong>Talk</strong><a href="/chat/">Amigo chat</a><a href="/questions/">Questions</a><a href="/research/">Research desk</a></div>
+  </div>
+  <div class="em-foot-in"><p>Wikipedia text is available under CC BY-SA 4.0 and Wikidata under CC0 1.0. Encyclopaedia Mundi is an independent reader, not affiliated with or endorsed by the Wikimedia Foundation.</p></div>
+</footer>
+<script type="module" src="/src/static.js"></script>
+</body>
+</html>

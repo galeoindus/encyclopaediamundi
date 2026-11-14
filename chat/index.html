@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Amigo — Encyclopaedia Mundi</title>
+  <meta name="description" content="Ask Amigo anything: a clear answer in plain language, with sources when the answer makes a factual claim.">
+  <link rel="canonical" href="https://encyclopaediamundi.pages.dev/chat/">
+  <meta name="theme-color" content="#f7f3ea" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#0e1512" media="(prefers-color-scheme: dark)">
+  <meta name="color-scheme" content="light dark">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Encyclopaedia Mundi">
+  <meta property="og:title" content="Amigo — Encyclopaedia Mundi">
+  <meta property="og:description" content="A clear answer in plain language, with sources when the answer makes a factual claim.">
+  <meta property="og:url" content="https://encyclopaediamundi.pages.dev/chat/">
+  <link rel="icon" href="/assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/styles/site.css">
+</head>
+<body data-page="chat">
+  <a class="em-skip" href="#prompt">Skip to the question box</a>
+
+  <header class="em-bar em-chat-bar">
+    <div class="em-bar-in">
+      <a class="em-brand" href="/" aria-label="Encyclopaedia Mundi home">
+        <span class="em-brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 96 96" role="img" focusable="false">
+            <path d="M48 8 78 24v40L48 80 18 64V24z" fill="#1c6a56"/>
+            <path d="M48 22 66 32v24L48 66 30 56V32z" fill="#f7f3ea" opacity=".92"/>
+            <path d="M48 34 57 39v11l-9 5-9-5V39z" fill="#a8622c"/>
+          </svg>
+        </span>
+        <span class="em-brand-word">Encyclopaedia Mundi</span>
+      </a>
+
+      <nav class="em-nav" aria-label="Primary">
+        <a href="/">Home</a>
+        <a href="/articles/">Articles</a>
+        <a href="/#/library">Library</a>
+        <a href="/help/">Help</a>
+      </nav>
+
+      <button class="em-icon-btn" type="button" id="clearChat" aria-label="Start a new chat" title="New chat">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
+      </button>
+      <button class="em-icon-btn" type="button" data-theme-toggle aria-label="Switch theme">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" aria-hidden="true"><path d="M20.3 14.1A8.5 8.5 0 0 1 9.9 3.7 8.5 8.5 0 1 0 20.3 14.1Z"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <div class="em-chat-scroll" id="scroll" role="log" aria-live="polite" aria-label="Conversation">
+    <div class="em-chat-stage" id="stage"></div>
+  </div>
+
+  <div class="em-dock">
+    <div class="em-dock-in">
+      <form class="em-composer" id="composer" autocomplete="off">
+        <label class="em-sr" for="prompt">Ask Amigo a question</label>
+        <textarea id="prompt" rows="1" maxlength="2000" placeholder="Ask Amigo anything…" spellcheck="true"></textarea>
+        <button class="em-send" id="send" type="submit" aria-label="Send">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4.5 12 20 4.5 15.6 20l-4-6z"/><path d="m11.6 14 4-4"/></svg>
+        </button>
+      </form>
+
+      <div class="em-chat-tools">
+        <label class="em-sr" for="runtime">Runtime</label>
+        <select id="runtime" aria-label="Runtime">
+          <option value="cloud">Cloud · free (Workers AI)</option>
+          <option value="local">This device · Ollama</option>
+        </select>
+        <label class="em-sr" for="depth">Answer depth</label>
+        <select id="depth" aria-label="Answer depth">
+          <option value="quick">Quick</option>
+          <option value="detailed" selected>Detailed</option>
+          <option value="deep">Deep</option>
+        </select>
+        <label class="em-sr" for="lang">Source language</label>
+        <select id="lang" aria-label="Source language">
+          <option value="en">English</option>
+          <option value="hi">हिन्दी</option>
+          <option value="bn">বাংলা</option>
+          <option value="ta">தமிழ்</option>
+          <option value="te">తెలుగు</option>
+          <option value="mr">मराठी</option>
+          <option value="gu">ગુજરાતી</option>
+          <option value="kn">ಕನ್ನಡ</option>
+          <option value="ml">മലയാളം</option>
+          <option value="pa">ਪੰਜਾਬੀ</option>
+          <option value="ur">اردو</option>
+          <option value="sa">संस्कृतम्</option>
+        </select>
+        <span class="em-spacer"></span>
+        <span id="runtimeNote">Prompts go to this site’s server and the free Cloudflare Workers AI allocation.</span>
+      </div>
+
+      <div class="em-chat-tools" id="ollamaRow" hidden>
+        <label for="ollamaModel">Model installed in Ollama</label>
+        <input id="ollamaModel" type="text" maxlength="120" value="qwen2.5:1.5b" autocomplete="off" spellcheck="false"
+               style="font:inherit;font-size:12px;padding:4px 8px;border:1px solid var(--em-rule);border-radius:8px;background:var(--em-paper-2);color:var(--em-ink-2)">
+        <a href="https://ollama.com/" target="_blank" rel="noopener noreferrer">Get Ollama ↗</a>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="/src/chat.js"></script>
+</body>
+</html>

@@ -1,0 +1,34 @@
+# Encyclopaedia Mundi — https://encyclopaediamundi.pages.dev/
+#
+# Every page the site serves is meant to be read, so nothing is closed except
+# the things that are not pages: the Functions bundle and the build scripts.
+
+User-agent: *
+Allow: /
+Disallow: /functions/
+Disallow: /scripts/
+
+# The app is one document behind a hash router; a fragment is never a separate
+# URL to a crawler. The crawlable surface is the real directories — /, /chat/,
+# /articles/, /topics/, /questions/, /research/, /help/, /how-it-works/ — and
+# every one of them is in the sitemap.
+
+User-agent: GPTBot
+Allow: /
+
+User-agent: OAI-SearchBot
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+
+Sitemap: https://encyclopaediamundi.pages.dev/sitemap.xml
+
+# A plain-text description of the site for language models.
+LLMs-Txt: https://encyclopaediamundi.pages.dev/llms.txt

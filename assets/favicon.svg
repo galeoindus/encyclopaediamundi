@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96" width="96" height="96" role="img" aria-label="Encyclopaedia Mundi">
+  <rect width="96" height="96" rx="22" fill="#0b3b33"/>
+  <path d="M48 14 74 28v36L48 78 22 64V28z" fill="#1c6a56"/>
+  <path d="M48 26 64 34v20L48 62 32 54V34z" fill="#f7f3ea" opacity=".94"/>
+  <path d="M48 36 56 40v10l-8 4-8-4V40z" fill="#a8622c"/>
+</svg>

@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Encyclopaedia Mundi — every answer, with its source</title>
+  <meta name="description" content="Ask a question in your own words and get a clear answer built from Wikipedia and Wikidata, with the source behind every claim.">
+  <link rel="canonical" href="https://encyclopaediamundi.pages.dev/">
+  <meta name="theme-color" content="#f7f3ea" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#0e1512" media="(prefers-color-scheme: dark)">
+  <meta name="color-scheme" content="light dark">
+
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Encyclopaedia Mundi">
+  <meta property="og:title" content="Encyclopaedia Mundi — every answer, with its source">
+  <meta property="og:description" content="A question in your own words, answered from Wikipedia and Wikidata, with the source behind every claim.">
+  <meta property="og:url" content="https://encyclopaediamundi.pages.dev/">
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Encyclopaedia Mundi">
+  <meta name="twitter:description" content="Every answer, with its source.">
+
+  <link rel="icon" href="/assets/favicon.svg" type="image/svg+xml">
+  <link rel="manifest" href="/manifest.webmanifest">
+  <link rel="stylesheet" href="/styles/site.css">
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "WebSite",
+        "@id": "https://encyclopaediamundi.pages.dev/#site",
+        "url": "https://encyclopaediamundi.pages.dev/",
+        "name": "Encyclopaedia Mundi",
+        "description": "A knowledge research and discovery site built from Wikipedia and Wikidata.",
+        "inLanguage": "en",
+        "potentialAction": {
+          "@type": "SearchAction",
+          "target": "https://encyclopaediamundi.pages.dev/#/ask?q={search_term_string}",
+          "query-input": "required name=search_term_string"
+        }
+      },
+      {
+        "@type": "Organization",
+        "@id": "https://encyclopaediamundi.pages.dev/#org",
+        "name": "Encyclopaedia Mundi",
+        "url": "https://encyclopaediamundi.pages.dev/"
+      }
+    ]
+  }
+  </script>
+</head>
+<body data-page="app">
+  <a class="em-skip" href="#view">Skip to the content</a>
+  <header class="em-bar" id="bar"></header>
+
+  <main class="em-main" id="view" tabindex="-1">
+    <noscript>
+      <div class="em-page em-column">
+        <h1>Encyclopaedia Mundi</h1>
+        <p>This site reads Wikipedia in your browser, so it needs JavaScript. The written articles are still readable:
+          <a href="/articles/">the article index</a>.</p>
+      </div>
+    </noscript>
+  </main>
+
+  <footer class="em-foot">
+    <div class="em-foot-in">
+      <div class="em-foot-col">
+        <strong>Read</strong>
+        <a href="/articles/">Articles</a>
+        <a href="/topics/">Topics</a>
+        <a href="/#/library">Library</a>
+        <a href="/#/today">On this day</a>
+      </div>
+      <div class="em-foot-col">
+        <strong>About</strong>
+        <a href="/how-it-works/">How it works</a>
+        <a href="/help/">Help</a>
+        <a href="/#/sources">Sources</a>
+        <a href="https://github.com/galeoindus/encyclopaediamundi-site" target="_blank" rel="noopener noreferrer">GitHub</a>
+      </div>
+      <div class="em-foot-col">
+        <strong>Talk</strong>
+        <a href="/chat/">Amigo chat</a>
+        <a href="/questions/">Questions</a>
+        <a href="/research/">Research desk</a>
+      </div>
+    </div>
+    <div class="em-foot-in">
+      <p>Wikipedia text is available under CC BY-SA 4.0 and Wikidata under CC0 1.0. Encyclopaedia Mundi is an independent reader, not affiliated with or endorsed by the Wikimedia Foundation. Answers are built from published sources; where a model writes, it says so.</p>
+    </div>
+  </footer>
+
+  <script type="module" src="/src/main.js"></script>
+</body>
+</html>

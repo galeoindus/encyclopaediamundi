@@ -1,0 +1,44 @@
+# Encyclopaedia Mundi
+
+> A knowledge research and discovery site. Ask a question in your own words and
+> get a direct answer built from Wikipedia and Wikidata, with the source behind
+> every claim. Static, no build step, no account, no tracking.
+
+Canonical origin: https://encyclopaediamundi.pages.dev
+
+## What the site does
+
+- Search: a question becomes a search over Wikipedia in twelve languages.
+- Answer: the best-matching article is rebuilt around the question — a lead,
+  the sentences that answer it, numbered topics, and the source.
+- Chat (Amigo): the same sources handed to a language model with one rule —
+  answer only from them, cite them, and say so when they do not contain the
+  answer. When no article matches, the question is answered as conversation
+  and labelled "General answer" instead of being given a false citation.
+- Library: one search across Wikipedia, Wikiquote and Wikisource.
+- On this day: events, births and deaths for any date.
+
+## Pages
+
+- /                       the app (ask, explore, today, library, sources, saved)
+- /chat/                  Amigo, the conversational surface
+- /articles/              thirteen complete articles
+- /topics/                every subject written here
+- /questions/             the questions the site is built to answer
+- /research/              the research desk
+- /how-it-works/          ask, research, filter, explain, cite
+- /help/                  what the badges mean and what is stored
+- /sitemap.xml            every crawlable URL
+
+## Rules the answers follow
+
+1. A factual sentence that came from an article is shown with that article.
+2. A model is never allowed to fill a gap from memory in a source-backed answer.
+3. A citation that points at nothing is removed before the answer is shown.
+4. A general answer is labelled as one, and carries no citations.
+
+## Attribution
+
+Wikipedia text is CC BY-SA 4.0; Wikidata is CC0 1.0; Wikimedia Commons images
+carry their own licence. Encyclopaedia Mundi is an independent reader and is not
+affiliated with or endorsed by the Wikimedia Foundation.

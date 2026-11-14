@@ -1,0 +1,32 @@
+# Encyclopaedia Mundi — Cloudflare Pages configuration.
+#
+# A static site with no build step, plus Pages Functions in ./functions, so
+# Pages only needs to know where the files are.
+#
+#   npm run deploy
+#
+# or by hand — the first command is the one that is easy to forget:
+#
+#   npx wrangler pages project create encyclopaediamundi --production-branch=main
+#   npx wrangler pages deploy . --project-name=encyclopaediamundi
+#
+# A Pages project belongs to the account that created it. A fresh Cloudflare
+# account therefore has none, and `pages deploy` answers "Project not found"
+# until the project exists — that is a missing project, not a broken repository.
+#
+# The project name, SITE.origin here and the canonical host in index.html,
+# robots.txt, sitemap.xml and the built pages are one identity:
+# https://encyclopaediamundi.pages.dev/
+
+name = "encyclopaediamundi"
+compatibility_date = "2026-01-01"
+pages_build_output_dir = "."
+
+# Workers AI: free, no key, the default runtime for /api/ask.
+[ai]
+binding = "AI"
+
+[vars]
+# OpenRouter is only used when a key is present and this is set to "openrouter".
+AI_PROVIDER = "workers-ai"
+OPENROUTER_FREE_ONLY = "true"

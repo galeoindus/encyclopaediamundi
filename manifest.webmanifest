@@ -1,0 +1,40 @@
+{
+  "name": "Encyclopaedia Mundi",
+  "short_name": "Mundi",
+  "description": "Ask a question and get a clear answer built from Wikipedia and Wikidata, with the source behind every claim.",
+  "id": "/",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#f7f3ea",
+  "theme_color": "#0b3b33",
+  "lang": "en",
+  "dir": "ltr",
+  "categories": [
+    "education",
+    "reference",
+    "books"
+  ],
+  "icons": [
+    {
+      "src": "/assets/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Ask Amigo",
+      "url": "/chat/"
+    },
+    {
+      "name": "Articles",
+      "url": "/articles/"
+    },
+    {
+      "name": "Library",
+      "url": "/#/library"
+    }
+  ]
+}
