@@ -7,7 +7,7 @@
 
 import { h, KEY, read, write, initTheme, paintTheme, LANGS, MARK, esc, clip } from './core.js';
 import {
-  homeView, answerView, loadAnswer, loadingView, noteView,
+  homeView, answerView, loadAnswer, loadTranslated, loadingView, noteView,
   exploreView, todayView, libraryView, sourcesView, savedView, creditsView,
 } from './views.js';
 import { featuredFeed } from './wiki.js';
@@ -132,6 +132,7 @@ async function render() {
         question,
         depth: state.depth,
         go,
+        onTranslate: (to) => go(`#/article/${encodeURIComponent(answer.title)}?lang=${to}`),
         onDepth: (depth) => {
           state.depth = depth;
           write(KEY.depth, depth);
@@ -154,14 +155,37 @@ async function render() {
 
   if (path.startsWith('/article/')) {
     const title = decodeURIComponent(path.slice('/article/'.length));
+    const to = (params.get('lang') || '').trim();
+    const translated = to && to !== state.lang;
+
     document.title = `${title.replace(/_/g, ' ')} — Veridell`;
-    mount(loadingView('Reading the article…'));
+    mount(loadingView(translated ? 'Reading the other language edition…' : 'Reading the article…'));
+
     try {
-      const { answer } = await loadAnswer({ question: title.replace(/_/g, ' '), depth: state.depth, lang: state.lang });
+      const { answer } = await loadAnswer({ question: title.replace(/_/g, ' '), title, depth: state.depth, lang: state.lang });
       if (run !== state.run) return;
-      mount(answerView(answer, {
+
+      let shown = answer;
+      if (translated) {
+        const other = await loadTranslated({ title: answer.title, from: state.lang, to, depth: state.depth, signal: undefined });
+        if (run !== state.run) return;
+        shown = other || answer;
+        if (!other) {
+          // No edition in that language: say so plainly instead of showing the
+          // English page under a translated label.
+          mount(noteView({
+            title: 'No edition in that language yet',
+            body: `${answer.title} has not been written in that language on Wikipedia. The English page is still open below.`,
+            action: { label: 'Read it in English', run: () => go(`#/article/${encodeURIComponent(answer.title)}`) },
+          }));
+          return;
+        }
+      }
+
+      mount(answerView(shown, {
         depth: state.depth,
         go,
+        onTranslate: (lang) => go(`#/article/${encodeURIComponent(shown.title)}?lang=${lang}`),
         onDepth: (depth) => { state.depth = depth; write(KEY.depth, depth); render(); },
       }));
     } catch {

@@ -5,7 +5,7 @@
  */
 
 import { h, esc, clip, wikiUrl, hostOf, KEY, read, write, LANGS } from './core.js';
-import { searchTitles, fetchArticle, summary, onThisDay, mostRead, featuredFeed, leadImage, CATEGORIES } from './wiki.js';
+import { searchTitles, fetchArticle, summary, onThisDay, mostRead, featuredFeed, leadImage, wikidataFacts, commonsImages, langLinks, translatedTitle, CATEGORIES } from './wiki.js';
 import { composeAnswer, answerText } from './answer.js';
 
 const DEPTH_LABEL = { quick: 'Quick answer', detailed: 'Detailed', deep: 'Deep dive' };
@@ -77,10 +77,10 @@ export function homeView({ go, lang, articles = [], feed = null }) {
   wrap.append(h('section', { class: 'em-section' }, sectionHead('Browse by subject'), categories));
 
   // ── the front page, as Wikimedia publishes it ─────────────────────────
-  // Only a picture-led article of the day is shown. The feed sometimes leads
-  // with an article that has no image at all; a card with an empty grey panel
-  // is worse than no card, so that day the section simply does not appear.
-  if (feed?.articleOfTheDay?.image) {
+  // The article of the day is always shown. When the day's article has no
+  // picture the card keeps its shape with a drawn panel behind the title, so
+  // the front page looks the same every day and never has a hole in it.
+  if (feed?.articleOfTheDay) {
     const aotd = feed.articleOfTheDay;
     const card = h('a', {
       class: 'em-aotd',
@@ -148,10 +148,19 @@ export function homeView({ go, lang, articles = [], feed = null }) {
 
 /* ── the answer ─────────────────────────────────────────────────────────── */
 
-export function answerView(answer, { question = '', depth = 'detailed', onDepth, go }) {
+const TRANSLATE_TO = [
+  { code: 'en', label: 'English' },
+  { code: 'hi', label: 'हिन्दी' },
+  { code: 'bn', label: 'বাংলা' },
+  { code: 'ta', label: 'தமிழ்' },
+  { code: 'te', label: 'తెలుగు' },
+  { code: 'mr', label: 'मराठी' },
+];
+
+export function answerView(answer, { question = '', depth = 'detailed', onDepth, go, onTranslate }) {
   const wrap = h('article', { class: 'em-answer em-column' });
 
-  const badge = h('span', { class: 'em-badge', text: 'Source-backed' });
+  const badge = h('span', { class: 'em-badge', text: answer.translated ? 'Translated' : 'Source-backed' });
   wrap.append(h('div', { class: 'em-answer-head' },
     badge,
     h('span', { class: 'em-meta-note', text: question ? `Answering “${clip(question, 70)}”` : 'From the article' })));
@@ -186,7 +195,63 @@ export function answerView(answer, { question = '', depth = 'detailed', onDepth,
     wrap.append(block);
   }
 
-  if (answer.url) wrap.append(sourceList([{ n: 1, title: answer.title, url: answer.url }]));
+  // ── pictures, from Commons ────────────────────────────────────────────
+  if (answer.images?.length) {
+    const strip = h('div', { class: 'em-pics' });
+    for (const image of answer.images) {
+      strip.append(h('a', {
+        class: 'em-pic', href: image.page || answer.url, target: '_blank', rel: 'noopener noreferrer',
+        title: [image.title, image.credit, image.licence].filter(Boolean).join(' · '),
+      },
+        h('img', { src: image.src, alt: image.title, loading: 'lazy', decoding: 'async' }),
+        h('span', { class: 'em-pic-credit', text: [image.credit, image.licence].filter(Boolean).join(' · ') })));
+    }
+    wrap.append(h('section', { class: 'em-sources' },
+      h('h2', { text: 'Pictures' }),
+      strip,
+      h('p', { class: 'em-meta-note', text: 'Each picture opens its file page on Wikimedia Commons, where its licence is recorded.' })));
+  }
+
+  // ── facts, from Wikidata ──────────────────────────────────────────────
+  if (answer.facts?.facts?.length) {
+    const rows = h('dl', { class: 'em-facts' });
+    for (const fact of answer.facts.facts) {
+      rows.append(h('dt', { text: fact.label }));
+      rows.append(h('dd', { text: fact.value }));
+    }
+    wrap.append(h('section', { class: 'em-sources' },
+      h('h2', { text: 'Facts' }),
+      rows,
+      h('p', { class: 'em-meta-note' },
+        'Structured data from ',
+        h('a', { href: answer.facts.url, target: '_blank', rel: 'noopener noreferrer', text: `Wikidata ${answer.facts.id}` }),
+        answer.facts.description ? ` — ${answer.facts.description}` : '')));
+  }
+
+  // ── every service this answer used, and where to read the original ─────
+  if (answer.url) {
+    const list = [{ n: 1, title: `${answer.title} — Wikipedia`, url: answer.url }];
+    if (answer.facts?.url) list.push({ n: 2, title: `Wikidata item ${answer.facts.id}`, url: answer.facts.url });
+    if (answer.commonsUrl) list.push({ n: 3, title: 'Images on Wikimedia Commons', url: answer.commonsUrl });
+    wrap.append(sourceList(list));
+    wrap.append(h('p', { class: 'em-meta-note' },
+      'Text: CC BY-SA 4.0, by the Wikipedia community. Facts: CC0, from Wikidata. Pictures: the licence on each file page.'));
+  }
+
+  if (onTranslate) {
+    const row = h('div', { class: 'em-translate' },
+      h('span', { class: 'em-meta-note', text: 'Read in' }));
+    for (const lang of TRANSLATE_TO) {
+      const button = h('button', {
+        type: 'button',
+        class: `em-lang-chip${lang.code === (answer.lang || 'en') ? ' is-on' : ''}`,
+        text: lang.label,
+        onClick: () => onTranslate(lang.code),
+      });
+      row.append(button);
+    }
+    wrap.append(row);
+  }
 
   const actions = h('div', { class: 'em-actions' });
   const copy = h('button', { type: 'button', text: 'Copy as Markdown' });
@@ -220,17 +285,55 @@ export function answerView(answer, { question = '', depth = 'detailed', onDepth,
 
 /* ── loading an answer ──────────────────────────────────────────────────── */
 
-export async function loadAnswer({ question, depth = 'detailed', lang = 'en', signal }) {
-  const hits = await searchTitles(question, lang, 5, signal);
-  if (!hits.length) throw new Error('nothing-found');
-  const article = await fetchArticle(hits[0].title, lang, signal);
+export async function loadAnswer({ question, title = '', depth = 'detailed', lang = 'en', signal }) {
+  const target = title || (await searchTitles(question, lang, 5, signal))[0]?.title;
+  if (!target) throw new Error('nothing-found');
+
+  const article = await fetchArticle(target, lang, signal);
   const url = `https://${lang}.wikipedia.org/wiki/${encodeURIComponent(article.title.replace(/ /g, '_'))}`;
-  // The picture is fetched in parallel and is allowed to fail: a page without
-  // its photograph is still a page, a page that waits for it is a slow one.
-  const picture = await leadImage(article.title, lang, signal).catch(() => null);
+
+  /* Everything else is asked for at the same time: the lead picture, the
+   * Commons pictures, the Wikidata facts and the language editions. Each one is
+   * allowed to fail on its own — a page missing its facts is still a page, and
+   * a page that waits for four services is a slow one. */
+  const [picture, images, facts, links] = await Promise.all([
+    leadImage(article.title, lang, signal).catch(() => null),
+    commonsImages(article.title, lang, signal).catch(() => []),
+    wikidataFacts(article.title, lang, signal).catch(() => null),
+    langLinks(article.title, lang, signal).catch(() => []),
+  ]);
+
   return {
-    answer: { ...composeAnswer({ title: article.title, html: article.html, question, depth, url }), image: picture },
-    alternatives: hits.slice(1, 4).map((hit) => hit.title),
+    answer: {
+      ...composeAnswer({ title: article.title, html: article.html, question, depth, url }),
+      image: picture,
+      images: images.slice(0, 6),
+      facts,
+      commonsUrl: images.length ? `https://commons.wikimedia.org/wiki/Special:Search?search=${encodeURIComponent(article.title)}` : '',
+      lang,
+      languages: links,
+    },
+    alternatives: [],
+  };
+}
+
+/** The same article in another language, when that edition has it. */
+export async function loadTranslated({ title, from = 'en', to, depth = 'detailed', question = '', signal }) {
+  const translated = await translatedTitle(title, to, from, signal);
+  if (!translated) return null;
+  const article = await fetchArticle(translated, to, signal);
+  const url = `https://${to}.wikipedia.org/wiki/${encodeURIComponent(article.title.replace(/ /g, '_'))}`;
+  const [picture, facts] = await Promise.all([
+    leadImage(article.title, to, signal).catch(() => null),
+    wikidataFacts(article.title, to, signal).catch(() => null),
+  ]);
+  return {
+    ...composeAnswer({ title: article.title, html: article.html, question, depth, url }),
+    image: picture,
+    facts,
+    lang: to,
+    translated: true,
+    originalTitle: title,
   };
 }
 
