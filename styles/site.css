@@ -36,7 +36,7 @@
   --em-font-display: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, "Tiro Devanagari Hindi", serif;
   --em-font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
 
-  --em-column: 74ch;
+  --em-column: 88ch;
   --em-gutter: clamp(16px, 4vw, 40px);
   --em-radius: 14px;
   --em-radius-lg: 22px;
@@ -110,7 +110,7 @@ h1, h2, h3, h4 { font-family: var(--em-font-display); font-weight: 600; letter-s
 }
 
 .em-bar-in {
-  max-width: 1120px; margin: 0 auto;
+  max-width: 1220px; margin: 0 auto;
   padding: 10px var(--em-gutter);
   display: flex; align-items: center; gap: 14px;
 }
@@ -154,7 +154,7 @@ h1, h2, h3, h4 { font-family: var(--em-font-display); font-weight: 600; letter-s
 .em-icon-btn svg { width: 18px; height: 18px; }
 
 /* ── 4 · the page column ────────────────────────────────────────────────── */
-.em-main { max-width: 1120px; margin: 0 auto; padding: 0 var(--em-gutter) 80px; }
+.em-main { max-width: 1220px; margin: 0 auto; padding: 0 var(--em-gutter) 80px; }
 .em-column { max-width: var(--em-column); margin: 0 auto; }
 
 /* ── 5 · the ask box ────────────────────────────────────────────────────── */
@@ -524,7 +524,7 @@ html[data-theme="dark"] {
   padding: 0 8px 8px;
   font-size: 10.5px; line-height: 1.35;
   color: var(--em-ink-3);
-  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+  overflow-wrap: anywhere;
 }
 
 .em-facts {
@@ -761,7 +761,7 @@ body[data-page="chat"] { height: 100dvh; overflow: hidden; display: flex; flex-d
   padding: 28px var(--em-gutter) 40px; margin-top: 40px;
   color: var(--em-ink-3); font-size: 13px;
 }
-.em-foot-in { max-width: 1120px; margin: 0 auto; display: flex; flex-wrap: wrap; gap: 18px 34px; }
+.em-foot-in { max-width: 1220px; margin: 0 auto; display: flex; flex-wrap: wrap; gap: 18px 34px; }
 .em-foot a { color: var(--em-ink-2); text-decoration: none; }
 .em-foot a:hover { color: var(--em-brass); }
 .em-foot-col { display: flex; flex-direction: column; gap: 6px; min-width: 150px; }
@@ -782,3 +782,196 @@ body[data-page="chat"] { height: 100dvh; overflow: hidden; display: flex; flex-d
   *, *::before, *::after { animation-duration: .001ms !important; transition-duration: .001ms !important; }
   .em-chat-scroll { scroll-behavior: auto; }
 }
+
+/* ── 13 · the surface system ──────────────────────────────────────────────
+ * Three materials, used for three different jobs:
+ *
+ *   clay   — the cards. Soft, thick, a highlight along the top edge and a
+ *            shadow underneath, so a card reads as an object resting on paper.
+ *   glass  — anything that floats over the page: the header, the composer, the
+ *            option panel. Blurred, translucent, with a hairline that catches
+ *            the light.
+ *   neumo  — things you press: chips, segmented controls, the depth bar. Inset
+ *            shadow when resting, flat when pressed.
+ *
+ * The point of using all three is not decoration: a reader should be able to
+ * tell, without reading, what is a container, what floats, and what is a
+ * control.
+ */
+
+:root {
+  --em-clay-face: linear-gradient(180deg, color-mix(in srgb, var(--em-paper-2) 92%, white) 0%, var(--em-paper-2) 46%, color-mix(in srgb, var(--em-paper-3) 70%, var(--em-paper-2)) 100%);
+  --em-clay-edge: inset 0 1px 0 rgba(255, 255, 255, .8), inset 0 -1px 0 rgba(0, 0, 0, .04);
+  --em-clay-drop: 0 1px 2px rgba(22, 33, 29, .05), 0 14px 28px -18px rgba(22, 33, 29, .28), 0 30px 60px -40px rgba(22, 33, 29, .3);
+  --em-neu-in: inset 1px 1px 2px rgba(22, 33, 29, .10), inset -1px -1px 2px rgba(255, 255, 255, .9);
+  --em-neu-out: 1px 1px 2px rgba(22, 33, 29, .08), -1px -1px 2px rgba(255, 255, 255, .85);
+  --em-glass: color-mix(in srgb, var(--em-paper-2) 72%, transparent);
+  --em-glass-edge: 1px solid color-mix(in srgb, var(--em-rule) 70%, transparent);
+}
+
+html[data-theme="dark"] {
+  --em-clay-face: linear-gradient(180deg, color-mix(in srgb, var(--em-paper-2) 88%, white) 0%, var(--em-paper-2) 44%, var(--em-paper-3) 100%);
+  --em-clay-edge: inset 0 1px 0 rgba(255, 255, 255, .07), inset 0 -1px 0 rgba(0, 0, 0, .4);
+  --em-clay-drop: 0 1px 2px rgba(0, 0, 0, .5), 0 16px 30px -20px rgba(0, 0, 0, .8), 0 34px 64px -44px rgba(0, 0, 0, .9);
+  --em-neu-in: inset 1px 1px 2px rgba(0, 0, 0, .55), inset -1px -1px 2px rgba(255, 255, 255, .05);
+  --em-neu-out: 1px 1px 2px rgba(0, 0, 0, .5), -1px -1px 2px rgba(255, 255, 255, .04);
+  --em-glass: color-mix(in srgb, var(--em-paper-2) 62%, transparent);
+}
+
+/* ── clay: every card in one material ───────────────────────────────────── */
+.em-card,
+.em-aotd,
+.em-potd,
+.em-read,
+.em-source,
+.em-credit,
+.em-panel,
+.em-hero-figure {
+  background: var(--em-clay-face);
+  border: 1px solid var(--em-rule);
+  box-shadow: var(--em-clay-edge), var(--em-clay-drop);
+}
+
+.em-card,
+.em-aotd,
+.em-read,
+.em-source,
+.em-credit,
+.em-panel {
+  border-radius: var(--em-radius-lg);
+}
+
+.em-card:hover,
+.em-aotd:hover,
+.em-read:hover,
+.em-source:hover,
+.em-credit:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--em-clay-edge), 0 2px 4px rgba(22, 33, 29, .06), 0 24px 44px -22px rgba(22, 33, 29, .34), 0 44px 80px -50px rgba(22, 33, 29, .4);
+}
+
+/* a panel is a section of the page with its own surface and its own padding */
+.em-panel { padding: clamp(16px, 2.4vw, 26px); margin-top: 22px; }
+.em-panel > .em-section-head { margin-bottom: 14px; }
+.em-panel > .em-section-head h2 { font-size: 19px; }
+.em-panel .em-grid { gap: 10px; }
+
+/* ── glass: what floats ─────────────────────────────────────────────────── */
+.em-bar {
+  background: var(--em-glass);
+  backdrop-filter: blur(18px) saturate(1.5);
+  -webkit-backdrop-filter: blur(18px) saturate(1.5);
+  border-bottom: 1px solid color-mix(in srgb, var(--em-rule) 60%, transparent);
+}
+
+.em-composer,
+.em-ask {
+  background: var(--em-glass);
+  backdrop-filter: blur(20px) saturate(1.6);
+  -webkit-backdrop-filter: blur(20px) saturate(1.6);
+  border: var(--em-glass-edge);
+  box-shadow: var(--em-clay-edge), var(--em-clay-drop);
+}
+
+.em-composer:focus-within,
+.em-ask:focus-within {
+  border-color: color-mix(in srgb, var(--em-green) 60%, var(--em-rule));
+  box-shadow: var(--em-clay-edge), 0 0 0 4px color-mix(in srgb, var(--em-green) 12%, transparent), var(--em-clay-drop);
+}
+
+/* ── neumo: what you press ──────────────────────────────────────────────── */
+.em-chip,
+.em-depth,
+.em-lang-chip,
+.em-starter,
+.em-follow button,
+.em-actions button {
+  background: var(--em-paper-2);
+  box-shadow: var(--em-neu-out);
+  border: 1px solid color-mix(in srgb, var(--em-rule) 70%, transparent);
+}
+
+.em-chip:active,
+.em-lang-chip:active,
+.em-follow button:active,
+.em-actions button:active,
+.em-starter:active {
+  box-shadow: var(--em-neu-in);
+  transform: translateY(1px);
+}
+
+.em-depth { box-shadow: var(--em-neu-in); }
+.em-depth button[aria-pressed="true"] { box-shadow: var(--em-neu-out); }
+
+/* ── the picture gallery ──────────────────────────────────────────────────
+ * One picture is the subject, so it is centred and given the room. Several are
+ * a set, so they run in one horizontal line that scrolls sideways — never a
+ * column that pushes the article down the page.
+ */
+.em-pics {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: clamp(180px, 24vw, 240px);
+  gap: 12px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding: 6px 2px 14px;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: thin;
+}
+
+.em-pic {
+  scroll-snap-align: center;
+  border-radius: 18px;
+}
+
+.em-pic img { aspect-ratio: 4 / 3; }
+
+/* a single picture: centred, wider, nothing beside it */
+.em-pics--single {
+  display: block;
+  overflow: visible;
+  padding: 0 0 6px;
+  text-align: center;
+}
+
+.em-pics--single .em-pic {
+  display: inline-flex;
+  width: min(100%, 720px);
+  text-align: left;
+}
+
+.em-pics--single .em-pic img { aspect-ratio: 16 / 10; }
+
+/* ── no clipped words, anywhere ───────────────────────────────────────────
+ * A truncated sentence is a sentence the reader has to guess at. Text wraps,
+ * hyphenates where the language allows, and never disappears behind a clamp.
+ */
+.em-card span,
+.em-aotd-extract,
+.em-read-body span,
+.em-pic-credit,
+.em-source .t,
+.em-potd-caption {
+  overflow: visible;
+  text-overflow: clip;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  hyphens: auto;
+}
+
+/* ── the little motion that makes a surface feel alive ──────────────────── */
+.em-card,
+.em-aotd,
+.em-read,
+.em-source,
+.em-credit,
+.em-panel,
+.em-pic {
+  transition: transform .18s var(--em-ease), box-shadow .18s var(--em-ease), border-color .18s var(--em-ease);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .em-card:hover, .em-aotd:hover, .em-read:hover, .em-source:hover, .em-credit:hover { transform: none; }
+}
+

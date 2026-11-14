@@ -74,7 +74,7 @@ export function homeView({ go, lang, articles = [], feed = null }) {
       onclick: (event) => { event.preventDefault(); go(`#/library?q=${encodeURIComponent(category.query)}`); },
     }, h('strong', { text: category.label }), h('span', { text: `Articles about ${category.query}` })));
   }
-  wrap.append(h('section', { class: 'em-section' }, sectionHead('Browse by subject'), categories));
+  wrap.append(h('section', { class: 'em-panel' }, sectionHead('Browse by subject'), categories));
 
   // ── the front page, as Wikimedia publishes it ─────────────────────────
   // The article of the day is always shown. When the day's article has no
@@ -96,7 +96,7 @@ export function homeView({ go, lang, articles = [], feed = null }) {
         h('strong', { text: aotd.title }),
         h('span', { class: 'em-aotd-extract', text: clip(aotd.extract, 320) }),
         h('span', { class: 'em-aotd-more', text: 'Read the breakdown →' })));
-    wrap.append(h('section', { class: 'em-section' }, card));
+    wrap.append(h('section', { class: 'em-panel' }, card));
   }
 
   if (feed?.pictureOfTheDay?.image) {
@@ -108,7 +108,7 @@ export function homeView({ go, lang, articles = [], feed = null }) {
         h('strong', { text: potd.title.replace(/^File:/, '').replace(/\.(jpe?g|png|svg|gif)$/i, '') }),
         potd.caption ? h('span', { class: 'em-potd-caption', text: clip(potd.caption, 220) }) : null,
         potd.artist ? h('span', { class: 'em-potd-credit', text: `Image: ${clip(potd.artist, 90)}` }) : null));
-    wrap.append(h('section', { class: 'em-section' }, sectionHead('Picture of the day', 'From Wikimedia Commons'), figure));
+    wrap.append(h('section', { class: 'em-panel' }, sectionHead('Picture of the day', 'From Wikimedia Commons'), figure));
   }
 
   const written = h('div', { class: 'em-grid' });
@@ -120,7 +120,7 @@ export function homeView({ go, lang, articles = [], feed = null }) {
     }, h('strong', { text: article.title }), h('span', { text: clip(article.description || article.lead, 110) })));
   }
   if (written.children.length) {
-    wrap.append(h('section', { class: 'em-section em-written' }, sectionHead('Written here', 'Complete pages, not summaries'), written));
+    wrap.append(h('section', { class: 'em-panel em-written' }, sectionHead('Written here', 'Complete pages, not summaries'), written));
   }
 
   const readRows = feed?.mostRead || [];
@@ -140,7 +140,7 @@ export function homeView({ go, lang, articles = [], feed = null }) {
             h('span', { text: clip(row.extract, 120) })),
           h('span', { class: 'em-read-views', text: row.views ? `${(row.views / 1000).toFixed(0)}k reads` : '' }))));
     });
-    wrap.append(h('section', { class: 'em-section' }, sectionHead('Most read yesterday', 'By pageviews, from Wikimedia'), list));
+    wrap.append(h('section', { class: 'em-panel' }, sectionHead('Most read yesterday', 'By pageviews, from Wikimedia'), list));
   }
 
   return wrap;
@@ -197,7 +197,9 @@ export function answerView(answer, { question = '', depth = 'detailed', onDepth,
 
   // ── pictures, from Commons ────────────────────────────────────────────
   if (answer.images?.length) {
-    const strip = h('div', { class: 'em-pics' });
+    // One picture is the subject and is centred; several are a set and run in a
+    // single horizontal line, so the article never gets pushed down the page.
+    const strip = h('div', { class: `em-pics${answer.images.length === 1 ? ' em-pics--single' : ''}` });
     for (const image of answer.images) {
       strip.append(h('a', {
         class: 'em-pic', href: image.page || answer.url, target: '_blank', rel: 'noopener noreferrer',
@@ -206,8 +208,8 @@ export function answerView(answer, { question = '', depth = 'detailed', onDepth,
         h('img', { src: image.src, alt: image.title, loading: 'lazy', decoding: 'async' }),
         h('span', { class: 'em-pic-credit', text: [image.credit, image.licence].filter(Boolean).join(' · ') })));
     }
-    wrap.append(h('section', { class: 'em-sources' },
-      h('h2', { text: 'Pictures' }),
+    wrap.append(h('section', { class: 'em-sources em-pictures' },
+      h('h2', { text: answer.images.length === 1 ? 'Picture' : 'Pictures' }),
       strip,
       h('p', { class: 'em-meta-note', text: 'Each picture opens its file page on Wikimedia Commons, where its licence is recorded.' })));
   }
