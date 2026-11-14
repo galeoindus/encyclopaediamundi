@@ -578,6 +578,14 @@ export function renderCredits() {
     ['Current release', `v${SITE.version}`],
     ['Code licence', 'MIT'],
   ]) facts.append(el('div', {}, [el('dt', { text: label }), el('dd', { text: value })]));
+  // The exact build this page came from, filled from version.json by
+  // build-watch.js. The version above is the one baked into the page; this line
+  // is the one the edge is actually serving, so a stale page is visible as a
+  // difference between the two rather than a vague feeling that something is off.
+  facts.append(el('div', {}, [
+    el('dt', { text: 'This build' }),
+    el('dd', { id: 'creditBuild', class: 'credit-build', text: `${SITE.version} · checking…` }),
+  ]));
   wrap.append(facts);
 
   /* --- the timeline ---------------------------------------------------- */

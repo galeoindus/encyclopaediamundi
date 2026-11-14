@@ -4259,6 +4259,27 @@ html, body { max-width: 100%; overflow-x: hidden; }
   .credit-stack-card:hover, .credit-person-card:hover { transform: none; }
 }
 
+/* ------------------------------------------------------- the build stamp */
+
+/* The footer chip names the build this page came from, and turns amber when
+   version.json says the site has moved on. A reader should never have to guess
+   whether they are looking at today's build or last week's. */
+.foot-version .is-stale { color: var(--warn); font-weight: 600; }
+.foot-build.is-stale::before { content: ""; }
+
+.chat-version {
+  margin: 0;
+  padding: 10px 18px 22px;
+  color: var(--faint);
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+  text-align: center;
+}
+.chat-version .is-stale { color: var(--warn); font-weight: 600; }
+
+/* The research desk footer carries the same chip, inline with its own line. */
+.main-footer .foot-version { margin: 0; font-size: 12px; }
+
 /* ── home-morph.css ── */
 /* ══════════════════════════════════════════════════════════════════════════
    Veridell — the front door

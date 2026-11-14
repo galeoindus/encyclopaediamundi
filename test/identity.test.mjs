@@ -118,6 +118,25 @@ test('one version reaches the page and the package', () => {
   assert.equal(stamped[1], pkg.version, 'the page and the package disagree on the version');
 });
 
+test('every page states which build it is, and the statement is current', () => {
+  const pkg = JSON.parse(readFileSync(join(ROOT, 'package.json'), 'utf8'));
+  for (const page of pages) {
+    const html = readFileSync(page, 'utf8');
+    const shown = html.match(/id="appVersion"[^>]*>v(\d+\.\d+\.\d+)</);
+    assert.ok(shown, `${rel(page)} does not state its version`);
+    assert.equal(shown[1], pkg.version, `${rel(page)} states v${shown[1]}, package.json says ${pkg.version}`);
+    assert.match(html, /id="appBuild"/, `${rel(page)} has no place to show the build time`);
+  }
+});
+
+test('the version endpoint the pages check against is the one that shipped', () => {
+  const pkg = JSON.parse(readFileSync(join(ROOT, 'package.json'), 'utf8'));
+  const info = JSON.parse(readFileSync(join(ROOT, 'assets/version.json'), 'utf8'));
+  assert.equal(info.version, pkg.version, 'assets/version.json names another version');
+  assert.match(String(info.commit || ''), /^[0-9a-f]{7,40}$/, 'version.json carries no commit');
+  assert.ok(Date.parse(info.built), 'version.json carries no build time');
+});
+
 test('the promise line is the same everywhere it is written', () => {
   const promise = 'Every answer, with its source';
   const home = readFileSync(join(ROOT, 'index.html'), 'utf8');

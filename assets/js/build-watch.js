@@ -64,6 +64,36 @@
       buildEl.textContent = info.built ? `· ${new Intl.DateTimeFormat(undefined, { day: 'numeric', month: 'short', year: 'numeric' }).format(new Date(info.built))}` : '';
       buildEl.title = info.built ? `Built ${info.built}` : '';
     }
+    // The credits page states the same thing in words, for anyone who wants to
+    // quote a build in a bug report.
+    const creditEl = document.getElementById('creditBuild');
+    if (creditEl && info.version) {
+      const when = info.built ? new Date(info.built) : null;
+      const stamp = when
+        ? `${when.toISOString().slice(0, 16).replace('T', ' ')} UTC`
+        : 'build time unknown';
+      creditEl.textContent = `v${info.version}${commit ? ` · ${commit}` : ''} · ${stamp}`;
+    }
+  }
+
+  /* Say, on the page, which build you are reading and whether it is the
+   * current one. The footer chip is painted from version.json, which is never
+   * cached, so it names the build the edge is actually serving rather than the
+   * one this document was made from. When the two differ the chip goes amber
+   * and says so, which is the difference between "it feels slow" and "I am on
+   * yesterday's build". */
+  function markStale(remoteBuild, localBuild) {
+    const versionEl = document.getElementById('appVersion');
+    const buildEl = document.getElementById('appBuild');
+    if (versionEl) {
+      versionEl.classList.add('is-stale');
+      versionEl.title = `This page was built from ${localBuild || 'an earlier build'}; the site is now on ${remoteBuild}.`;
+    }
+    if (buildEl) {
+      buildEl.textContent = '· update available';
+      buildEl.classList.add('is-stale');
+      buildEl.title = `The site is now on ${remoteBuild}. Refresh to update.`;
+    }
   }
 
   /* Reload onto the new build with every stored copy cleared.
@@ -120,6 +150,7 @@
       const commit = String(info.commit || '').slice(0, 7);
       const remoteBuild = `${info.version}${commit ? `-${commit}` : ''}`;
       if (pageBuild === remoteBuild || pageBuild === String(info.version)) return;
+      markStale(remoteBuild, pageBuild);
 
       // Only auto-reload once for a particular build. If an edge still returns
       // stale HTML after reload, leave a manual refresh control instead of looping.

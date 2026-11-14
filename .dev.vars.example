@@ -1,0 +1,67 @@
+# Veridell — environment template.
+#
+# This is the Wrangler file: `wrangler pages dev` reads `.dev.vars`, not `.env`.
+#
+#   cp .dev.vars.example .dev.vars
+#
+# `.dev.vars` is git-ignored; this template is not.
+#
+# Format, in one line: NAME=value. One variable per line. No quotes around the
+# value (quotes become part of it), no spaces around `=`, no `export`, no JSON.
+# A line starting with `#` is a comment.
+#
+# ── Where these belong ────────────────────────────────────────────────────
+# `.env` and `.dev.vars` are for this machine only and are git-ignored. The
+# deployed site never reads either file. In production the same names go into
+# Cloudflare: Pages → Settings → Variables and Secrets, each one added as a
+# **Secret** (not Plaintext) — or from the CLI:
+#
+#   npx wrangler pages secret put OPENROUTER_API_KEY_1 --project-name veridell
+#
+# The AI binding (`env.AI`) is not an environment variable at all: it is
+# declared in wrangler.toml and bound in the dashboard under
+# Settings → Functions → Workers AI binding, with the name `AI`.
+
+# ── The default: Workers AI only, no key, no cost ─────────────────────────
+AI_PROVIDER=workers-ai
+WORKERS_AI_MODEL=@cf/zai-org/glm-4.7-flash
+
+# ── Paid AI: off unless you turn it on twice ──────────────────────────────
+# A key on its own never spends anything. Paid routing needs BOTH
+# ENABLE_PAID_AI=true AND AI_PROVIDER=openrouter. ALLOW_PAID_FALLBACK=true is a
+# third, separate opt-in that lets a failed free call fall through to a paid one.
+ENABLE_PAID_AI=false
+ALLOW_PAID_FALLBACK=false
+
+# ── OpenRouter keys: six slots, tried in order ────────────────────────────
+# Six keys are six separate quotas. The endpoint rotates through them and skips
+# any that are empty, exhausted or rate-limited, so one key is enough and six
+# are simply more headroom. Paste the key itself, nothing else — no "Bearer ",
+# no quotes, no trailing spaces.
+OPENROUTER_API_KEY_1=
+OPENROUTER_API_KEY_2=
+OPENROUTER_API_KEY_3=
+OPENROUTER_API_KEY_4=
+OPENROUTER_API_KEY_5=
+OPENROUTER_API_KEY_6=
+
+# The pre-rotation single-key name, still honoured if you have only one key.
+OPENROUTER_API_KEY=
+
+# ── Which OpenRouter model answers ────────────────────────────────────────
+# Precedence: a pinned OPENROUTER_MODEL wins over everything; then the comma
+# list in OPENROUTER_MODELS the reader may pick between; then the automatic
+# floor chosen by OPENROUTER_MODEL_TIER (cheap | balanced | deep). With none of
+# them set, the cheapest model OpenRouter actually serves is used, so a new
+# deployment never starts on an expensive default.
+OPENROUTER_MODEL=
+OPENROUTER_MODELS=
+OPENROUTER_MODEL_TIER=cheap
+
+# A cheap model for short conversational turns, when paid AI is on.
+CHAT_MODEL=
+
+# ── Identity ──────────────────────────────────────────────────────────────
+# The canonical origin. Used for the Referer header OpenRouter receives and for
+# absolute links in generated answers. It is not a secret.
+SITE_ORIGIN=https://veridell.pages.dev
