@@ -604,6 +604,73 @@ body[data-page="chat"] { height: 100dvh; overflow: hidden; display: flex; flex-d
 .em-thinking i:nth-child(3) { animation-delay: .3s; }
 @keyframes em-pulse { 0%, 100% { opacity: .25; transform: scale(.85); } 50% { opacity: 1; transform: scale(1); } }
 
+
+/* ── 9b · dictation, attachments, credits ──────────────────────────────── */
+
+.em-mic.is-listening {
+  color: var(--em-paper-2);
+  background: var(--em-green);
+  border-color: var(--em-green);
+  animation: em-listen 1.4s ease-in-out infinite;
+}
+
+@keyframes em-listen {
+  0%, 100% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--em-green) 45%, transparent); }
+  50% { box-shadow: 0 0 0 7px color-mix(in srgb, var(--em-green) 0%, transparent); }
+}
+
+.em-tray {
+  display: flex; flex-wrap: wrap; gap: 6px;
+  margin-top: 8px;
+}
+
+.em-tray-chip {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 5px 6px 5px 11px;
+  border: 1px solid var(--em-rule);
+  border-radius: 999px;
+  background: var(--em-paper-2);
+  font-size: 12.5px;
+  color: var(--em-ink-2);
+  box-shadow: var(--em-layer-1);
+}
+
+.em-tray-name { max-width: 22ch; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+.em-tray-x {
+  display: grid; place-items: center;
+  width: 20px; height: 20px;
+  border: 0; border-radius: 50%;
+  background: transparent; color: var(--em-ink-3); cursor: pointer;
+}
+.em-tray-x:hover { background: var(--em-paper-3); color: var(--em-ink); }
+.em-tray-x svg { width: 11px; height: 11px; }
+
+/* the credits page */
+.em-credit-list { display: grid; gap: 8px; margin: 10px 0 6px; padding: 0; list-style: none; }
+
+.em-credit {
+  display: grid;
+  grid-template-columns: minmax(120px, 22%) 1fr auto;
+  align-items: baseline;
+  gap: 14px;
+  padding: 12px 14px;
+  border: 1px solid var(--em-rule);
+  border-radius: var(--em-radius);
+  background: var(--em-paper-2);
+  box-shadow: var(--em-layer-1);
+}
+
+.em-credit-name { font-weight: 650; font-size: 14px; }
+.em-credit-body { font-size: 13.5px; color: var(--em-ink-2); line-height: 1.55; }
+.em-credit-link { font-size: 12.5px; white-space: nowrap; }
+.em-muted { color: var(--em-ink-3); font-size: 13.5px; }
+.em-plain { padding-left: 20px; }
+
+@media (max-width: 720px) {
+  .em-credit { grid-template-columns: 1fr; gap: 4px; }
+}
+
 /* ── 10 · static pages ──────────────────────────────────────────────────── */
 .em-page { padding: 34px 0 20px; }
 .em-page h1 { font-size: clamp(26px, 4vw, 40px); letter-spacing: -.03em; }

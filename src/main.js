@@ -8,7 +8,7 @@
 import { h, KEY, read, write, initTheme, paintTheme, LANGS, MARK, esc, clip } from './core.js';
 import {
   homeView, answerView, loadAnswer, loadingView, noteView,
-  exploreView, todayView, libraryView, sourcesView, savedView,
+  exploreView, todayView, libraryView, sourcesView, savedView, creditsView,
 } from './views.js';
 import { featuredFeed } from './wiki.js';
 
@@ -175,6 +175,7 @@ async function render() {
   if (path === '/today') { document.title = 'On this day — Veridell'; mount(todayView({ go, lang: state.lang })); return; }
   if (path === '/sources') { document.title = 'Sources — Veridell'; mount(sourcesView()); return; }
   if (path === '/saved') { document.title = 'Saved — Veridell'; mount(savedView({ go })); return; }
+  if (path === '/credits') { document.title = 'Credits — Veridell'; mount(creditsView({ go })); return; }
 
   if (path === '/library') {
     const query = (params.get('q') || '').trim();

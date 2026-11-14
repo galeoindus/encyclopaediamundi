@@ -75,13 +75,17 @@ export function paintTheme(theme) {
 
 export function initTheme() {
   paintTheme(read(KEY.theme, ''));
-  for (const button of document.querySelectorAll('[data-theme-toggle]')) {
-    button.addEventListener('click', () => {
-      const next = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
-      write(KEY.theme, next);
-      paintTheme(next);
-    });
-  }
+  // The header is rebuilt on every route, so a listener bound to the button is
+  // destroyed with the button — which is why the theme switch did nothing after
+  // the first navigation. One listener on the document outlives every header.
+  document.addEventListener('click', (event) => {
+    const button = event.target?.closest?.('[data-theme-toggle]');
+    if (!button) return;
+    event.preventDefault();
+    const next = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
+    write(KEY.theme, next);
+    paintTheme(next);
+  });
 }
 
 /* ── a tiny DOM helper ──────────────────────────────────────────────────── */

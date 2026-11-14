@@ -26,6 +26,8 @@ const ollamaModel = document.getElementById('ollamaModel');
 const OLLAMA = 'http://127.0.0.1:11434';
 let busy = false;
 let turns = read(KEY.chat, []);
+let attachments = [];   // { name, text } — text files the reader attached
+let dictation = null;   // the live SpeechRecognition, while the mic is on
 let controller = null;
 
 const STARTERS = [
@@ -193,6 +195,7 @@ async function askCloud(question, passages, onDelta) {
       depth: depthSelect.value,
       history: historyForModel(),
       passages,
+      attachments: attachments.map((file) => ({ name: file.name, text: file.text })),
       stream: typeof onDelta === 'function',
     }),
   });
@@ -310,6 +313,8 @@ async function submit(raw) {
     wait.remove();
     const turn = { question, ...reply };
     turns.push(turn);
+    attachments = [];
+    paintTray();
     persist();
     stage.append(answerTurn(turn));
     scrollDown();
@@ -335,6 +340,100 @@ async function submit(raw) {
 }
 
 /* ── wiring ─────────────────────────────────────────────────────────────── */
+
+/* ── dictation ────────────────────────────────────────────────────────────
+ * The browser's own speech recognition writes into the composer as you talk.
+ * No audio is uploaded anywhere by this code: the recognition runs in the
+ * browser, and only the finished text ever reaches the site.
+ */
+function setupDictation() {
+  const mic = document.getElementById('micBtn');
+  if (!mic) return;
+  const Speech = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!Speech) { mic.hidden = true; return; }  // no support: no dead button
+  mic.hidden = false;
+
+  const stop = () => {
+    mic.classList.remove('is-listening');
+    mic.setAttribute('aria-pressed', 'false');
+    try { dictation?.stop(); } catch { /* already stopped */ }
+    dictation = null;
+  };
+
+  mic.addEventListener('click', () => {
+    if (dictation) { stop(); return; }
+
+    const recognition = new Speech();
+    recognition.lang = langSelect.value === 'hi' ? 'hi-IN' : langSelect.value === 'en' ? 'en-IN' : langSelect.value;
+    recognition.interimResults = true;
+    recognition.continuous = false;
+    dictation = recognition;
+
+    const typedBefore = prompt.value;
+    mic.classList.add('is-listening');
+    mic.setAttribute('aria-pressed', 'true');
+
+    recognition.onresult = (event) => {
+      let text = '';
+      for (let index = event.resultIndex; index < event.results.length; index += 1) {
+        text += event.results[index][0].transcript;
+      }
+      prompt.value = `${typedBefore}${typedBefore && !typedBefore.endsWith(' ') ? ' ' : ''}${text}`.slice(0, 2000);
+      autoGrow();
+    };
+    recognition.onerror = () => stop();
+    recognition.onend = () => stop();
+    try { recognition.start(); } catch { stop(); }
+  });
+}
+
+/* ── attachments ──────────────────────────────────────────────────────────
+ * A text file the reader attaches is read here, in the browser, and sent as
+ * context with the question. Nothing is uploaded on its own, and a binary file
+ * is refused rather than half-read.
+ */
+const MAX_FILE_CHARS = 12000;
+const MAX_FILES = 3;
+
+function paintTray() {
+  const tray = document.getElementById('attachmentTray');
+  if (!tray) return;
+  tray.replaceChildren();
+  tray.hidden = attachments.length === 0;
+  attachments.forEach((file, index) => {
+    const chip = h('span', { class: 'em-tray-chip' },
+      h('span', { class: 'em-tray-name', text: file.name }),
+      h('button', {
+        type: 'button', class: 'em-tray-x', 'aria-label': `Remove ${file.name}`,
+        onClick: () => { attachments.splice(index, 1); paintTray(); },
+        html: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg>',
+      }));
+    tray.append(chip);
+  });
+}
+
+function setupAttachments() {
+  const button = document.getElementById('attachBtn');
+  const input = document.getElementById('fileInput');
+  if (!button || !input) return;
+
+  button.addEventListener('click', () => input.click());
+
+  input.addEventListener('change', async () => {
+    const files = [...(input.files || [])].slice(0, MAX_FILES - attachments.length);
+    for (const file of files) {
+      if (file.size > 400_000) continue;               // a text file that big is a data dump
+      if (!/\.(txt|md|markdown|csv|tsv|json|xml|html?|log|ya?ml)$/i.test(file.name) && !file.type.startsWith('text/')) continue;
+      const text = await file.text().catch(() => '');
+      if (!text.trim()) continue;
+      attachments.push({ name: file.name, text: text.slice(0, MAX_FILE_CHARS) });
+    }
+    input.value = '';
+    paintTray();
+  });
+}
+
+
 
 function autoGrow() {
   prompt.style.height = 'auto';
@@ -375,6 +474,10 @@ document.getElementById('clearChat').addEventListener('click', () => {
   persist();
   paintThread();
 });
+
+setupDictation();
+setupAttachments();
+paintTray();
 
 runtime.value = read(KEY.runtime, 'cloud');
 depthSelect.value = read(KEY.depth, 'detailed');

@@ -358,6 +358,68 @@ export function sourcesView() {
   return wrap;
 }
 
+
+/* ── credits ────────────────────────────────────────────────────────────── */
+
+/**
+ * Who made this, and who made the things it is made of.
+ *
+ * A site that answers from other people's work owes them a page that says so:
+ * the editors who wrote the articles, the photographers whose pictures are
+ * shown, the projects whose data and infrastructure carry the rest, and the
+ * licence each one is used under. This is that page.
+ */
+export function creditsView({ go }) {
+  const row = (name, body, href) => h('li', { class: 'em-credit' },
+    h('span', { class: 'em-credit-name', text: name }),
+    h('span', { class: 'em-credit-body', text: body }),
+    href ? h('a', { class: 'em-credit-link', href, target: '_blank', rel: 'noopener noreferrer', text: 'Open ↗' }) : null);
+
+  const list = (items) => h('ul', { class: 'em-credit-list' }, ...items.map((item) => row(...item)));
+
+  return h('div', { class: 'em-page em-column' },
+    h('h1', { text: 'Credits' }),
+    h('p', { class: 'em-sub', text: 'Everything here was written, photographed, catalogued or hosted by someone. This page names them.' }),
+
+    h('h2', { text: 'The site' }),
+    h('p', {}, 'Built and maintained by ', h('strong', { text: 'Bhola Kumar' }),
+      ' — design, code, copy and the decisions about what an answer should look like. The source is public: ',
+      h('a', { href: 'https://github.com/galeoindus/veridell', target: '_blank', rel: 'noopener noreferrer', text: 'github.com/galeoindus/veridell' }), '.'),
+    h('p', { class: 'em-muted', text: 'Code: MIT licence. Use it, fork it, run your own.' }),
+
+    h('h2', { text: 'The knowledge' }),
+    h('p', { text: 'Every sentence that carries a citation was written by a volunteer, not by this site. Those volunteers are the reason it works.' }),
+    list([
+      ['Wikipedia', 'Article text, in twelve languages, by the Wikipedia community. Reused under CC BY-SA 4.0; each answer links to the article it came from.', 'https://www.wikipedia.org/'],
+      ['Wikimedia Commons', 'Pictures and their licence records. The picture of the day is shown with its photographer and licence.', 'https://commons.wikimedia.org/'],
+      ['Wikidata', 'Structured facts — dates, people, identifiers — released under CC0 1.0.', 'https://www.wikidata.org/'],
+      ['Wikiquote and Wikisource', 'Quotations and public-domain texts, read from their own APIs.', 'https://www.wikiquote.org/'],
+    ]),
+
+    h('h2', { text: 'The infrastructure' }),
+    list([
+      ['Cloudflare Pages', 'Serves the site and runs the small functions behind the chat.', 'https://www.cloudflare.com/'],
+      ['Cloudflare Workers AI', 'The free model allocation that answers chat questions by default.', 'https://developers.cloudflare.com/workers-ai/'],
+      ['OpenRouter', 'Optional. Used only when an operator connects a key, and free models only unless they say otherwise.', 'https://openrouter.ai/'],
+      ['Ollama', 'Optional. Runs a model on the reader’s own machine, so the question never leaves the device.', 'https://ollama.com/'],
+      ['Wikimedia REST API', 'Search, article text, the front-page feed and pageviews.', 'https://api.wikimedia.org/'],
+    ]),
+
+    h('h2', { text: 'The machine-written part' }),
+    h('p', { text: 'A language model writes the chat answers. It is told to use only the passages it is given, to cite them, and to say so when they do not contain the answer. When no article matches, the answer is labelled “General answer” and carries no citation — because there is nothing to cite.' }),
+
+    h('h2', { text: 'Licences' }),
+    h('ul', { class: 'em-plain' },
+      h('li', { text: 'Site code — MIT.' }),
+      h('li', { text: 'Wikipedia text — CC BY-SA 4.0.' }),
+      h('li', { text: 'Wikidata — CC0 1.0.' }),
+      h('li', { text: 'Commons images — the licence shown with each picture.' })),
+
+    h('h2', { text: 'Corrections' }),
+    h('p', { text: 'If something here is wrong, the article it came from is the authority — open it and fix it there, and the next reader gets the better answer too.' }),
+    h('p', {}, h('button', { class: 'em-chip', type: 'button', text: 'Back to the front page', onClick: () => go('#/') })));
+}
+
 export function savedView({ go }) {
   const saved = read(KEY.saved, []);
   const wrap = h('div', { class: 'em-page em-column' }, h('h1', { text: 'Saved' }),
