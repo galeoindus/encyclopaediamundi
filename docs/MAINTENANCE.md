@@ -78,6 +78,60 @@ The release script bumps `package.json`, stamps every page with the new version
 and the new commit, runs the checks, commits and tags. Nothing ships that has
 not passed `verify` first.
 
+## Setting the variables on Cloudflare
+
+Cloudflare Pages does **not** read a `.env` file at runtime. There is no file to
+upload: the values live in the project's settings and are injected into the
+Functions as `env`. A `.env` file is useful for exactly one thing — pasting the
+list into the dashboard once — and that is what `cloudflare.env.example` is for.
+
+**The file.** `cloudflare.env.example` holds only `NAME=value` lines and no
+comments, on purpose: the dashboard's bulk editor imports every line it is
+given as a variable, so a `#` line becomes a variable called `#…`. Copy the
+whole file, fill in the six keys, paste.
+
+**Where it goes.**
+
+1. Cloudflare dashboard → Workers & Pages → **veridell** → Settings →
+   Variables and Secrets.
+2. Use **Bulk edit** (or *Import .env*) and paste the filled file.
+3. The four `OPENROUTER_API_KEY_*` lines are credentials. Cloudflare adds bulk
+   lines as **Plaintext** by default — change those four to **Secret**, or add
+   them one at a time with *Add → Secret*. A plaintext key is readable by anyone
+   who can open the project settings.
+4. Save, then redeploy. Variables set after a deployment do not reach the build
+   that is already running; the Functions pick them up on the next deployment.
+
+**By CLI, if you prefer.** This sets one secret at a time and needs no file:
+
+```bash
+npx wrangler pages secret put OPENROUTER_API_KEY_1 --project-name veridell
+npx wrangler pages secret put OPENROUTER_API_KEY_2 --project-name veridell
+# … through _6
+```
+
+Plaintext variables can go in `wrangler.toml` under `[vars]` and deploy with
+the repository — that is where `AI_PROVIDER` and `OPENROUTER_FREE_ONLY` already
+are. A secret must never be written there; `wrangler.toml` is committed.
+
+**What the values mean here.**
+
+| Name | Kind | What it does |
+|---|---|---|
+| `AI_PROVIDER` | plain | `openrouter` sends answers through OpenRouter; `workers-ai` keeps everything on Cloudflare. |
+| `OPENROUTER_FREE_ONLY` | plain | `true` (the default) restricts every request to `:free` models, so the six keys cost nothing. `false` unlocks paid models, but only with `ENABLE_PAID_AI=true`. |
+| `ENABLE_PAID_AI` | plain | The second lock on spending. A key alone never bills anything. |
+| `ALLOW_PAID_FALLBACK` | plain | A third, separate opt-in: lets a failed free call fall through to a paid one. |
+| `WORKERS_AI_MODEL` | plain | Which Workers AI model answers when the provider is `workers-ai`. |
+| `OPENROUTER_API_KEY_1..6` | **secret** | Six separate quotas, tried in order; empty or rate-limited keys are skipped. |
+| `OPENROUTER_MODEL_TIER` | plain | The automatic floor: `cheap`, `balanced` or `deep`. |
+| `SITE_ORIGIN` | plain | The canonical origin, sent as the Referer to OpenRouter. Not a secret. |
+
+With the file as shipped — `AI_PROVIDER=openrouter`, `OPENROUTER_FREE_ONLY=true`,
+`ENABLE_PAID_AI=false` — the six keys are used against free models only. Nothing
+is billed, and if all six are exhausted the endpoint says so rather than
+silently spending.
+
 ## What must never be committed
 
 - `node_modules/`, `.wrangler/`, `.dev.vars` — ignored by `.gitignore`.

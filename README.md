@@ -289,6 +289,12 @@ It runs the checks in the order that fails fastest and prints one verdict. CI
 runs it on every push and the weekly health workflow runs the full version on
 Mondays, so drift is caught by a machine before a reader finds it.
 
+**The variables that run the deployed site** are pasted into Cloudflare, not
+uploaded as a file: Cloudflare Pages has no `.env` at runtime. `cloudflare.env.example`
+is the paste-ready list — `NAME=value` lines, no comments, because the bulk
+editor imports every line it is given. The steps and what each name does are in
+[docs/MAINTENANCE.md](docs/MAINTENANCE.md#setting-the-variables-on-cloudflare).
+
 **Where things are written down.** [docs/](docs/README.md) is the index.
 [docs/MAINTENANCE.md](docs/MAINTENANCE.md) is the runbook — what to run, how
 often, what each failure means, how to add an article, how to release, and what
