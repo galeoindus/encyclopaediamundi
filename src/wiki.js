@@ -101,21 +101,65 @@ export async function onThisDay(month, day, lang = 'en', signal) {
 }
 
 /** The most-read articles yesterday — the closest thing to a front page. */
+const stamp = (date) => `${date.getUTCFullYear()}/${String(date.getUTCMonth() + 1).padStart(2, '0')}/${String(date.getUTCDate()).padStart(2, '0')}`;
+
+/** The most-read articles of a day, with their thumbnail. */
 export async function mostRead(lang = 'en', signal) {
-  const date = new Date(Date.now() - 864e5);
-  const stamp = `${date.getUTCFullYear()}/${String(date.getUTCMonth() + 1).padStart(2, '0')}/${String(date.getUTCDate()).padStart(2, '0')}`;
-  const url = `${REST(lang)}/feed/featured/${stamp}`;
+  const feed = await featuredFeed(lang, signal);
+  return feed.mostRead;
+}
+
+/**
+ * One request for the whole front page: the article of the day, the picture of
+ * the day, and what everybody read yesterday. Wikimedia publishes all of it in
+ * a single feed, so the home page costs one call rather than four.
+ */
+export async function featuredFeed(lang = 'en', signal) {
+  const url = `${REST(lang)}/feed/featured/${stamp(new Date(Date.now() - 864e5))}`;
+  let data = null;
   try {
-    const data = await getJSON(url, { signal, ttl: 60 * 60e3 });
-    return (data?.mostread?.articles || []).slice(0, 8).map((item) => ({
-      title: String(item.title || ''),
-      extract: String(item.extract || ''),
-      views: Number(item.views) || 0,
-      image: item.thumbnail?.source || '',
-    }));
+    data = await getJSON(url, { signal, ttl: 30 * 60e3 });
   } catch {
-    return [];
+    try {
+      data = await getJSON(`${REST(lang)}/feed/featured/${stamp(new Date())}`, { signal, ttl: 30 * 60e3 });
+    } catch { data = null; }
   }
+
+  const tfa = data?.tfa || null;
+  const image = data?.image || null;
+
+  const articleOfTheDay = tfa ? {
+    title: String(tfa.titles?.normalized || tfa.title || ''),
+    extract: String(tfa.extract || ''),
+    description: String(tfa.description || ''),
+    image: tfa.thumbnail?.source || tfa.originalimage?.source || '',
+    url: String(tfa.content_urls?.desktop?.page || ''),
+  } : null;
+
+  const pictureOfTheDay = image ? {
+    title: String(image.title || ''),
+    image: image.image?.source || image.thumbnail?.source || '',
+    thumb: image.thumbnail?.source || image.image?.source || '',
+    caption: String(image.description?.text || image.description || ''),
+    artist: String(image.artist?.text || ''),
+    licence: String(image.license?.type || ''),
+    url: String(image.file_page || ''),
+  } : null;
+
+  const mostReadRows = (data?.mostread?.articles || []).slice(0, 8).map((item) => ({
+    title: String(item.title || ''),
+    extract: String(item.extract || ''),
+    views: Number(item.views) || 0,
+    image: item.thumbnail?.source || '',
+  }));
+
+  return { articleOfTheDay, pictureOfTheDay, mostRead: mostReadRows };
+}
+
+/** The lead picture of one article, for the top of the answer page. */
+export async function leadImage(title, lang = 'en', signal) {
+  const page = await summary(title, lang, signal);
+  return page.image ? { src: page.image, caption: page.description || '' } : null;
 }
 
 export const CATEGORIES = [

@@ -5,7 +5,7 @@
  */
 
 import { h, esc, clip, wikiUrl, hostOf, KEY, read, write, LANGS } from './core.js';
-import { searchTitles, fetchArticle, summary, onThisDay, mostRead, CATEGORIES } from './wiki.js';
+import { searchTitles, fetchArticle, summary, onThisDay, mostRead, featuredFeed, leadImage, CATEGORIES } from './wiki.js';
 import { composeAnswer, answerText } from './answer.js';
 
 const DEPTH_LABEL = { quick: 'Quick answer', detailed: 'Detailed', deep: 'Deep dive' };
@@ -55,7 +55,7 @@ function sourceList(sources) {
 
 /* ── home ───────────────────────────────────────────────────────────────── */
 
-export function homeView({ go, lang, articles = [] }) {
+export function homeView({ go, lang, articles = [], feed = null }) {
   const wrap = h('div', {});
   const hero = h('section', { class: 'em-hero' },
     h('div', { class: 'em-hero-eyebrow' }, h('span', { class: 'em-dot' }), 'Veridell'),
@@ -76,6 +76,38 @@ export function homeView({ go, lang, articles = [] }) {
   }
   wrap.append(h('section', { class: 'em-section' }, sectionHead('Browse by subject'), categories));
 
+  // ── the front page, as Wikimedia publishes it ─────────────────────────
+  if (feed?.articleOfTheDay) {
+    const aotd = feed.articleOfTheDay;
+    const card = h('a', {
+      class: 'em-aotd',
+      href: aotd.url || `#/article/${encodeURIComponent(aotd.title)}`,
+      onclick: (event) => { event.preventDefault(); go(`#/article/${encodeURIComponent(aotd.title)}`); },
+    },
+      h('span', { class: 'em-aotd-media' },
+        aotd.image
+          ? h('img', { src: aotd.image, alt: '', loading: 'lazy', decoding: 'async' })
+          : h('span', { class: 'em-aotd-blank', 'aria-hidden': 'true' })),
+      h('span', { class: 'em-aotd-body' },
+        h('span', { class: 'em-eyebrow', text: 'Article of the day' }),
+        h('strong', { text: aotd.title }),
+        h('span', { class: 'em-aotd-extract', text: clip(aotd.extract, 320) }),
+        h('span', { class: 'em-aotd-more', text: 'Read the breakdown →' })));
+    wrap.append(h('section', { class: 'em-section' }, card));
+  }
+
+  if (feed?.pictureOfTheDay?.image) {
+    const potd = feed.pictureOfTheDay;
+    const figure = h('figure', { class: 'em-potd' },
+      h('img', { src: potd.image, alt: potd.caption || potd.title, loading: 'lazy', decoding: 'async' }),
+      h('figcaption', {},
+        h('span', { class: 'em-eyebrow', text: 'Picture of the day' }),
+        h('strong', { text: potd.title.replace(/^File:/, '').replace(/\.(jpe?g|png|svg|gif)$/i, '') }),
+        potd.caption ? h('span', { class: 'em-potd-caption', text: clip(potd.caption, 220) }) : null,
+        potd.artist ? h('span', { class: 'em-potd-credit', text: `Image: ${clip(potd.artist, 90)}` }) : null));
+    wrap.append(h('section', { class: 'em-section' }, sectionHead('Picture of the day', 'From Wikimedia Commons'), figure));
+  }
+
   const written = h('div', { class: 'em-grid' });
   for (const article of articles) {
     written.append(h('a', {
@@ -88,18 +120,25 @@ export function homeView({ go, lang, articles = [] }) {
     wrap.append(h('section', { class: 'em-section em-written' }, sectionHead('Written here', 'Complete pages, not summaries'), written));
   }
 
-  const feed = h('div', { class: 'em-grid em-grid--async' });
-  wrap.append(h('section', { class: 'em-section' }, sectionHead('Most read yesterday'), feed));
-  mostRead(lang).then((rows) => {
-    for (const row of rows) {
-      feed.append(h('a', {
-        class: 'em-card',
-        href: `#/article/${encodeURIComponent(row.title)}`,
-        onclick: (event) => { event.preventDefault(); go(`#/article/${encodeURIComponent(row.title)}`); },
-      }, h('strong', { text: row.title }), h('span', { text: clip(row.extract, 110) })));
-    }
-    if (!rows.length) feed.closest('.em-section')?.remove();
-  }).catch(() => feed.closest('.em-section')?.remove());
+  const readRows = feed?.mostRead || [];
+  if (readRows.length) {
+    const list = h('ol', { class: 'em-readlist' });
+    readRows.forEach((row, index) => {
+      list.append(h('li', {},
+        h('a', {
+          class: 'em-read',
+          href: `#/article/${encodeURIComponent(row.title)}`,
+          onclick: (event) => { event.preventDefault(); go(`#/article/${encodeURIComponent(row.title)}`); },
+        },
+          h('span', { class: 'em-read-n', text: String(index + 1) }),
+          row.image ? h('img', { class: 'em-read-thumb', src: row.image, alt: '', loading: 'lazy', decoding: 'async' }) : null,
+          h('span', { class: 'em-read-body' },
+            h('strong', { text: row.title }),
+            h('span', { text: clip(row.extract, 120) })),
+          h('span', { class: 'em-read-views', text: row.views ? `${(row.views / 1000).toFixed(0)}k reads` : '' }))));
+    });
+    wrap.append(h('section', { class: 'em-section' }, sectionHead('Most read yesterday', 'By pageviews, from Wikimedia'), list));
+  }
 
   return wrap;
 }
@@ -113,6 +152,12 @@ export function answerView(answer, { question = '', depth = 'detailed', onDepth,
   wrap.append(h('div', { class: 'em-answer-head' },
     badge,
     h('span', { class: 'em-meta-note', text: question ? `Answering “${clip(question, 70)}”` : 'From the article' })));
+
+  if (answer.image?.src) {
+    wrap.append(h('figure', { class: 'em-hero-figure' },
+      h('img', { src: answer.image.src, alt: '', loading: 'eager', decoding: 'async' }),
+      answer.image.caption ? h('figcaption', { text: answer.image.caption }) : null));
+  }
 
   wrap.append(h('h1', { text: answer.title }));
 
@@ -177,8 +222,11 @@ export async function loadAnswer({ question, depth = 'detailed', lang = 'en', si
   if (!hits.length) throw new Error('nothing-found');
   const article = await fetchArticle(hits[0].title, lang, signal);
   const url = `https://${lang}.wikipedia.org/wiki/${encodeURIComponent(article.title.replace(/ /g, '_'))}`;
+  // The picture is fetched in parallel and is allowed to fail: a page without
+  // its photograph is still a page, a page that waits for it is a slow one.
+  const picture = await leadImage(article.title, lang, signal).catch(() => null);
   return {
-    answer: composeAnswer({ title: article.title, html: article.html, question, depth, url }),
+    answer: { ...composeAnswer({ title: article.title, html: article.html, question, depth, url }), image: picture },
     alternatives: hits.slice(1, 4).map((hit) => hit.title),
   };
 }

@@ -10,6 +10,7 @@ import {
   homeView, answerView, loadAnswer, loadingView, noteView,
   exploreView, todayView, libraryView, sourcesView, savedView,
 } from './views.js';
+import { featuredFeed } from './wiki.js';
 
 const view = document.getElementById('view');
 const bar = document.getElementById('bar');
@@ -107,9 +108,15 @@ async function render() {
     // The index is read before the first paint, not after it. Painting twice —
     // once without the section and once with it — moved everything on the page
     // down a beat later, which is a layout shift the reader can see.
-    const articles = await loadArticleIndex();
+    const [articles, feed] = await Promise.all([
+      loadArticleIndex(),
+      // The front page (article of the day, picture of the day, most read) is
+      // read before the first paint for the same reason the index is: painting
+      // it afterwards moves everything on the page down.
+      featuredFeed(state.lang).catch(() => null),
+    ]);
     if (run !== state.run) return;
-    mount(homeView({ go, lang: state.lang, articles }));
+    mount(homeView({ go, lang: state.lang, articles, feed }));
     return;
   }
 
