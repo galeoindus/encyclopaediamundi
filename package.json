@@ -1,5 +1,5 @@
 {
-  "name": "encyclopaediamundi-site",
+  "name": "encyclopaediamundi",
   "version": "1.0.0",
   "private": true,
   "type": "module",
@@ -7,7 +7,7 @@
   "homepage": "https://encyclopaediamundi.pages.dev/",
   "repository": {
     "type": "git",
-    "url": "https://github.com/galeoindus/encyclopaediamundi-site.git"
+    "url": "https://github.com/galeoindus/encyclopaediamundi.git"
   },
   "license": "MIT",
   "engines": {
