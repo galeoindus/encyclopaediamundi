@@ -1,0 +1,21 @@
+# Keep the one dependency this repository has, and the actions it runs on, current.
+#
+# The site ships no runtime dependencies — the browser loads plain modules. What
+# is listed here is the test harness (jsdom) and the GitHub Actions, both of
+# which go stale silently if nothing watches them.
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 3
+    groups:
+      dev-dependencies:
+        patterns: ['*']
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: monthly
+    open-pull-requests-limit: 3
