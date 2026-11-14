@@ -129,10 +129,12 @@ export function hostOf(value) {
 /* ── the brand mark, drawn once ─────────────────────────────────────────── */
 
 export const MARK = `<svg viewBox="0 0 96 96" role="img" aria-hidden="true" focusable="false">
-  <defs><linearGradient id="emMarkA" x1=".1" y1="0" x2=".9" y2="1">
-    <stop offset="0" stop-color="#0b3b33"/><stop offset="1" stop-color="#1c6a56"/>
-  </linearGradient></defs>
-  <path d="M48 8 78 24v40L48 80 18 64V24z" fill="url(#emMarkA)"/>
-  <path d="M48 22 66 32v24L48 66 30 56V32z" fill="#f7f3ea" opacity=".92"/>
-  <path d="M48 34 57 39v11l-9 5-9-5V39z" fill="#a8622c"/>
+  <defs>
+    <linearGradient id="emMarkG" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#1f7d63"/><stop offset="1" stop-color="#08302a"/>
+    </linearGradient>
+  </defs>
+  <rect width="96" height="96" rx="26" fill="url(#emMarkG)"/>
+  <path d="M28 31 L48 66 L68 31" fill="none" stroke="#f7f3ea" stroke-width="9.5" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="48" cy="24.5" r="5.2" fill="#e0a06a"/>
 </svg>`;

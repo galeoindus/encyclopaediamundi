@@ -94,8 +94,11 @@ export function homeView({ go, lang, articles = [], feed = null }) {
       h('span', { class: 'em-aotd-body' },
         h('span', { class: 'em-eyebrow', text: 'Article of the day' }),
         h('strong', { text: aotd.title }),
+        aotd.description ? h('span', { class: 'em-aotd-desc', text: aotd.description }) : null,
         h('span', { class: 'em-aotd-extract', text: clip(aotd.extract, 320) }),
-        h('span', { class: 'em-aotd-more', text: 'Read the breakdown →' })));
+        h('span', { class: 'em-aotd-more' },
+          h('span', { text: 'Read it here →' }),
+          h('span', { class: 'em-aotd-alt', text: 'with its sources, facts and pictures' }))));
     wrap.append(h('section', { class: 'em-panel' }, card));
   }
 
@@ -239,6 +242,54 @@ export function answerView(answer, { question = '', depth = 'detailed', onDepth,
     wrap.append(h('p', { class: 'em-meta-note' },
       'Text: CC BY-SA 4.0, by the Wikipedia community. Facts: CC0, from Wikidata. Pictures: the licence on each file page.'));
   }
+
+  // Machine translation, for the languages Wikipedia has no edition of.
+  // It sits beside the depth options because both change the answer in place.
+  const machineRow = h('div', { class: 'em-translate-bar' },
+    h('span', { class: 'em-meta-note', text: 'Translate this page' }));
+  const toSelect = h('select', { 'aria-label': 'Translate into' },
+    ...TRANSLATE_TO.filter((lang) => lang.code !== 'en').map((lang) => h('option', { value: lang.code, text: lang.label })));
+  const goButton = h('button', { type: 'button', text: 'Translate' });
+  const status = h('span', { class: 'em-meta-note' });
+  machineRow.append(toSelect, goButton, status);
+  wrap.append(machineRow);
+
+  goButton.addEventListener('click', async () => {
+    goButton.disabled = true;
+    status.textContent = 'Translating…';
+    try {
+      const payload = [answer.lead, ...(answer.points || []), ...(answer.topics || []).flatMap((topic) => [topic.heading, ...topic.paragraphs])]
+        .filter(Boolean).join('\n\n');
+      const response = await fetch('/api/translate', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ text: payload, from: answer.lang || 'en', to: toSelect.value }),
+      });
+      const data = await response.json().catch(() => null);
+      if (!response.ok || !data?.text) throw new Error(data?.message || 'Translation failed.');
+
+      // Replace the words, keep the structure: the translated text comes back
+      // as paragraphs, and the first one becomes the lead.
+      const paragraphs = String(data.text).split(/\n{2,}/).filter(Boolean);
+      wrap.querySelector('.em-lead')?.replaceChildren(document.createTextNode(paragraphs[0] || ''));
+      const points = wrap.querySelector('.em-points');
+      if (points && paragraphs[1]) points.replaceChildren(h('li', { text: paragraphs[1] }));
+      wrap.querySelectorAll('.em-topic p').forEach((node, index) => {
+        const next = paragraphs[index + 2];
+        if (next) node.textContent = next;
+      });
+      const badge = wrap.querySelector('.em-badge');
+      if (badge) {
+        badge.textContent = 'Machine translation';
+        badge.classList.add('is-machine');
+      }
+      status.textContent = `Translated with ${data.provider}${data.partial ? ' (some parts kept in the original)' : ''}`;
+    } catch (error) {
+      status.textContent = error.message || 'Translation failed.';
+    } finally {
+      goButton.disabled = false;
+    }
+  });
 
   if (onTranslate) {
     const row = h('div', { class: 'em-translate' },

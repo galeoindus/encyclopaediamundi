@@ -53,10 +53,44 @@ function persist() {
   write(KEY.chat, turns.slice(-20));
 }
 
+
+/* ── the mascot ───────────────────────────────────────────────────────────
+ * One little character, drawn in SVG so it costs nothing to load, with four
+ * states that match what the chat is doing: resting, thinking, researching and
+ * answering. It is the only thing on the page that moves while you wait, which
+ * is what makes the wait feel attended to rather than ignored.
+ */
+const MASCOT_SVG = `
+  <svg viewBox="0 0 72 72" role="img" aria-hidden="true" focusable="false">
+    <defs>
+      <linearGradient id="emFace" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0" stop-color="#2a8f74"/><stop offset="1" stop-color="#0d4a3e"/>
+      </linearGradient>
+      <radialGradient id="emGlow" cx=".3" cy=".25" r=".8">
+        <stop offset="0" stop-color="#ffffff" stop-opacity=".55"/><stop offset="1" stop-color="#ffffff" stop-opacity="0"/>
+      </radialGradient>
+    </defs>
+    <rect x="4" y="4" width="64" height="64" rx="22" fill="url(#emFace)"/>
+    <rect x="4" y="4" width="64" height="64" rx="22" fill="url(#emGlow)"/>
+    <g class="em-face">
+      <ellipse class="em-eye" cx="27" cy="33" rx="3.4" ry="4.4" fill="#f7f3ea"/>
+      <ellipse class="em-eye" cx="45" cy="33" rx="3.4" ry="4.4" fill="#f7f3ea"/>
+      <path class="em-mouth" d="M30 45c4 3.4 8 3.4 12 0" fill="none" stroke="#f7f3ea" stroke-width="2.6" stroke-linecap="round"/>
+    </g>
+    <circle class="em-orbit" cx="36" cy="36" r="30" fill="none" stroke="#e0a06a" stroke-width="2" stroke-dasharray="6 12" opacity="0"/>
+  </svg>`;
+
+export function mascot(state = 'idle') {
+  const node = h('span', { class: 'em-mascot', 'data-state': state, 'aria-hidden': 'true' });
+  node.innerHTML = MASCOT_SVG;
+  return node;
+}
+
 /* ── rendering ──────────────────────────────────────────────────────────── */
 
 function emptyState() {
   return h('div', { class: 'em-chat-empty' },
+    h('div', { class: 'em-chat-mascot' }, mascot('idle')),
     h('div', { class: 'em-hero-eyebrow' }, h('span', { class: 'em-dot' }), 'Veridell · AI Mode'),
     h('h1', { html: 'Ask <em>Amigo</em> anything.' }),
     h('p', { text: 'A question, a paragraph, a file — answered in plain language, with sources when the answer makes a factual claim.' }),
@@ -71,11 +105,12 @@ function questionTurn(text) {
   return h('div', { class: 'em-turn' }, h('div', { class: 'em-turn-q', text }));
 }
 
-function answerTurn({ text, sources = [], provider = '', plain = false, question = '' }) {
+function answerTurn({ text, sources = [], provider = '', plain = false, question = '', state = 'answering' }) {
   const body = h('div', { class: 'em-prose', html: markdown(text, { cites: sources.length }) });
   const wrap = h('div', { class: 'em-turn' },
     h('div', { class: 'em-turn-a' },
       h('div', { class: 'em-who' },
+        mascot(state),
         h('span', { class: 'em-badge', text: plain ? 'General answer' : 'Source-backed' }),
         provider ? h('span', { class: 'em-meta-note', text: provider }) : null),
       body));
@@ -141,9 +176,9 @@ function liveParagraph(node) {
   };
 }
 
-function thinking() {
-  const node = h('div', { class: 'em-turn' },
-    h('p', { class: 'em-thinking', html: '<i></i><i></i><i></i><span>Reading sources…</span>' }));
+function thinking(state = 'thinking', label = 'Reading sources…') {
+  const node = h('div', { class: 'em-turn em-turn--working' },
+    h('p', { class: 'em-thinking' }, mascot(state), h('span', { text: label })));
   stage.append(node);
   scrollDown();
   return node;
@@ -279,7 +314,8 @@ async function submit(raw) {
   stage.querySelector('.em-chat-empty')?.remove();
 
   stage.append(questionTurn(question));
-  const wait = thinking();
+  const deep = (depthSelect.value || 'detailed') === 'deep';
+  const wait = thinking(deep ? 'researching' : 'thinking', deep ? 'Researching the sources…' : 'Reading sources…');
   controller = new AbortController();
 
   try {

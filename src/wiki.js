@@ -128,11 +128,26 @@ export async function featuredFeed(lang = 'en', signal) {
   const tfa = data?.tfa || null;
   const image = data?.image || null;
 
+  /* The feed does not always carry a picture for the article of the day, which
+   * is why the card arrived empty. When it does not, the article's own summary
+   * is asked for the lead image — one extra call, only on the days it is
+   * needed, and never more than once. */
+  let aotdImage = tfa?.thumbnail?.source || tfa?.originalimage?.source || '';
+  if (tfa && !aotdImage) {
+    const title = String(tfa.titles?.normalized || tfa.title || '');
+    if (title) {
+      try {
+        const page = await summary(title, lang, signal);
+        aotdImage = page.image || '';
+      } catch { aotdImage = ''; }
+    }
+  }
+
   const articleOfTheDay = tfa ? {
     title: String(tfa.titles?.normalized || tfa.title || ''),
     extract: String(tfa.extract || ''),
     description: String(tfa.description || ''),
-    image: tfa.thumbnail?.source || tfa.originalimage?.source || '',
+    image: aotdImage,
     url: String(tfa.content_urls?.desktop?.page || ''),
   } : null;
 
