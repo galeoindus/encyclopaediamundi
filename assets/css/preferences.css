@@ -1,0 +1,1018 @@
+/* Veridell cross-route reading and surface preferences. Keep prose surfaces
+   flat and opaque; reserve morphic effects for controls and focal surfaces. */
+:root {
+  --im-article-panel-width: 760px;
+  --im-chat-column-width: 900px;
+  --im-reading-text-scale: 1;
+}
+html[data-reading-width="compact"] {
+  --im-article-panel-width: 660px;
+  --im-chat-column-width: 760px;
+}
+html[data-reading-width="comfortable"] {
+  --im-article-panel-width: 760px;
+  --im-chat-column-width: 900px;
+}
+html[data-reading-width="wide"] {
+  --im-article-panel-width: 980px;
+  --im-chat-column-width: 1080px;
+}
+html[data-reading-scale="large"] { --im-reading-text-scale: 1.1; }
+html[data-reading-scale="larger"] { --im-reading-text-scale: 1.22; }
+
+/* Accessible accent families. Each foreground token clears WCAG AA contrast
+   against the default light and dark page surfaces; soft fills remain subtle. */
+html[data-accent="ocean"] {
+  --im-accent: #175ba6; --im-accent-soft: #e3eefb;
+  --forest: #175ba6; --forest-ink: #175ba6; --accent: var(--im-accent);
+  --primary: var(--im-accent); --focus: var(--im-accent); --accent-2: #286db8;
+}
+html[data-theme="dark"][data-accent="ocean"] {
+  --im-accent: #83baff; --im-accent-soft: #193753;
+  --forest: #83baff; --forest-ink: #acd1ff; --accent-2: #acd1ff;
+}
+html[data-accent="violet"] {
+  --im-accent: #65409b; --im-accent-soft: #eee7f8;
+  --forest: #65409b; --forest-ink: #65409b; --accent: var(--im-accent);
+  --primary: var(--im-accent); --focus: var(--im-accent); --accent-2: #7652aa;
+}
+html[data-theme="dark"][data-accent="violet"] {
+  --im-accent: #c3a4ff; --im-accent-soft: #30234b;
+  --forest: #c3a4ff; --forest-ink: #ddcaff; --accent-2: #ddcaff;
+}
+html[data-accent="amber"] {
+  --im-accent: #94500e; --im-accent-soft: #f7eadb;
+  --forest: #94500e; --forest-ink: #94500e; --accent: var(--im-accent);
+  --primary: var(--im-accent); --focus: var(--im-accent); --accent-2: #a66018;
+}
+html[data-theme="dark"][data-accent="amber"] {
+  --im-accent: #ffb979; --im-accent-soft: #3d2a1a;
+  --forest: #ffb979; --forest-ink: #ffd2a8; --accent-2: #ffd2a8;
+}
+
+/* Article and chat content respond to a preference, not a fixed desktop width. */
+.article-grid > .panel,
+.panel.panel-wide,
+.article-grid > .panel.panel-wide {
+  max-width: min(var(--im-article-panel-width), 100%);
+}
+/* The article width preference must control both the facts and the prose.
+   Older view rules capped .prose independently, creating a narrow text column
+   inside a wider facts card. Keep direct article content aligned to the panel. */
+[data-view="article"] .panel.panel-wide > .art-body,
+[data-view="article"] .panel.panel-wide > .prose,
+.panel.panel-wide > .art-body {
+  width: 100%;
+  max-width: 100%;
+}
+.art-body,
+.prose,
+body.amigo-chat .a-body .md {
+  font-size: calc(1em * var(--im-reading-text-scale));
+}
+body.amigo-chat .stage,
+body.amigo-chat .thread {
+  max-width: var(--im-chat-column-width);
+}
+body.amigo-chat .stage { width: min(calc(100% - 64px), var(--im-chat-column-width)); }
+body.amigo-chat .thread { width: 100%; }
+
+/* Glassmorphism is deliberately restricted to persistent navigation and
+   floating controls, where transparency communicates layering. */
+html[data-surface-style="glass"] .topbar,
+html[data-surface-style="glass"] .top,
+html[data-surface-style="glass"] .rail,
+html[data-surface-style="glass"] .dock,
+html[data-surface-style="glass"] .bottom-nav,
+html[data-surface-style="glass"] .im-preferences-panel {
+  background: color-mix(in srgb, var(--im-surface) 84%, transparent);
+  -webkit-backdrop-filter: blur(22px) saturate(1.35);
+  backdrop-filter: blur(22px) saturate(1.35);
+}
+
+/* Neumorphism: soft raised controls and inset input wells, never body copy. */
+html[data-surface-style="soft"] .composer,
+html[data-surface-style="soft"] .chat-composer,
+html[data-surface-style="soft"] .searchbar,
+html[data-surface-style="soft"] .rail-new,
+html[data-surface-style="soft"] .im-preferences-panel {
+  border-color: transparent;
+  box-shadow: var(--im-clay-shadow), inset 1px 1px 2px color-mix(in srgb, var(--im-text) 5%, transparent);
+}
+html[data-surface-style="soft"] .composer:focus-within,
+html[data-surface-style="soft"] .chat-composer:focus-within,
+html[data-surface-style="soft"] .searchbar:focus-within {
+  box-shadow: var(--im-inset-shadow), 0 0 0 3px color-mix(in srgb, var(--im-accent) 24%, transparent);
+}
+
+/* Claymorphism is a focal treatment, not a blanket card style. */
+html[data-surface-style="clay"] .empty-mark,
+html[data-surface-style="clay"] .dash-hero,
+html[data-surface-style="clay"] .welcome-block,
+html[data-surface-style="clay"] .aotd,
+html[data-surface-style="clay"] .composer,
+html[data-surface-style="clay"] .im-preferences-panel {
+  border-color: color-mix(in srgb, var(--im-accent) 22%, var(--im-border));
+  box-shadow: var(--im-clay-shadow), 0 16px 38px -28px color-mix(in srgb, var(--im-accent) 35%, transparent);
+}
+html[data-surface-style="clay"] .starters button,
+html[data-surface-style="clay"] .suggestion-card {
+  box-shadow: var(--im-shadow);
+}
+
+/* A user who requests reduced transparency always receives opaque controls. */
+@media (prefers-reduced-transparency: reduce) {
+  .topbar, .top, .rail, .dock, .bottom-nav, .im-preferences-panel {
+    background: var(--im-surface) !important;
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
+  }
+}
+
+/* Preferences control and panel. */
+.im-preferences-toggle { margin-inline-start: 6px; }
+.im-preferences-panel {
+  position: fixed;
+  z-index: 12000;
+  top: max(72px, calc(env(safe-area-inset-top) + 64px));
+  right: max(14px, env(safe-area-inset-right));
+  width: min(360px, calc(100vw - 24px));
+  padding: 18px;
+  border: 1px solid var(--im-border-strong);
+  border-radius: 20px;
+  background: var(--im-surface);
+  color: var(--im-text);
+  box-shadow: var(--im-shadow-lg);
+}
+.im-preferences-panel[hidden] { display: none !important; }
+.im-preferences-panel h2 {
+  margin: 0 0 14px;
+  font-size: 16px;
+  font-weight: 720;
+  letter-spacing: -.02em;
+}
+.im-pref-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(132px, 46%);
+  gap: 12px;
+  align-items: center;
+  min-height: 48px;
+  padding: 7px 0;
+  border-top: 1px solid var(--im-border);
+  color: var(--im-text);
+  font-size: 13px;
+}
+.im-pref-row select {
+  width: 100%;
+  min-height: 38px;
+  padding: 7px 10px;
+  border: 1px solid var(--im-border-strong);
+  border-radius: 10px;
+  background: var(--im-surface-2);
+  color: var(--im-text);
+  font: inherit;
+}
+.im-pref-note {
+  margin: 11px 0 12px;
+  color: var(--im-muted);
+  font-size: 11px;
+  line-height: 1.55;
+}
+.im-pref-close {
+  min-height: 40px;
+  width: 100%;
+  border: 1px solid var(--im-border);
+  border-radius: 11px;
+  background: var(--im-accent-soft);
+  color: var(--im-text);
+  font: inherit;
+  font-weight: 650;
+  cursor: pointer;
+}
+.im-pref-close:hover { border-color: var(--im-accent); }
+.im-preferences-panel :focus-visible { outline: 2px solid var(--im-accent); outline-offset: 3px; }
+
+@media (max-width: 600px) {
+  .im-preferences-panel {
+    top: auto;
+    right: 10px;
+    bottom: max(80px, calc(env(safe-area-inset-bottom) + 72px));
+    width: min(360px, calc(100vw - 20px));
+    max-height: min(72dvh, 520px);
+    overflow-y: auto;
+    border-radius: 20px;
+  }
+  body.amigo-chat .stage { width: calc(100% - 28px); }
+}
+
+/* Honour operating-system contrast settings and Windows High Contrast mode. */
+@media (prefers-contrast: more) {
+  :root {
+    --im-muted: #3e4d44;
+    --im-faint: #425047;
+    --im-border: #87978d;
+    --im-border-strong: #52645a;
+  }
+  html[data-theme="dark"] {
+    --im-muted: #d0dbd3;
+    --im-faint: #c5d1c9;
+    --im-border: #71877a;
+    --im-border-strong: #9aada1;
+  }
+  button, input, textarea, select, a { text-decoration-thickness: max(1px, .08em); }
+}
+@media (forced-colors: active) {
+  .im-preferences-panel, .im-pref-row select, .composer, .rail-search,
+  .rail-new, .a, .src-card, .a-actions button {
+    border: 1px solid ButtonText;
+    box-shadow: none;
+    forced-color-adjust: auto;
+  }
+  .im-preferences-panel, .composer, .rail-search, .a, .src-card {
+    background: Canvas;
+    color: CanvasText;
+  }
+}
+
+/* ── the chess board cannot widen the page ────────────────────────────────
+   A Wikimedia chessboard is a ten-cell table whose cells are fixed sizes, so
+   its min-content width is ~361 px. On a 390 px phone it overflowed the
+   326 px reading column and was drawn straight over the panel edge. The board
+   and every wrapper between it and the column are pinned to the column here,
+   and the board itself scrolls sideways inside its own box. This lives in the
+   last sheet of the cascade so nothing earlier can put the width back. */
+.art-body .chessboard,
+.prose .chessboard,
+.art-body .chessboard .center,
+.prose .chessboard .center,
+.art-body .chessboard .thumbinner,
+.prose .chessboard .thumbinner,
+.art-body .chessboard .table-scroll,
+.prose .chessboard .table-scroll {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+  float: none;
+}
+.art-body .chessboard .table-scroll,
+.prose .chessboard .table-scroll {
+  overflow-x: auto !important;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   ONE CONTENT WIDTH, ON EVERY ROUTE
+   ══════════════════════════════════════════════════════════════════════════
+   Measured before this block, at a 1280 window: the home card was 824 px, the
+   article panel 760 px, the chat column 900 px, and the topics page 1090 px —
+   four answers to the same question, so every route looked like a different
+   site and the article in particular read as a narrow strip beside everything
+   else. This is now the only width rule the layout obeys: one token, applied
+   to every main content container, so the article spreads exactly as far as
+   the home page, the chat and the static pages do.
+
+   --content-w is the reading width. It is capped so a 17 px line never runs
+   past a comfortable measure, and it is subtracted from the viewport with the
+   same gutters everywhere rather than each route inventing its own padding. */
+:root { --content-w: min(952px, 100%); }
+
+/* the single-page app, its article view and every static page */
+.wrap,
+.wrap-narrow,
+#main.wrap,
+main#main,
+[data-view="article"] .wrap,
+[data-view="ask"] .wrap {
+  width: 100%;
+  max-width: var(--content-w);
+  margin-inline: auto;
+  padding-inline: clamp(16px, 3.2vw, 44px);
+}
+
+/* the home page's content column, and the hero inside it */
+.dash,
+.dash-hero,
+.site-intro .wrap-narrow,
+.aotd,
+.welcome-block {
+  width: 100%;
+  max-width: var(--content-w);
+  margin-inline: auto;
+}
+/* The home column is already inside the shell's gutters: adding a second set
+   made the home card 788 px while the article panel beside it was 870 px in
+   the same 952 px column. The padding belongs to the shell, once. */
+.dash { padding-inline: 0; }
+.dash-hero { max-width: 100%; }
+
+/* the article: the panel is the column, and it is the site's column */
+.article-grid,
+#main .article-grid {
+  width: 100%;
+  max-width: var(--content-w);
+  margin-inline: auto;
+}
+.article-grid > .panel,
+.article-grid > .panel.panel-wide,
+#main .article-grid > .panel,
+.panel.panel-wide {
+  width: 100%;
+  max-width: 100%;
+  margin-inline: 0;
+}
+
+/* the chat: the stage and the thread sit on the same column as everything else */
+body.amigo-chat .stage,
+body.amigo-chat .thread,
+body.amigo-chat .dock {
+  width: 100%;
+  max-width: var(--content-w);
+  margin-inline: auto;
+}
+/* the chat sits inside the same gutters as every other column */
+body.amigo-chat .stage,
+body.amigo-chat .thread,
+body.amigo-chat .dock {
+  padding-inline: clamp(16px, 3.2vw, 44px);
+}
+body.amigo-chat .stage { width: 100%; }
+
+/* a topic or index grid is a card list, not prose: it keeps the column but
+   loses the narrow text measure */
+.topics-grid, .index-grid, .grid-2, .suggestion-grid { max-width: 100%; }
+
+/* ── the header's controls are one control, repeated ──────────────────────
+   The row used to mix a 40 px circle for the two language buttons, a 42 px
+   rounded square for the theme and another for preferences, and an 8 x 17 px
+   squashed icon where the theme glyph should have been — three shapes and one
+   broken icon in a single row. Every control is now the same 40 px shape with
+   the same border, the same gap and a glyph that cannot be squashed. */
+.topnav,
+.topbar-actions,
+.top-right {
+  gap: 8px;
+}
+.topnav .btn-icon,
+.topnav .im-theme-toggle,
+.topnav .im-preferences-toggle,
+.topbar-actions .btn-icon,
+.topbar-actions .im-theme-toggle,
+.topbar-actions .im-preferences-toggle,
+/* on a phone the topnav is hidden and these two are appended straight to the
+   header row, where they were still 44 px rounded squares beside 40 px pills */
+.topbar-inner > .im-theme-toggle,
+.topbar-inner > .im-preferences-toggle {
+  width: 40px;
+  height: 40px;
+  min-width: 40px;
+  min-height: 40px;
+  padding: 0;
+  display: inline-grid;
+  place-items: center;
+  border: 1px solid var(--im-border, var(--border-2));
+  border-radius: 999px;
+  background: transparent;
+  color: var(--text);
+  font-size: 13px;
+  font-weight: 650;
+  line-height: 1;
+  margin-inline-start: 0;
+  /* flex must not size these: one of them measured 42 px beside 40 px pills */
+  flex: 0 0 40px;
+  box-sizing: border-box;
+}
+.topnav .btn-icon:hover,
+.topnav .im-theme-toggle:hover,
+.topnav .im-preferences-toggle:hover,
+.topbar-actions .im-theme-toggle:hover,
+.topbar-actions .im-preferences-toggle:hover {
+  border-color: var(--im-accent, var(--accent));
+  transform: none;
+  box-shadow: none;
+}
+/* the glyph is never allowed to shrink inside a flex row */
+.topnav svg,
+.topbar-actions svg,
+.topbar-inner svg,
+.im-theme-toggle svg,
+.im-preferences-toggle svg {
+  flex: 0 0 auto;
+  width: 18px;
+  height: 18px;
+  display: block;
+}
+@media (max-width: 700px) {
+  .topnav .btn-icon,
+  .topnav .im-theme-toggle,
+  .topnav .im-preferences-toggle,
+  .topbar-actions .btn-icon,
+  .topbar-actions .im-theme-toggle,
+  .topbar-actions .im-preferences-toggle,
+  .topbar-inner > .im-theme-toggle,
+  .topbar-inner > .im-preferences-toggle {
+    width: 36px; height: 36px; min-width: 36px; min-height: 36px;
+    flex: 0 0 36px;
+  }
+  .topnav svg, .topbar-actions svg, .topbar-inner svg { width: 17px; height: 17px; }
+  .topnav, .topbar-actions, .top-right { gap: 6px; }
+}
+
+/* ── the preferences panel never covers the header it opened from ─────────
+   It was pinned to a fixed 72 px from the top, which on a phone lands on top
+   of the header row and reads as a broken overlay. It now hangs below the
+   header, inside the viewport, and scrolls if the list is taller than the
+   space it has. */
+.im-preferences-panel {
+  top: calc(var(--topbar-h, 62px) + 10px);
+  right: max(14px, env(safe-area-inset-right));
+  width: min(360px, calc(100vw - 28px));
+  max-height: calc(100dvh - var(--topbar-h, 62px) - 28px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+@media (max-width: 600px) {
+  .im-preferences-panel {
+    top: calc(var(--topbar-h, 62px) + 8px);
+    right: 12px;
+    bottom: auto;
+    width: min(360px, calc(100vw - 24px));
+    max-height: calc(100dvh - var(--topbar-h, 62px) - 84px);
+  }
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   AMIGO STANDS ON HIS OWN
+   ══════════════════════════════════════════════════════════════════════════
+   Three earlier sheets each wrapped the assistant's mark in their own clay
+   or squircle card — a border, a gradient fill, a drop shadow, a 28 px radius
+   and a halo ring behind it — so the character rendered inside a box and read
+   as an app icon rather than a character. This is the last sheet in the
+   cascade, so the box is removed once, here, and the drawing carries itself:
+   the soft glow in the artwork is the only thing behind him. */
+body.amigo-chat .brand .mark,
+body.amigo-chat .empty-mark {
+  border: 0;
+  border-radius: 0;
+  background: none;
+  box-shadow: none;
+  overflow: visible;
+}
+body.amigo-chat .brand .mark {
+  width: 44px; height: 44px;
+  flex: none;
+}
+body.amigo-chat .empty-mark {
+  width: 96px; height: 96px;
+  margin-bottom: 18px;
+}
+/* the halo ring that used to sit behind the icon */
+body.amigo-chat .empty-mark::after,
+body.amigo-chat .brand .mark::after { content: none; }
+body.amigo-chat .brand .mark img,
+body.amigo-chat .empty-mark img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  filter: drop-shadow(0 6px 10px color-mix(in srgb, var(--im-text) 16%, transparent));
+}
+@media (max-width: 600px) {
+  body.amigo-chat .brand .mark { width: 38px; height: 38px; }
+  body.amigo-chat .empty-mark { width: 84px; height: 84px; }
+}
+
+/* ── one focus ring, everywhere ───────────────────────────────────────────
+   Several chat controls replaced the outline with a subtle background change,
+   which is close to invisible on the dark rail. The token already exists; this
+   makes it the single ring for every interactive element. */
+:where(a, button, input, select, textarea, [tabindex]):focus-visible {
+  outline: 2px solid var(--focus, var(--im-accent));
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   AMIGO, ALIVE
+   ══════════════════════════════════════════════════════════════════════════
+   The artwork is the delivered sheet, cleaned: the painted checkerboard is
+   gone, including the gap between the legs, which the first pass left behind
+   as a white patch. Because the character is a picture, it is moved as a
+   whole — a float, a lean, a hop — and given a soft ground shadow that
+   tightens as it rises, which is what makes the motion read as weight rather
+   than a sliding image. */
+.amigo {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  transform-origin: 50% 96%;
+  animation: amigo-breathe 3.6s ease-in-out infinite;
+  -webkit-user-drag: none;
+  user-select: none;
+  filter: drop-shadow(0 6px 10px color-mix(in srgb, var(--im-text, #16241d) 16%, transparent));
+}
+
+.amigo--rail { animation-duration: 4.4s; animation-delay: -1.1s; }
+.amigo--launcher { animation-duration: 3s; animation-delay: -0.6s; }
+
+@keyframes amigo-breathe {
+  0%, 100% { transform: translateY(0) scale(1, 1); }
+  35%      { transform: translateY(-4.5%) scale(.985, 1.015); }
+  70%      { transform: translateY(-1.5%) scale(1.01, .99); }
+}
+
+/* ── while it is working ─────────────────────────────────────────────────── */
+.amigo[data-state="researching"],
+.amigo[data-state="composing"] { animation: amigo-work 2.1s ease-in-out infinite; }
+@keyframes amigo-work {
+  0%, 100% { transform: translateY(0) rotate(-2.5deg) scale(1); }
+  25%      { transform: translateY(-5%) rotate(1.5deg) scale(1.015); }
+  50%      { transform: translateY(0) rotate(2.5deg) scale(1); }
+  75%      { transform: translateY(-3%) rotate(-1deg) scale(1.01); }
+}
+
+.amigo-avatar.is-active::before { animation: amigo-ring 1.6s ease-out infinite; }
+@keyframes amigo-ring {
+  0%   { opacity: .85; transform: scale(.84); }
+  70%  { opacity: 0; transform: scale(1.55); }
+  100% { opacity: 0; transform: scale(1.55); }
+}
+
+.working > span:last-child::after {
+  content: "";
+  display: inline-block;
+  width: 1.2em;
+  animation: amigo-dots 1.25s steps(1, end) infinite;
+}
+@keyframes amigo-dots {
+  0%   { content: ""; }
+  25%  { content: "·"; }
+  50%  { content: "··"; }
+  75%  { content: "···"; }
+}
+
+/* ── the answer landed ──────────────────────────────────────────────────── */
+.amigo[data-state="success"] { animation: amigo-hop .85s cubic-bezier(.34,1.56,.64,1) 1; }
+@keyframes amigo-hop {
+  0%   { transform: translateY(0) scale(1, 1); }
+  22%  { transform: translateY(-17%) scale(1.06, .94); }
+  48%  { transform: translateY(0) scale(.93, 1.07); }
+  68%  { transform: translateY(-8%) scale(1.03, .97); }
+  86%  { transform: translateY(0) scale(.99, 1.01); }
+  100% { transform: translateY(0) scale(1, 1); }
+}
+
+.amigo[data-state="listening"] { animation: amigo-listen 1.35s ease-in-out infinite; }
+@keyframes amigo-listen {
+  0%, 100% { transform: scale(1) rotate(-2deg); }
+  50%      { transform: scale(1.05) rotate(2deg); }
+}
+
+.amigo[data-state="uncertain"],
+.amigo[data-state="error"] {
+  animation: amigo-doubt 5.2s ease-in-out infinite;
+  filter: saturate(.85) brightness(.97) drop-shadow(0 6px 10px rgba(0,0,0,.12));
+}
+@keyframes amigo-doubt {
+  0%, 100% { transform: translateY(0) rotate(-1deg); }
+  50%      { transform: translateY(1%) rotate(1deg); }
+}
+
+.amigo--welcome {
+  animation: amigo-arrive .72s cubic-bezier(.2,.75,.25,1) both,
+             amigo-breathe 4.2s ease-in-out .72s infinite;
+}
+@keyframes amigo-arrive {
+  from { opacity: 0; transform: translateY(16px) scale(.84); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.a-body.revealing .md { animation: answer-reveal .42s cubic-bezier(.22,.61,.36,1) both; }
+@keyframes answer-reveal {
+  from { clip-path: inset(0 0 100% 0); opacity: .45; }
+  to   { clip-path: inset(0 0 0 0); opacity: 1; }
+}
+
+.src-cards > * { animation: card-rise .34s cubic-bezier(.2,.8,.2,1) both; }
+.src-cards > *:nth-child(2) { animation-delay: .05s; }
+.src-cards > *:nth-child(3) { animation-delay: .1s; }
+.src-cards > *:nth-child(4) { animation-delay: .15s; }
+@keyframes card-rise {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.im-launcher .im-face { display: grid; place-items: center; width: 30px; height: 30px; flex: none; }
+.im-launcher .amigo { width: 30px; height: 30px; }
+
+@media (prefers-reduced-motion: reduce) {
+  .amigo, .amigo--welcome, .a-body.revealing .md, .src-cards > * { animation: none !important; }
+  .working > span:last-child::after { content: "…"; animation: none; }
+}
+/* ══════════════════════════════════════════════════════════════════════════
+   THE CHAT'S CONTROLS, ON ONE GRID
+   ══════════════════════════════════════════════════════════════════════════
+   Measured in a browser at 1280 before this: the header row held 42 px, 42 px,
+   42 px and 44 px controls with a 2 px gap between two of them and 8 px after
+   the third, so the right end read as a pile rather than a row. The composer
+   mixed a 44 px plus, a 38 px attach and a 44 px send, aligned to the bottom
+   of a growing textarea, so the pencil sat low and looked pushed aside.
+
+   One size, one gap, one vertical centre, equal insets at both ends. */
+body.amigo-chat .top {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding-inline: 14px;
+}
+body.amigo-chat .top > * { flex: none; }
+body.amigo-chat .top .top-right { display: flex; align-items: center; gap: 8px; margin-inline-start: auto; }
+/* the injected settings button carried its own 44 px width from an earlier
+   sheet, so it sat wider than the 36 px controls beside it */
+body.amigo-chat .top .top-right > *,
+body.amigo-chat .top .im-theme-toggle.im-preferences-toggle {
+  width: 40px;
+  min-width: 40px;
+  height: 40px;
+  min-height: 40px;
+}
+body.amigo-chat .top button,
+body.amigo-chat .top .rail-toggle,
+body.amigo-chat .top .im-theme-toggle,
+body.amigo-chat .top .im-preferences-toggle {
+  width: 40px; height: 40px; min-width: 40px; min-height: 40px;
+  padding: 0;
+  display: inline-grid;
+  place-items: center;
+  border-radius: 999px;
+  box-sizing: border-box;
+}
+body.amigo-chat .top svg { width: 18px; height: 18px; flex: 0 0 auto; }
+/* the spacer keeps the title left and the tools right without a ragged edge */
+body.amigo-chat .top .top-title,
+body.amigo-chat .top .chat-title { margin-inline-end: auto; }
+body.amigo-chat .top > :last-child { margin-inline-end: 0; }
+
+/* the composer: every control the same size, on the same centre line */
+body.amigo-chat .composer {
+  align-items: center;
+  gap: 8px;
+  padding: 8px;
+}
+body.amigo-chat .composer > .plus,
+body.amigo-chat .composer > .mic,
+body.amigo-chat .composer > #attachBtn,
+body.amigo-chat .composer > .attach,
+body.amigo-chat .composer > .send,
+body.amigo-chat .composer > .stop {
+  width: 40px; height: 40px; min-width: 40px; min-height: 40px;
+  flex: none;
+  display: inline-grid;
+  place-items: center;
+  padding: 0;
+  border-radius: 50%;
+  box-sizing: border-box;
+  align-self: center;
+}
+body.amigo-chat .composer > .stop { width: auto; padding: 0 14px; border-radius: 999px; }
+body.amigo-chat .composer svg { width: 18px; height: 18px; }
+body.amigo-chat .composer textarea { align-self: center; padding-block: 8px; }
+
+@media (max-width: 700px) {
+  body.amigo-chat .top { gap: 6px; padding-inline: 10px; }
+  body.amigo-chat .top .top-right { gap: 6px; }
+  body.amigo-chat .top .top-right > *,
+  body.amigo-chat .top .im-theme-toggle.im-preferences-toggle {
+    width: 36px; min-width: 36px;
+    height: 36px; min-height: 36px;
+  }
+  body.amigo-chat .top button,
+  body.amigo-chat .top .rail-toggle,
+  body.amigo-chat .top .im-theme-toggle,
+  body.amigo-chat .top .im-preferences-toggle {
+    width: 36px; height: 36px; min-width: 36px; min-height: 36px;
+  }
+  body.amigo-chat .top svg { width: 17px; height: 17px; }
+  body.amigo-chat .composer { gap: 6px; padding: 7px; }
+  body.amigo-chat .composer > .plus,
+  body.amigo-chat .composer > .mic,
+  body.amigo-chat .composer > #attachBtn,
+  body.amigo-chat .composer > .attach,
+  body.amigo-chat .composer > .send {
+    width: 36px; height: 36px; min-width: 36px; min-height: 36px;
+  }
+  body.amigo-chat .composer svg { width: 17px; height: 17px; }
+}
+
+/* The injected settings button is sized by design-system.css at 42 px, and at
+   44 px under 720 px. Those rules are classes; this is the id, so it settles
+   the row at one size without touching the shared sheet. */
+#im-preferences.im-theme-toggle,
+#im-preferences.im-preferences-toggle {
+  width: 40px;
+  min-width: 40px;
+  height: 40px;
+  min-height: 40px;
+  flex: 0 0 40px;
+  margin-inline-start: 0;
+  border-radius: 999px;
+}
+@media (max-width: 700px) {
+  #im-preferences.im-theme-toggle,
+  #im-preferences.im-preferences-toggle {
+    width: 36px;
+    min-width: 36px;
+    height: 36px;
+    min-height: 36px;
+    flex: 0 0 36px;
+  }
+}
+
+/* the "read the full article" step under a library answer */
+body.amigo-chat .read-full {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin: 10px 0 2px;
+  padding: 8px 14px;
+  border: 1px solid color-mix(in srgb, var(--im-accent) 40%, var(--im-border));
+  border-radius: 999px;
+  color: var(--im-accent);
+  font-size: 13px;
+  font-weight: 650;
+  text-decoration: none;
+}
+body.amigo-chat .read-full:hover { background: var(--im-accent-soft); }
+
+/* ── the page-context chip ───────────────────────────────────────────────
+   What the embedded panel hands to the chat: the page the reader was on. It
+   is visible, it can be removed before anything is sent, and it is the only
+   thing that travels from the page into the conversation. */
+body.amigo-chat .page-context {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0 auto 14px;
+  padding: 8px 12px;
+  width: fit-content;
+  max-width: 100%;
+  border: 1px solid color-mix(in srgb, var(--im-accent) 28%, var(--im-border));
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--im-accent) 8%, var(--im-surface));
+  font-size: 12.5px;
+  color: var(--im-muted);
+}
+body.amigo-chat .page-context b { color: var(--im-text); font-weight: 650; }
+body.amigo-chat .page-context button {
+  border: 0;
+  background: none;
+  color: var(--im-accent);
+  font: inherit;
+  font-size: 12px;
+  text-decoration: underline;
+  cursor: pointer;
+}
+body.amigo-chat .page-context[hidden] { display: none; }
+
+/* ── every icon sits in the middle of its circle ─────────────────────────
+   Measured in the browser: the injected settings button on the main shell put
+   its glyph 5 px right of the button's centre, because the shared control
+   carries a margin and an inline-grid that the header row then shifts. One
+   rule, applied to every icon-only control on every surface, keeps the glyph
+   optically centred: no padding, no margin, no baseline offset. */
+:where(.btn-icon, .im-theme-toggle, .im-preferences-toggle, .rail-toggle,
+       .composer > button, .top button, .topnav .btn-icon) {
+  padding: 0;
+  display: inline-grid;
+  place-items: center;
+  place-content: center;
+  line-height: 0;
+  text-align: center;
+}
+:where(.btn-icon, .im-theme-toggle, .im-preferences-toggle, .rail-toggle,
+       .composer > button, .top button, .topnav .btn-icon) > svg {
+  display: block;
+  margin: 0;
+  flex: none;
+}
+#im-preferences.im-theme-toggle { margin-inline-start: 0; }
+
+
+/* ── one assistant mark per answer ───────────────────────────────────────
+   Every answer carried two: the real .amigo-avatar image, and a legacy
+   .a::before that painted the Veridell facet behind it. Restoring a thread
+   (Saved → Back, or reopening from the rail) rebuilt both, which is the
+   crossed-marks the reader saw. The avatar is the one character; the legacy
+   marker is removed here, in the last sheet of every bundle. */
+body.amigo-chat article.a::before,
+body.amigo-chat .a::before,
+body.amigo-chat .a-body::before {
+  content: none;
+  display: none;
+  background: none;
+  width: 0;
+  height: 0;
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   A PICTURE IN AN ANSWER
+   ══════════════════════════════════════════════════════════════════════════
+   The image the chat draws is content, not decoration, so it follows the
+   reading-surface rule from the design notes: a solid surface, a 1 px border,
+   no blur and no second shadow. The caption is the prompt that made it, in the
+   same quiet type as source metadata. */
+body.amigo-chat .a-image {
+  margin: 6px 0 2px;
+  max-width: min(100%, 520px);
+}
+body.amigo-chat .a-image img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border: 1px solid var(--im-border);
+  border-radius: 16px;
+  background: var(--im-surface-2);
+  box-shadow: var(--im-shadow);
+}
+body.amigo-chat .a-image figcaption {
+  margin-top: 8px;
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--im-muted);
+}
+@media (max-width: 600px) {
+  body.amigo-chat .a-image img { border-radius: 13px; }
+}
+/* multimorphism, as one rule: blur belongs to things that float (the rail, the
+   dock, the panel, a toast), and everything that sits — cards, answers, the
+   picture above — keeps a border and a solid surface instead. */
+:where(.a-image img, .panel, .art-body, .prose, .src-card, .factbox) {
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   THE CHAT, REDRAWN
+   ══════════════════════════════════════════════════════════════════════════
+   What the reference file does well is not a look to copy — it is a discipline:
+   flat surfaces, generous radii, one strong accent, and typography doing the
+   work instead of effects. This takes that discipline and keeps Veridell's own
+   identity: forest for action, copper for provenance, cream for paper.
+
+   Three rules, applied once here rather than patched per component:
+     1. surfaces that sit are solid and bordered; only the rail, the dock and
+        transient overlays keep any translucency;
+     2. one radius scale — 999 for pills, 20 for panels, 14 for inner cards;
+     3. one spacing rhythm on a 8 px base, so vertical gaps stop being
+        arbitrary numbers picked on different days.
+   */
+body.amigo-chat {
+  --chat-radius-pill: 999px;
+  --chat-radius-panel: 20px;
+  --chat-radius-card: 14px;
+  --chat-space: 8px;
+}
+
+/* ── the reading column ─────────────────────────────────────────────────── */
+body.amigo-chat .stage { padding-top: 28px; }
+body.amigo-chat .md { font-size: 16px; line-height: 1.72; }
+body.amigo-chat .md p { margin-block: calc(var(--chat-space) * 1.5); }
+body.amigo-chat .md h2, body.amigo-chat .md h3 { letter-spacing: -.02em; margin-block: calc(var(--chat-space) * 2) var(--chat-space); }
+
+/* ── the question ───────────────────────────────────────────────────────── */
+body.amigo-chat .q {
+  border: 1px solid var(--im-border);
+  border-radius: var(--chat-radius-panel);
+  background: var(--im-surface);
+  padding: calc(var(--chat-space) * 1.5) calc(var(--chat-space) * 2);
+  font-size: 15px;
+  line-height: 1.6;
+  box-shadow: none;
+}
+
+/* ── the answer ─────────────────────────────────────────────────────────── */
+body.amigo-chat .a { gap: calc(var(--chat-space) * 1.5); }
+body.amigo-chat .a-meta { gap: var(--chat-space); }
+body.amigo-chat .a-meta .who { font-size: 13px; font-weight: 700; letter-spacing: -.01em; }
+body.amigo-chat .a-meta .badge {
+  border: 1px solid color-mix(in srgb, var(--im-warm, #a15c21) 34%, transparent);
+  background: color-mix(in srgb, var(--im-warm, #a15c21) 10%, transparent);
+  color: var(--im-warm, #a15c21);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  padding: 3px 9px;
+  border-radius: var(--chat-radius-pill);
+}
+body.amigo-chat .read-full {
+  border-radius: var(--chat-radius-pill);
+  font-weight: 650;
+}
+
+/* ── sources ────────────────────────────────────────────────────────────── */
+body.amigo-chat .src-cards { gap: calc(var(--chat-space) * 1.5); }
+body.amigo-chat .src-card {
+  border-radius: var(--chat-radius-card);
+  background: var(--im-surface);
+  padding: calc(var(--chat-space) * 1.5);
+  transition: transform .16s ease, border-color .16s ease;
+}
+body.amigo-chat .src-card:hover { transform: translateY(-2px); border-color: var(--im-accent); }
+
+/* ── the composer ───────────────────────────────────────────────────────── */
+body.amigo-chat .composer {
+  border-radius: var(--chat-radius-panel);
+  background: var(--im-surface);
+  border: 1px solid var(--im-border);
+  box-shadow: 0 1px 2px color-mix(in srgb, var(--im-text) 6%, transparent),
+              0 18px 40px -32px color-mix(in srgb, var(--im-text) 60%, transparent);
+}
+body.amigo-chat .composer:focus-within {
+  border-color: color-mix(in srgb, var(--im-accent) 60%, var(--im-border));
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--im-accent) 18%, transparent);
+}
+body.amigo-chat .composer textarea { font-size: 15.5px; }
+
+/* ── the welcome ────────────────────────────────────────────────────────── */
+body.amigo-chat .empty-heading {
+  letter-spacing: -.035em;
+  line-height: 1.1;
+  max-width: 17ch;
+  margin-inline: auto;
+}
+body.amigo-chat .welcome-eyebrow {
+  border-radius: var(--chat-radius-pill);
+  font-size: 10px;
+  font-weight: 750;
+  letter-spacing: .16em;
+}
+body.amigo-chat .starters { gap: calc(var(--chat-space) * 1.5); }
+body.amigo-chat .starters button {
+  border-radius: var(--chat-radius-card);
+  background: var(--im-surface);
+  border: 1px solid var(--im-border);
+  padding: calc(var(--chat-space) * 1.5);
+  text-align: start;
+}
+body.amigo-chat .starters button:hover {
+  border-color: var(--im-accent);
+  transform: translateY(-1px);
+}
+
+/* ── the rail ───────────────────────────────────────────────────────────── */
+body.amigo-chat .rail { border-right: 1px solid var(--im-border); }
+body.amigo-chat .rail-new { border-radius: var(--chat-radius-card); }
+body.amigo-chat .rail-search { border-radius: var(--chat-radius-pill); }
+
+/* ── a small screen keeps the same rhythm, one step tighter ─────────────── */
+@media (max-width: 700px) {
+  body.amigo-chat .md { font-size: 15.5px; line-height: 1.68; }
+  body.amigo-chat .q { padding: calc(var(--chat-space) * 1.25) calc(var(--chat-space) * 1.5); }
+  body.amigo-chat .stage { padding-top: 18px; }
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   QUIET UNTIL NEEDED
+   ══════════════════════════════════════════════════════════════════════════
+   Copy, save and the other answer actions were always visible, so a long
+   answer carried a row of buttons competing with its last sentence. They now
+   rest at low contrast and come forward when the answer is hovered, focused or
+   the reader is on a touch screen where there is no hover to rely on. Nothing
+   is hidden from a keyboard: focus reveals the row exactly as hover does.
+   */
+body.amigo-chat .a-actions {
+  gap: 6px;
+  flex-wrap: wrap;
+  opacity: .55;
+  transition: opacity .18s ease;
+}
+body.amigo-chat .a:hover .a-actions,
+body.amigo-chat .a:focus-within .a-actions { opacity: 1; }
+body.amigo-chat .a-actions button {
+  border-radius: 999px;
+  border: 1px solid var(--im-border);
+  background: var(--im-surface);
+  padding: 6px 12px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--im-muted);
+  transition: color .16s ease, border-color .16s ease, transform .16s ease;
+}
+body.amigo-chat .a-actions button:hover {
+  color: var(--im-accent);
+  border-color: var(--im-accent);
+  transform: translateY(-1px);
+}
+body.amigo-chat .a-actions button:focus-visible {
+  opacity: 1;
+  outline: 2px solid var(--im-accent);
+  outline-offset: 2px;
+}
+/* a touch screen has no hover, so the row stays visible there */
+@media (hover: none) {
+  body.amigo-chat .a-actions { opacity: 1; }
+}
+@media (prefers-reduced-motion: reduce) {
+  body.amigo-chat .a-actions button { transition: none; }
+}

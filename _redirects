@@ -1,13 +1,29 @@
 # Veridell — Cloudflare Pages redirects.
-#
-# The app is one document behind a hash router. These keep the short addresses
-# people type working, and give the crawlable directories their trailing slash.
+# The app is one document; these keep old-style deep links working and give the
+# crawlable index pages a canonical trailing slash.
 
 /ask            /#/ask            302
 /explore        /#/explore        302
 /today          /#/today          302
 /saved          /#/bookmarks      302
+/bookmarks      /#/bookmarks      302
 /sources        /#/sources        302
+/about          /#/about          302
 
-# The old sitemap name was submitted to Search Console once; keep it alive.
+# Galeoindus is replaced by the Research Desk. Old addresses keep working.
+/galeoindus     /research/        301
+/chat           /chat/            301
+
+
+# Article routes are generated as independent static index.html files.
+# Serve each one directly. A wildcard rewrite to /index.html creates an
+# infinite rewrite loop in Cloudflare Pages and is rejected.
+
+/topics         /topics/          301
+/questions      /questions/       301
+/how-it-works   /how-it-works/    301
+/help           /help/            301
+
+
+# Search Console was submitted the old sitemap name; keep it working.
 /site.xml       /sitemap.xml      301

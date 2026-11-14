@@ -1,0 +1,437 @@
+/* Veridell — AI Mode surface.
+ *
+ * The chat is the front door of the site, so it is built the way an answer
+ * engine is built: one calm column, one search-shaped field, an answer that
+ * reads like prose, and the sources as chips you can open without leaving the
+ * thread. This sheet is the last layer in the chat cascade — it settles the
+ * shape of the page and never changes what the earlier sheets mean.
+ *
+ * The rules below only ever set: the column, the composer, the answer card,
+ * the source chips and the follow-up row. Colours come from the tokens the
+ * chat page already defines, so light and dark stay in step.
+ */
+
+/* ── 1 · the column ──────────────────────────────────────────────────────
+ * AI Mode is a reading surface, not a dashboard. 760px is the widest a
+ * paragraph of 15–16px text stays comfortable at, and the answer column keeps
+ * that width on every route. */
+body.amigo-chat {
+  --col: 760px;
+  --r: 18px;
+  --r-sm: 12px;
+  --aimode-card: var(--panel);
+  --aimode-hair: color-mix(in srgb, var(--line) 78%, transparent);
+  --aimode-lift: 0 1px 2px rgba(0, 0, 0, .04), 0 12px 32px -18px rgba(0, 0, 0, .35);
+}
+
+body.amigo-chat .stage {
+  max-width: var(--col);
+  padding-top: 18px;
+  gap: 22px;
+}
+
+/* ── 2 · the empty state ────────────────────────────────────────────────
+ * The welcome is the "search page" moment: a quiet mark, one line of type,
+ * and the things you can ask, laid out as cards rather than a wall of pills. */
+body.amigo-chat .empty {
+  padding: clamp(18px, 6vh, 64px) 0 8px;
+  text-align: center;
+}
+
+body.amigo-chat .empty-mark {
+  width: 66px;
+  height: 66px;
+  margin: 0 auto 14px;
+  border-radius: 22px;
+  overflow: hidden;
+  box-shadow: var(--aimode-lift);
+}
+
+body.amigo-chat .welcome-eyebrow {
+  margin-inline: auto;
+  margin-bottom: 12px;
+}
+
+body.amigo-chat .empty-heading {
+  font-family: var(--sans);
+  font-size: clamp(26px, 4.6vw, 40px);
+  font-weight: 640;
+  letter-spacing: -.03em;
+  line-height: 1.16;
+  margin: 0 auto 10px;
+  max-width: 18ch;
+  text-wrap: balance;
+}
+
+body.amigo-chat .empty-heading em {
+  font-style: normal;
+  color: var(--accent);
+}
+
+body.amigo-chat .empty > p {
+  margin: 0 auto;
+  max-width: 56ch;
+  font-size: 14.5px;
+  color: var(--ink-2);
+}
+
+body.amigo-chat .welcome-trust {
+  margin: 18px auto 4px;
+  justify-content: center;
+  gap: 8px 18px;
+  flex-wrap: wrap;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+body.amigo-chat .starters {
+  margin-top: 22px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+  gap: 10px;
+  text-align: left;
+}
+
+body.amigo-chat .starters button {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding: 14px 16px;
+  border: 1px solid var(--aimode-hair);
+  border-radius: 16px;
+  background: var(--aimode-card);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, .03);
+  text-align: left;
+  transition: border-color .16s var(--ease), box-shadow .16s var(--ease), transform .16s var(--ease);
+}
+
+body.amigo-chat .starters button:hover {
+  border-color: color-mix(in srgb, var(--accent) 45%, var(--line));
+  box-shadow: var(--aimode-lift);
+  transform: translateY(-1px);
+}
+
+body.amigo-chat .starters b {
+  font-size: 13.5px;
+  font-weight: 640;
+  letter-spacing: -.01em;
+}
+
+body.amigo-chat .starters span {
+  font-size: 12.5px;
+  color: var(--muted);
+  line-height: 1.45;
+}
+
+body.amigo-chat .empty-links {
+  margin-top: 20px;
+  justify-content: center;
+  gap: 8px;
+}
+
+/* ── 3 · the composer ───────────────────────────────────────────────────
+ * One field, big radius, soft lift, and the tools inside it. It lifts a little
+ * when it has focus, which is the whole interaction cue AI Mode uses. */
+body.amigo-chat .dock {
+  padding: 10px 20px max(16px, env(safe-area-inset-bottom, 0px));
+  background: linear-gradient(to top, var(--bg) 62%, transparent);
+}
+
+body.amigo-chat .composer {
+  border: 1px solid var(--aimode-hair);
+  border-radius: 26px;
+  background: var(--aimode-card);
+  box-shadow: var(--aimode-lift);
+  padding: 7px 8px 7px 10px;
+  gap: 4px;
+  transition: border-color .18s var(--ease), box-shadow .18s var(--ease), transform .18s var(--ease);
+}
+
+body.amigo-chat .composer:focus-within {
+  border-color: color-mix(in srgb, var(--accent) 55%, var(--line));
+  box-shadow: 0 2px 6px rgba(0, 0, 0, .05), 0 18px 44px -22px rgba(0, 0, 0, .45);
+}
+
+body.amigo-chat .composer textarea {
+  font-size: 15px;
+  line-height: 1.5;
+  padding: 9px 4px;
+  min-height: 44px;
+  max-height: 42vh;
+}
+
+body.amigo-chat .composer .send {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+}
+
+body.amigo-chat .composer .send svg { width: 17px; height: 17px; }
+
+/* The mode tabs are a segmented control, the way AI Mode switches between a
+ * plain search and an AI answer. */
+body.amigo-chat .chat-mode-tabs {
+  justify-content: center;
+  gap: 4px;
+  margin: 0 auto 8px;
+  padding: 3px;
+  border: 1px solid var(--aimode-hair);
+  border-radius: 999px;
+  background: var(--panel-2);
+  width: max-content;
+}
+
+body.amigo-chat .chat-mode-tabs button {
+  border: 0;
+  border-radius: 999px;
+  padding: 5px 13px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--ink-2);
+  background: transparent;
+  cursor: pointer;
+  transition: background-color .15s var(--ease), color .15s var(--ease);
+}
+
+body.amigo-chat .chat-mode-tabs button.is-active {
+  background: var(--aimode-card);
+  color: var(--ink);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, .12);
+}
+
+body.amigo-chat .meta-row { margin-top: 8px; }
+
+/* ── 4 · the answer card ────────────────────────────────────────────────
+ * An answer is a card with a hairline and no fill of its own: the text is the
+ * subject, the card only holds it apart from the next turn. */
+body.amigo-chat .thread { gap: 18px; }
+
+body.amigo-chat .q {
+  align-self: flex-end;
+  max-width: min(88%, 620px);
+  border-radius: 20px 20px 6px 20px;
+  background: var(--user);
+  padding: 11px 15px;
+  font-size: 14.5px;
+}
+
+body.amigo-chat .a {
+  gap: 10px;
+  padding: 16px 18px 14px;
+  border: 1px solid var(--aimode-hair);
+  border-radius: 20px;
+  background: var(--aimode-card);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, .03);
+}
+
+body.amigo-chat .a-meta {
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+body.amigo-chat .a-body .md {
+  font-size: 15px;
+  line-height: 1.72;
+}
+
+body.amigo-chat .a-body .md > *:first-child { margin-top: 0; }
+body.amigo-chat .a-body .md > *:last-child { margin-bottom: 0; }
+
+body.amigo-chat .a-body .md h2,
+body.amigo-chat .a-body .md h3 {
+  font-family: var(--sans);
+  font-size: 15.5px;
+  font-weight: 660;
+  letter-spacing: -.012em;
+  margin: 18px 0 6px;
+}
+
+/* ── 5 · sources as chips ───────────────────────────────────────────────
+ * The full source cards stay for a research answer; this row is the short
+ * version that sits at the end of every answer, the way AI Mode lists the
+ * pages it read. It is added by chat-page.js. */
+body.amigo-chat .src-chips {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  margin-top: 14px;
+}
+
+body.amigo-chat .src-chips .src-chips-head {
+  font-size: 11.5px;
+  font-weight: 650;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-right: 2px;
+}
+
+body.amigo-chat .src-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  max-width: 260px;
+  padding: 4px 10px 4px 6px;
+  border: 1px solid var(--aimode-hair);
+  border-radius: 999px;
+  background: var(--panel-2);
+  color: var(--ink-2);
+  font-size: 12px;
+  text-decoration: none;
+  transition: border-color .15s var(--ease), color .15s var(--ease), background-color .15s var(--ease);
+}
+
+body.amigo-chat .src-chip:hover {
+  border-color: color-mix(in srgb, var(--accent) 50%, var(--line));
+  color: var(--ink);
+}
+
+body.amigo-chat .src-chip .n {
+  display: grid;
+  place-items: center;
+  width: 17px;
+  height: 17px;
+  flex: none;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--accent) 18%, transparent);
+  color: var(--accent);
+  font-size: 10.5px;
+  font-weight: 700;
+}
+
+body.amigo-chat .src-chip .host {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* The full source cards now live behind a disclosure: the chips are the
+ * summary, the cards are the detail. A <summary> is a control, so it gets the
+ * pointer and loses the default triangle. */
+body.amigo-chat .src-panel > summary.src-head {
+  cursor: pointer;
+  list-style: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 0;
+  color: var(--muted);
+}
+
+body.amigo-chat .src-panel > summary.src-head::-webkit-details-marker { display: none; }
+
+body.amigo-chat .src-panel > summary.src-head::after {
+  content: '▾';
+  font-size: 10px;
+  transition: transform .15s var(--ease);
+}
+
+body.amigo-chat .src-panel[open] > summary.src-head::after { transform: rotate(180deg); }
+
+body.amigo-chat .src-panel > summary.src-head:hover { color: var(--ink); }
+
+/* ── 6 · follow-ups ─────────────────────────────────────────────────────
+ * The next questions, as quiet pills under the answer. */
+body.amigo-chat .followups {
+  gap: 7px;
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px solid var(--aimode-hair);
+}
+
+body.amigo-chat .followups button {
+  padding: 7px 13px;
+  border-radius: 999px;
+  border: 1px solid var(--aimode-hair);
+  background: transparent;
+  color: var(--ink-2);
+  font-size: 12.5px;
+  font-weight: 550;
+  text-align: left;
+  transition: border-color .15s var(--ease), color .15s var(--ease), background-color .15s var(--ease);
+}
+
+body.amigo-chat .followups button:hover {
+  border-color: color-mix(in srgb, var(--accent) 50%, var(--line));
+  background: var(--panel-2);
+  color: var(--ink);
+}
+
+/* ── 7 · actions ────────────────────────────────────────────────────────
+ * Copy / save / speak / regenerate stay, but as a quiet row of text buttons. */
+body.amigo-chat .a-actions {
+  gap: 4px;
+  margin-top: 12px;
+  opacity: .82;
+  transition: opacity .15s var(--ease);
+}
+
+body.amigo-chat .a:hover .a-actions,
+body.amigo-chat .a:focus-within .a-actions { opacity: 1; }
+
+body.amigo-chat .a-actions button {
+  border: 0;
+  background: transparent;
+  color: var(--muted);
+  font-size: 12.5px;
+  padding: 5px 8px;
+  border-radius: 8px;
+}
+
+body.amigo-chat .a-actions button:hover {
+  background: var(--panel-2);
+  color: var(--ink);
+}
+
+/* ── 8 · the model row in the options panel ─────────────────────────────
+ * The picker is one line, and the note under it says what the choice means. */
+body.amigo-chat .opt select#modelChoice { font-size: 13px; }
+
+body.amigo-chat .opt-note#modelNote {
+  margin: 2px 0 6px;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+/* ── 9 · phones ─────────────────────────────────────────────────────────
+ * Below 640px the rail is a sheet, the card loses its border so the text gets
+ * the full width, and the composer keeps its shape. */
+@media (max-width: 640px) {
+  body.amigo-chat .stage { padding: 12px 12px 4px; }
+
+  body.amigo-chat .a {
+    border: 0;
+    border-radius: 0;
+    padding: 4px 0 8px;
+    background: transparent;
+    box-shadow: none;
+  }
+
+  body.amigo-chat .q {
+    max-width: 92%;
+    border-radius: 18px 18px 6px 18px;
+  }
+
+  body.amigo-chat .dock { padding: 8px 12px max(14px, env(safe-area-inset-bottom, 0px)); }
+
+  body.amigo-chat .composer { border-radius: 24px; }
+
+  body.amigo-chat .starters { grid-template-columns: 1fr; }
+
+  body.amigo-chat .empty-heading { font-size: clamp(24px, 7vw, 30px); }
+}
+
+/* ── 10 · reduced motion ────────────────────────────────────────────────
+ * Every transform above is decoration; none of it is needed to use the page. */
+@media (prefers-reduced-motion: reduce) {
+  body.amigo-chat .starters button:hover,
+  body.amigo-chat .composer:focus-within { transform: none; }
+
+  body.amigo-chat .starters button,
+  body.amigo-chat .composer,
+  body.amigo-chat .followups button,
+  body.amigo-chat .src-chip { transition: none; }
+}

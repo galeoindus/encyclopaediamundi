@@ -1,0 +1,81 @@
+# Verify the semantic release and commit-specific build stamp on every main update.
+# Version changes ship in the same source commit as their product changes.
+name: version
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: version-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '20'
+          cache: npm
+      - name: Install the locked toolchain
+        run: npm ci
+      - name: Stamp the checked-out source commit
+        env:
+          BUILD_COMMIT: ${{ github.sha }}
+        run: npm run stamp:build
+      - name: Verify package, lockfile and all HTML build stamps
+        env:
+          BUILD_COMMIT: ${{ github.sha }}
+        run: |
+          node --input-type=module <<'NODE'
+          import { readFileSync, readdirSync } from 'node:fs';
+          import { join, relative } from 'node:path';
+
+          const root = process.cwd();
+          const pkg = JSON.parse(readFileSync(join(root, 'package.json'), 'utf8'));
+          const lock = JSON.parse(readFileSync(join(root, 'package-lock.json'), 'utf8'));
+          const config = readFileSync(join(root, 'assets/js/config.js'), 'utf8');
+          const expectedCommit = process.env.BUILD_COMMIT.slice(0, 7);
+          const expectedBuild = `${pkg.version}-${expectedCommit}`;
+          const stamp = JSON.parse(readFileSync(join(root, 'assets/version.json'), 'utf8'));
+          const errors = [];
+          if (lock.version !== pkg.version || lock.packages?.['']?.version !== pkg.version) {
+            errors.push('package-lock.json root version does not match package.json');
+          }
+          if (!config.includes("version: '" + pkg.version + "'")) {
+            errors.push('assets/js/config.js version does not match package.json');
+          }
+          if (stamp.version !== pkg.version) errors.push(`version.json version ${stamp.version} != package ${pkg.version}`);
+          if (stamp.commit !== expectedCommit) errors.push(`version.json commit ${stamp.commit} != ${expectedCommit}`);
+
+          function htmlFiles(dir) {
+            return readdirSync(dir, { withFileTypes: true }).flatMap((entry) => {
+              const path = join(dir, entry.name);
+              if (entry.isDirectory() && !['.git', 'node_modules'].includes(entry.name)) return htmlFiles(path);
+              return entry.isFile() && entry.name.endsWith('.html') ? [path] : [];
+            });
+          }
+          const pages = htmlFiles(root);
+          for (const file of pages) {
+            const html = readFileSync(file, 'utf8');
+            const marker = html.match(/<meta name="veridell-build" content="([^"]+)"/);
+            const versionMarker = html.match(/<meta name="veridell-version" content="([^"]+)"/);
+            if (!marker || marker[1] !== expectedBuild) errors.push(`${relative(root, file)} has no current build marker`);
+            if (!versionMarker || versionMarker[1] !== pkg.version) errors.push(`${relative(root, file)} has no current semantic version`);
+          }
+          if (errors.length) {
+            console.error(errors.join('\\n'));
+            process.exit(1);
+          }
+          console.log(`Verified ${expectedBuild}, lockfile/config and ${pages.length} HTML pages.`);
+          NODE
+      - name: Run the whole-repository deep audit
+        run: npm run audit:deep

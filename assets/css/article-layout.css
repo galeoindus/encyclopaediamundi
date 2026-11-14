@@ -1,0 +1,409 @@
+/* ==========================================================================
+   Veridell — article layout, rebuilt for the screen it is on
+   --------------------------------------------------------------------------
+   Why this file exists.
+
+   The reading view was one fixed 856 px panel inside a 1160 px shell, centred
+   in whatever the viewport happened to be. At 1440 px that left 120 px of
+   gutter each side and a body column of 808 px; at 1920 px the same panel sat
+   in the middle of 1920 px with 532 px of empty page each side, while the
+   headline above it was 1200 px wide. Three widths stacked on one page: the
+   shell, the headline and the body, none of them agreeing.
+
+   The model here is the one long-form publishers converged on:
+
+     · the shell grows with the viewport, up to a cap, instead of stopping
+     · the headline and the body share ONE left edge and ONE right edge
+     · the prose keeps a readable measure (about 70 characters)
+     · everything that is not prose — figures, tables, the fact box — may use
+       the whole column, because a picture is not a paragraph
+     · the contents panel is the second column on a wide screen and the first
+       block on a narrow one, never the last thing after 100,000 px of text
+   ========================================================================== */
+
+:root {
+  /* The shell: 960 on a small laptop, 1240 on a wide desktop, never more.
+     It was pushed out to 1440 in the first pass and that was too far — a
+     1240 frame holds a 64-character column and a 280 px contents rail with
+     real gutters either side, instead of one wall of text. */
+  --shell: clamp(960px, 92vw, 1240px);
+  --toc-w: 280px;
+  --rail-gap: 32px;
+  /* The prose measure: 62-66 characters, which is the comfortable end of the
+     range for 17 px body text. 70ch read as a newspaper column on a wide
+     monitor. */
+  --prose: 64ch;
+}
+
+/* ---------------------------------------------------------------- the shell */
+
+.wrap,
+#main.wrap,
+main#main {
+  max-width: var(--shell);
+  margin-inline: auto;
+  padding-inline: clamp(16px, 3.2vw, 44px);
+}
+
+/* the app's article view and the static pages use the same shell */
+[data-view="article"] .wrap,
+[data-view="ask"] .wrap {
+  max-width: var(--shell);
+  padding-inline: clamp(16px, 3.2vw, 44px);
+}
+
+/* the headline, the lead, the actions and the body now share one left edge */
+.article-head,
+.crumbs,
+.article-actions {
+  max-width: 100%;
+  margin-inline: 0;
+}
+
+/* the headline may run wider than the prose, but not the whole screen */
+.article-title,
+.article-head h1 {
+  max-width: 24ch;
+}
+.article-sub,
+.article-head .article-sub {
+  max-width: var(--prose);
+}
+
+/* ---------------------------------------------------------------- the grid */
+
+.article-grid,
+#main .article-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) var(--toc-w);
+  gap: var(--rail-gap);
+  align-items: start;
+  width: 100%;
+  max-width: none;
+  margin-inline: 0;
+}
+
+/* the panel is the reading column; it may use its whole width */
+.article-grid > .panel,
+.panel.panel-wide {
+  grid-column: 1;
+  grid-row: 1;
+  /* 760px of text at the body size is about 80 characters — the top of the
+     comfortable range, and the widest the facts box gets too, so the two
+     columns line up. */
+  max-width: 760px;
+  margin-inline: auto;
+  padding: clamp(20px, 2.4vw, 40px) clamp(18px, 2.6vw, 40px);
+}
+
+/* the contents panel is the second column, and it sticks */
+.article-grid > .toc-rail {
+  grid-column: 2;
+  grid-row: 1;
+  position: sticky;
+  top: calc(var(--topbar-h, 62px) + 16px);
+  max-height: calc(100dvh - var(--topbar-h, 62px) - 32px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+/* ------------------------------------------------------------- the measure */
+
+/* Every block used to be capped at 74ch — including figures, tables and the
+   fact box, which is why a 900 px panel still rendered a 600 px picture in
+   the middle of it. Prose keeps the measure; media takes the column. */
+.panel.panel-wide > *,
+.article-grid > .panel > * {
+  max-width: 100%;
+  margin-inline: 0;
+}
+
+/* The prose runs the width of the column, exactly like the facts box above
+   it. A reader asked for that in as many words: "the words of the article
+   should spread as wide as the facts". The measure is kept readable by
+   capping the panel instead of the paragraph, so the two always agree — a
+   narrower paragraph inside a wider facts box is what looked broken. */
+.art-body > p,
+.art-body > ul,
+.art-body > ol,
+.art-body > .line-list,
+.prose > p,
+.prose > ul,
+.prose > ol {
+  max-width: 100%;
+}
+
+/* A picture is centred in the column, whatever the rules above say about
+   direct children: they set `margin-inline: 0`, which quietly left-aligned
+   the lead figure. */
+.panel.panel-wide > .art-figure,
+.panel.panel-wide > .lead-figure,
+.article-grid > .panel > .art-figure {
+  margin-inline: auto;
+}
+
+/* long-form prose that is quoted at length gets a slightly wider measure */
+.art-body > blockquote,
+.art-body > .gloss-quot {
+  max-width: 62ch;
+}
+
+/* figures and tables are allowed the full column */
+.art-body figure,
+.art-body .thumb,
+.art-body .thumbinner,
+.art-body .table-scroll,
+.art-body table,
+.art-body .chessboard,
+.panel-wide .factbox {
+  max-width: 100%;
+  margin-inline: 0;
+}
+
+/* The lead picture keeps its own proportions.
+   `width: 100%` with `object-fit: cover` did two things wrong at once: it
+   stretched a small image — a 200 px agency logo became a 900 px banner —
+   and it cropped the top and bottom off anything taller than the cap, with
+   no way for the reader to see the rest. A picture is now drawn at its own
+   size, never larger than the column, never taller than a screen, and
+   centred. Nothing is stretched and nothing is cut. */
+.lead-figure,
+.art-figure {
+  /* fit-content, not 100%: a small picture must not sit in a 720 px empty
+     box. A large one still stops at 720. */
+  width: fit-content;
+  max-width: min(100%, 720px);
+  margin-inline: auto;
+  margin-block: 0 28px;
+  text-align: center;
+}
+.lead-figure img,
+.art-figure img {
+  display: block;
+  width: auto;
+  height: auto;
+  max-width: 100%;
+  max-height: min(60vh, 420px);
+  object-fit: contain;
+  margin-inline: auto;
+  border-radius: 14px;
+  background: transparent;
+}
+.lead-figure figcaption,
+.art-figure figcaption {
+  margin-top: 8px;
+  text-align: center;
+  color: var(--faint);
+  font-size: 12.5px;
+  line-height: 1.5;
+}
+
+/* ------------------------------------------------------------ tables scroll */
+
+/* The fact box and any wikitable must scroll inside the column instead of
+   being squeezed until the cells clip. At 320 px the Chess fact box lost
+   "Abstract strategy game" mid-word because nothing could scroll. */
+.art-body .table-scroll {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+}
+.art-body table {
+  border-collapse: collapse;
+  min-width: min(100%, 420px);
+}
+.art-body table td,
+.art-body table th {
+  padding: 6px 10px;
+  vertical-align: top;
+}
+/* a plain data table (not a chessboard) keeps its cells on one line and scrolls */
+.art-body table:not(.chessboard) td {
+  white-space: normal;
+}
+
+/* The fact box: the <dl> is the grid and every .row dissolves into it, so a
+   label and its value are two cells of one table-like grid. The old nested
+   grid squeezed the value column to 93 px at 390 px wide, which is what cut
+   "Board game Abstract strategy game" in half. */
+.factbox dl {
+  display: grid;
+  grid-template-columns: minmax(110px, 30%) minmax(0, 1fr);
+  margin: 0;
+}
+.factbox .row { display: contents; }
+.factbox dt,
+.factbox dd {
+  padding: 8px 12px;
+  border-top: 1px solid var(--border);
+  overflow-wrap: anywhere;
+}
+.factbox dd { margin: 0; }
+
+@media (max-width: 560px) {
+  .factbox dl { grid-template-columns: minmax(0, 1fr); }
+  .factbox dt { border-bottom: 0; padding-bottom: 0; font-size: 12px; letter-spacing: .02em; }
+  .factbox dd { padding-top: 2px; font-size: 15px; }
+}
+
+/* ------------------------------------------------------------- the contents */
+
+/* On a narrow screen the contents panel is the FIRST block, not the last.
+   In the source it is the last child of .article-grid, which put it after
+   113,000 px of Chess on a phone. Order fixes it without touching the DOM. */
+@media (max-width: 1100px) {
+  .article-grid,
+  #main .article-grid {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 20px;
+  }
+  .article-grid > .panel,
+  .panel.panel-wide {
+    grid-column: 1;
+    order: 0;
+  }
+  #main .article-grid > .toc-rail,
+  .article-grid.rail-open > .toc-rail {
+    grid-column: 1;
+    order: -1;
+    position: static;
+    max-height: none;
+    overflow: visible;
+  }
+  .article-grid > .toc-rail .toc {
+    max-height: 44vh;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+}
+
+/* --------------------------------------------------------------- a wide page */
+
+@media (min-width: 1600px) {
+  :root { --shell: 1280px; --toc-w: 300px; }
+  .art-body > p,
+  .art-body > ul,
+  .art-body > ol,
+  .prose > p {
+    max-width: 66ch;
+  }
+}
+
+/* a 1280 laptop: the rail gives up 40 px before the prose does */
+@media (max-width: 1400px) {
+  :root { --toc-w: 260px; --rail-gap: 26px; }
+}
+
+/* a very wide page: the shell stops growing, and the gutters grow instead,
+   which is what keeps a 2560 px monitor readable */
+@media (min-width: 1800px) {
+  :root { --shell: 1320px; }
+  .wrap { padding-inline: 48px; }
+}
+
+
+/* ── the reading column on a narrow screen ───────────────────────────────
+   The panel kept its 760px cap and the grid kept its two columns below the
+   rail breakpoint, so at 390px the text was 760px wide inside a 390px
+   viewport and the overflow guard simply cut the right-hand end off every
+   line. Measured before: panel 760px in a 390px window, list items 680px.
+   One column, full width, no cap. */
+
+#main .article-grid,
+.article-grid {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+@media (max-width: 1100px) {
+  #main .article-grid { grid-template-columns: minmax(0, 1fr); }
+  .article-grid > .panel.panel-wide,
+  #main .article-grid > .panel,
+  .panel.panel-wide {
+    max-width: 100%;
+    width: 100%;
+    margin-inline: 0;
+  }
+  .article-grid > .toc-rail { grid-column: 1; }
+}
+
+/* Nothing inside the article may be wider than the column it sits in. */
+.art-body, .art-body * { max-width: 100%; }
+.art-body .table-scroll, .art-body table { max-width: 100%; }
+
+/* ── a wide table scrolls inside the column, and only inside it ──────────
+   The chessboard is ten fixed-width cells wide (1158 px of table) and was
+   drawn straight through the panel edge on a phone: the board, its thumbinner
+   and its scroll box all measured wider than the 358 px column. Each of them
+   is now pinned to the column and the table scrolls within. */
+.art-body .chessboard,
+.prose .chessboard,
+.art-body .chessboard .thumbinner,
+.prose .chessboard .thumbinner,
+.art-body .chessboard .center,
+.prose .chessboard .center {
+  width: 100% !important;
+  max-width: 100% !important;
+  min-width: 0;
+  box-sizing: border-box;
+}
+.art-body .chessboard .table-scroll,
+.prose .chessboard .table-scroll {
+  width: 100% !important;
+  max-width: 100% !important;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+.art-body .table-scroll,
+.prose .table-scroll { max-width: 100% !important; min-width: 0; }
+.art-body table,
+.prose table { max-width: none; }
+
+/* ── the reading column is centred on the window, on every device ────────
+   Measured before this fix: at 1280 the panel ran x=118..878, 142 px left of
+   the middle; at 1600 it was 184 px out. The cause was the grid: the contents
+   rail owned a real second column on the right, so the prose was pushed into
+   the left-hand column and could never be centred, however wide the window.
+
+   A grid cannot centre one item while a second item sits in the flow beside
+   it, so the reading view is a single centred column again — the panel and
+   the contents rail are both capped at the same reading width and centred,
+   and the rail follows the article instead of flanking it. The text is then
+   exactly centred at 320, 390, 768, 1280 and 1600, which is the thing the
+   reader asked for, and nothing can push the page sideways. */
+.article-grid,
+#main .article-grid {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  grid-template-columns: none;
+  width: 100%;
+}
+
+.article-grid > .panel,
+.article-grid > .panel.panel-wide,
+#main .article-grid > .panel,
+.panel.panel-wide {
+  width: 100%;
+  max-width: min(var(--im-article-panel-width, 760px), 100%);
+  margin-inline: auto;
+  flex: 0 1 auto;
+  order: 0;
+}
+
+.article-grid > .toc-rail,
+#main .article-grid > .toc-rail {
+  width: 100%;
+  max-width: min(var(--im-article-panel-width, 760px), 100%);
+  margin-inline: auto;
+  position: static;
+  max-height: none;
+  overflow: visible;
+  order: -1;
+  flex: 0 1 auto;
+}
+.article-grid > .toc-rail .toc {
+  max-height: none;
+  overflow: visible;
+}

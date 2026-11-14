@@ -1,81 +1,142 @@
-<!doctype html>
-<html lang="en">
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>How it works — Veridell</title>
-<meta name="description" content="Ask, research, filter, explain, cite: the five steps between a question and an answer with its source.">
-<link rel="canonical" href="https://veridell.pages.dev/how-it-works/">
-<meta name="robots" content="index, follow, max-image-preview:large">
-<meta name="theme-color" content="#f7f3ea" media="(prefers-color-scheme: light)">
-<meta name="theme-color" content="#0e1512" media="(prefers-color-scheme: dark)">
-<meta name="color-scheme" content="light dark">
-<meta property="og:type" content="article">
-<meta property="og:site_name" content="Veridell">
-<meta property="og:title" content="How it works — Veridell">
-<meta property="og:description" content="Ask, research, filter, explain, cite: the five steps between a question and an answer with its source.">
-<meta property="og:url" content="https://veridell.pages.dev/how-it-works/">
-<meta name="twitter:card" content="summary">
-<link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
-<link rel="manifest" href="../manifest.webmanifest">
-<script src="../src/theme-boot.js"></script>
-<link rel="stylesheet" href="../styles/site.css">
-
+  <meta name="veridell-build" content="6.0.0-44559e1">
+  <meta name="veridell-version" content="6.0.0">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>How it works — Veridell</title>
+  <meta name="description" content="What happens between a question and an answer on veridell: ask, research, filter, understand — and which Wikimedia APIs are used.">
+  <meta name="robots" content="index, follow, max-image-preview:large">
+  <link rel="canonical" href="https://veridell.pages.dev/how-it-works/">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="How it works — Veridell">
+  <meta property="og:description" content="What happens between a question and an answer on veridell: ask, research, filter, understand — and which Wikimedia APIs are used.">
+  <meta property="og:site_name" content="Veridell">
+  <meta property="og:url" content="https://veridell.pages.dev/how-it-works/">
+  <meta property="og:locale" content="en_IN">
+  <meta property="og:image" content="https://veridell.pages.dev/assets/img/brand/og-card.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="How it works — Veridell">
+  <meta name="twitter:description" content="What happens between a question and an answer on veridell: ask, research, filter, understand — and which Wikimedia APIs are used.">
+  <meta name="twitter:image" content="https://veridell.pages.dev/assets/img/brand/og-card.png">
+  <meta name="theme-color" content="#101713">
+<link rel="stylesheet" href="/assets/css/bundle-a03b30fb2c.css?v=6.0.0-44559e1">
+  <script src="/assets/js/image-fallback.js?v=6.0.0-44559e1"></script>
+  <script src="/assets/js/global-theme.js?v=6.0.0-44559e1"></script>
+  <link rel="icon" href="/favicon.ico" sizes="48x48">
+  <link rel="icon" href="/assets/img/brand/facet.svg" type="image/svg+xml">
+  <link rel="icon" href="/assets/img/brand/facet-48.png" sizes="48x48" type="image/png">
+  <link rel="icon" href="/assets/img/brand/facet-192.png" sizes="192x192" type="image/png">
+  <link rel="apple-touch-icon" href="/assets/img/brand/facet-180.png">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebPage",
+    "name": "How Veridell works",
+    "url": "https://veridell.pages.dev/how-it-works/",
+    "isPartOf": {
+      "@type": "WebSite",
+      "url": "https://veridell.pages.dev/",
+      "name": "Veridell"
+    },
+    "inLanguage": "en"
+  }
+  </script>
 </head>
-<body data-page="static">
-<a class="em-skip" href="#content">Skip to the content</a>
-<header class="em-bar"><div class="em-bar-in">
-  <a class="em-brand" href="/" aria-label="Veridell home"><span class="em-brand-mark" aria-hidden="true"><svg viewBox="0 0 96 96" role="img" aria-hidden="true" focusable="false">
-  <defs>
-    <linearGradient id="emMarkG" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0" stop-color="#1f7d63"/><stop offset="1" stop-color="#08302a"/>
-    </linearGradient>
-  </defs>
-  <rect width="96" height="96" rx="26" fill="url(#emMarkG)"/>
-  <path d="M28 31 L48 66 L68 31" fill="none" stroke="#f7f3ea" stroke-width="9.5" stroke-linecap="round" stroke-linejoin="round"/>
-  <circle cx="48" cy="24.5" r="5.2" fill="#e0a06a"/>
-</svg></span><span class="em-brand-word">Veridell</span></a>
-  <nav class="em-nav" aria-label="Primary">
-  <a href="/">Home</a><a href="/articles/">Articles</a><a href="/topics/">Topics</a>
-  <a href="/questions/">Questions</a><a href="/help/">Help</a><a href="/chat/">Amigo</a>
-</nav>
-</div></header>
-<main class="em-main" id="content">
-<div class="em-page em-column">
-      <h1>How it works</h1>
-      <p class="em-sub">Five steps between a question and an answer you can check.</p>
-
-      <h2>1 · Ask</h2>
-      <p>The question goes to the Wikipedia search API in the language you chose. Nothing is sent to a model yet.</p>
-
-      <h2>2 · Research</h2>
-      <p>The best-matching article is fetched in full, with its sections, and cleaned: navigation boxes, edit links, footnote markers and tables of metadata are dropped.</p>
-
-      <h2>3 · Filter</h2>
-      <p>The article is split into a lead and numbered sections, and its sentences are scored against your question. The sentences that answer it move to the top.</p>
-
-      <h2>4 · Explain</h2>
-      <p>If you are in the chat, the selected passages are handed to the model with one instruction: answer only from these, and cite them. If no article matches, the question is answered as conversation and labelled as such.</p>
-
-      <h2>5 · Cite</h2>
-      <p>Every citation points at a real passage, and every passage points at the article it came from. A marker that points at nothing is removed before the answer is shown.</p>
-
-      <h2>What the site will not do</h2>
-      <ul>
-        <li>It will not invent a citation to look authoritative.</li>
-        <li>It will not present a model’s memory as a sourced fact.</li>
-        <li>It will not claim to replace the article it summarises.</li>
-      </ul>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+  <div class="grain" aria-hidden="true"></div>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a class="brand" href="/#/">
+        <span class="brand-mark" aria-hidden="true"><svg viewBox="0 0 96 96" role="img" aria-hidden="true"><defs><linearGradient id="vdbg1" x1=".06" y1="0" x2=".94" y2="1"><stop offset="0" stop-color="#082A26"/><stop offset=".52" stop-color="#12564C"/><stop offset="1" stop-color="#9E5626"/></linearGradient></defs><rect width="96" height="96" rx="23" fill="url(#vdbg1)"/><path d="M25 27h13.5L48 63.5 57.5 27H71L52.5 72h-9z" fill="#FFF1D9"/><path d="M57.5 27H71L52.5 72h-4.6z" fill="#C6844C"/><path d="M57.5 27H71l-4.2 10.1z" fill="#E0A26A"/><circle cx="48" cy="79.5" r="4.4" fill="#FFF3DA"/></svg>
+        </span>
+        <span class="brand-word">Veridell</span>
+      </a>
+      <nav class="topnav" aria-label="Primary">
+        <a href="/#/explore">Explore</a>
+        <a href="/topics/">Topics</a>
+        <a href="/questions/">Questions</a>
+        <a href="/help/">Help</a>
+      </nav>
     </div>
-</main>
-<footer class="em-foot">
-  <div class="em-foot-in">
-    <div class="em-foot-col"><strong>Read</strong><a href="/articles/">Articles</a><a href="/topics/">Topics</a><a href="/#/library">Library</a><a href="/#/today">On this day</a></div>
-    <div class="em-foot-col"><strong>About</strong><a href="/how-it-works/">How it works</a><a href="/help/">Help</a><a href="/#/sources">Sources</a><a href="/#/credits">Credits</a><a href="https://github.com/galeoindus/veridell" target="_blank" rel="noopener noreferrer">GitHub</a></div>
-    <div class="em-foot-col"><strong>Talk</strong><a href="/chat/">Amigo chat</a><a href="/questions/">Questions</a><a href="/research/">Research desk</a></div>
-  </div>
-  <div class="em-foot-in"><p>Wikipedia text is available under CC BY-SA 4.0 and Wikidata under CC0 1.0. Veridell is an independent reader, not affiliated with or endorsed by the Wikimedia Foundation.</p></div>
-</footer>
-<script type="module" src="../src/static.js"></script>
+  </header>
+
+  <main id="main" class="wrap-narrow" tabindex="-1">
+    <div class="article-head">
+      <h1 class="article-title">How it works</h1>
+    <h2 class="sr-only">How Veridell works</h2>
+      <p class="article-sub">Four steps, no black box. The article breakdown is built from sentences a Wikipedia editor wrote and Veridell quotes. Chat is different: an AI model explains the selected source passages and must mark every claim with a numbered citation.</p>
+    </div>
+
+    <div class="page">
+      <div class="howsteps">
+        <article class="howstep"><h3>1. Ask</h3><p>You write a question in your own words — English, Hindi, or any language you can type — or pick a topic.</p></article>
+        <article class="howstep"><h3>2. Research</h3><p>Veridell queries the Wikipedia search API, resolves your question to the article that fits best, and pulls the full article and its metadata.</p></article>
+        <article class="howstep"><h3>3. Filter</h3><p>The article is cleaned — navigation boxes, edit links and footnote markers dropped — then split into a lead and topic sections, and its sentences are scored against your question.</p></article>
+        <article class="howstep"><h3>4. Understand</h3><p>You get a direct answer, key points, a topic-wise breakdown, the infobox as facts, and every source with a link back to Wikipedia.</p></article>
+      </div>
+
+      <h2>Which APIs are used</h2>
+      <ul>
+        <li><strong>Wikipedia Action API</strong> — search, article parsing, sections, random articles, prefix suggestions, plain-text extracts.</li>
+        <li><strong>Wikipedia REST API</strong> — page summaries, related articles, the <em>On this day</em> feed, featured content.</li>
+        <li><strong>Wikimedia pageviews API</strong> — the "most read right now" list.</li>
+        <li><strong>Wikidata</strong> — structured facts behind a topic.</li>
+        <li><strong>Wikimedia Commons</strong> — image credits and licences.</li>
+      </ul>
+      <p>All of these are public and keyless, and search requests go straight from your browser to Wikimedia. When AI chat is used, the question and the selected source excerpts are sent to the same-origin <code>/api/ask</code> Pages Function, which calls the configured OpenRouter model or the Cloudflare Workers AI binding. Credentials stay on the server and are never sent to the browser.</p>
+
+      <h2>How sentences are chosen</h2>
+      <p>The default ranker is a keyword overlap score: each word in your question is weighted by how rare it is across the article, and sentences that match are scored higher. A sentence containing a date or a number, and one that opens a paragraph, get a small bonus. The optional <strong>Understand meaning</strong> switch instead loads a small open sentence-embedding model (about 23 MB, once) and re-orders the same sentences by cosine similarity to your question. Either way, the sentences themselves are never rewritten.</p>
+
+      <h2>What Veridell never does</h2>
+      <ul>
+        <li>It never presents a model's guess as a sourced fact. The article breakdown quotes source sentences; chat answers must cite the passage behind each claim, and the sources stay visible under every answer.</li>
+        <li>It does not keep your questions on Veridell's side. Bookmarks, history and saved chat answers live in your own browser storage; when chat AI is used the question and selected excerpts are processed by the configured provider.</li>
+        <li>It does not track you, sell data, or show advertising.</li>
+        <li>It does not claim to be affiliated with the Wikimedia Foundation.</li>
+      </ul>
+
+      <h2>Licences</h2>
+      <p>Wikipedia article text is available under the Creative Commons Attribution-ShareAlike Licence (CC BY-SA 4.0). Wikidata data is released under CC0 1.0. Files on Wikimedia Commons carry their own licence, shown with each image. Reuse must respect those terms.</p>
+
+      <p><a class="btn btn-primary" href="/#/">Try it</a> <a class="btn btn-ghost" href="/#/sources">Sources &amp; attribution</a></p>
+    </div>
+  </main>
+
+  <footer class="site-foot">
+    <div class="foot-inner">
+      <div class="foot-col">
+        <div class="foot-brand"><strong>Veridell</strong></div>
+        <p>A Wikipedia-based knowledge explorer. It turns free knowledge into a core answer, a topic-wise breakdown and Markdown you can keep.</p>
+      </div>
+      <div class="foot-col">
+        <strong>Project</strong>
+        <ul>
+          <li><a href="/topics/">Topics</a></li>
+          <li><a href="/questions/">Questions</a></li>
+          <li><a href="/how-it-works/">How it works</a></li>
+          <li><a href="/help/">Help</a></li>
+          <li><a href="/#/sources">Sources &amp; attribution</a></li>
+          <li><a href="/#/credits">Credits &amp; contributors</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="foot-legal">
+      <p>Wikipedia article text is available under CC BY-SA 4.0. Wikidata data is released under CC0 1.0. Veridell is an independent reader and is not affiliated with or endorsed by the Wikimedia Foundation.</p>
+      <p class="foot-version">Veridell v6.0.0</p>
+    </div>
+  </footer>
+  <script type="module" src="/assets/js/build-watch.js?v=6.0.0-44559e1"></script>
+  <script src="/assets/js/chat-launcher.js?v=6.0.0-44559e1" defer></script>
+  <nav class="bottom-nav" aria-label="Primary (phone)">
+    <a href="/#/ask"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4.2 11.6a7.8 7.8 0 0 1 15.6 0c0 4.3-3.5 7.8-7.8 7.8-1 0-2-.2-2.9-.6l-3.9 1.5 1.2-3.4a7.8 7.8 0 0 1-2.2-5.3Z"/></svg><span>Ask</span></a>
+    <a href="/#/explore"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="8.6"/><path d="m15.3 8.7-1.9 4.7-4.7 1.9 1.9-4.7z"/></svg><span>Explore</span></a>
+    <a href="/topics/"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m12 3.7 8.4 4.4-8.4 4.4-8.4-4.4z"/><path d="m3.6 12.1 8.4 4.4 8.4-4.4"/><path d="m3.6 16.2 8.4 4.4 8.4-4.4"/></svg><span>Topics</span></a>
+    <a href="/#/library"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4.6 5.4a1.6 1.6 0 0 1 1.6-1.6h4.2v16.4H6.2a1.6 1.6 0 0 1-1.6-1.6z"/><path d="M10.4 3.8h3.4a1.6 1.6 0 0 1 1.6 1.6v12.8a1.6 1.6 0 0 1-1.6 1.6h-3.4"/><path d="m15.4 6.4 2.9.8a1.6 1.6 0 0 1 1.1 2l-3.1 10.8"/></svg><span>Library</span></a>
+    <a href="/#/bookmarks"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6.7 4.3h10.6v15.4L12 15.5l-5.3 4.2z"/></svg><span>Saved</span></a>
+  </nav>
 </body>
 </html>

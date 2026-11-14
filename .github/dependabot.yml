@@ -1,21 +1,40 @@
-# Keep the one dependency this repository has, and the actions it runs on, current.
-#
-# The site ships no runtime dependencies — the browser loads plain modules. What
-# is listed here is the test harness (jsdom) and the GitHub Actions, both of
-# which go stale silently if nothing watches them.
 version: 2
-updates:
-  - package-ecosystem: npm
-    directory: /
-    schedule:
-      interval: weekly
-    open-pull-requests-limit: 3
-    groups:
-      dev-dependencies:
-        patterns: ['*']
+# Added by the automation maintenance run (WF-04, task 20261103-F03).
+# Veridell declares jsdom and runs three workflows (ci, deploy, version),
+# so both ecosystems are tracked. Updates are grouped and weekly; a major
+# npm bump stays on its own PR because it can change test behaviour.
 
-  - package-ecosystem: github-actions
-    directory: /
+updates:
+  - package-ecosystem: "npm"
+    directory: "/"
     schedule:
-      interval: monthly
-    open-pull-requests-limit: 3
+      interval: "weekly"
+      day: "monday"
+      time: "05:00"
+      timezone: "Asia/Kolkata"
+    open-pull-requests-limit: 5
+    groups:
+      npm-minor-patch:
+        patterns: ["*"]
+        update-types: ["minor", "patch"]
+    ignore:
+      # jsdom 30 pulls in undici, which needs Node's zstd support (Node 22.15+
+      # or 24). This project supports Node 18 and runs its CI on Node 20, where
+      # importing jsdom 30 crashes inside undici before a single test runs:
+      #   TypeError: Cannot read properties of undefined (reading 'bind')
+      # Minor and patch updates to jsdom are still proposed; the major bump
+      # waits until the suite moves to Node 22.
+      - dependency-name: "jsdom"
+        update-types: ["version-update:semver-major"]
+
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "05:15"
+      timezone: "Asia/Kolkata"
+    open-pull-requests-limit: 5
+    groups:
+      github-actions:
+        patterns: ["*"]

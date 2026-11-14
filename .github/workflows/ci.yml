@@ -1,6 +1,8 @@
-# Checks on every push and pull request: the modules parse, the pages build,
-# the tests pass.
-
+# Checks and tests on every push and pull request.
+#
+# The audit's F-11 was that nothing verified the code. `npm run verify` parses
+# every module, checks that every import resolves, and runs the unit tests —
+# including the three that pin the routing bug the audit found.
 name: ci
 
 on:
@@ -17,10 +19,12 @@ jobs:
         with:
           node-version: '20'
           cache: npm
-      # The tests boot the real modules in a DOM, and that needs jsdom. Without
-      # this step every run died on ERR_MODULE_NOT_FOUND before a single
-      # assertion ran — which is what the failure emails were.
+      # The tests import jsdom, and the job never installed it — so `verify`
+      # died with ERR_MODULE_NOT_FOUND before a single assertion ran. The
+      # dependency step was simply missing.
       - name: Install dependencies
-        run: npm ci || npm install --no-audit --no-fund
-      - name: Verify
-        run: npm run verify
+        run: npm ci
+      - name: Stamp every page and verify the repository
+        env:
+          BUILD_COMMIT: ${{ github.sha }}
+        run: npm run stamp:build && npm run verify

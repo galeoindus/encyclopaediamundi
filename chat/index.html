@@ -1,126 +1,260 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="veridell-build" content="6.0.0-44559e1">
+  <meta name="veridell-version" content="6.0.0">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>Amigo — Veridell</title>
-  <meta name="description" content="Ask Amigo anything: a clear answer in plain language, with sources when the answer makes a factual claim.">
+  <meta name="description" content="Ask a question and get a clear answer broken into topics, with the source behind every claim.">
+  <meta name="robots" content="index, follow, max-image-preview:large">
   <link rel="canonical" href="https://veridell.pages.dev/chat/">
-  <meta name="theme-color" content="#f7f3ea" media="(prefers-color-scheme: light)">
-  <meta name="theme-color" content="#0e1512" media="(prefers-color-scheme: dark)">
+  <meta name="theme-color" content="#0c1120" media="(prefers-color-scheme: dark)">
+  <meta name="theme-color" content="#f5f6ff" media="(prefers-color-scheme: light)">
   <meta name="color-scheme" content="light dark">
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="Veridell">
   <meta property="og:title" content="Amigo — Veridell">
-  <meta property="og:description" content="A clear answer in plain language, with sources when the answer makes a factual claim.">
+  <meta property="og:description" content="A clear answer broken into topics, with the source behind every claim.">
   <meta property="og:url" content="https://veridell.pages.dev/chat/">
-  <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
-  <script src="../src/theme-boot.js"></script>
-  <link rel="stylesheet" href="../styles/site.css">
+  <meta property="og:image" content="https://veridell.pages.dev/assets/img/brand/og-card.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:image" content="https://veridell.pages.dev/assets/img/brand/og-card.png">
+<link rel="stylesheet" href="/assets/css/bundle-8b70f20152.css?v=6.0.0-44559e1">
+  <script src="/assets/js/image-fallback.js?v=6.0.0-44559e1"></script>
+  <script src="/assets/js/global-theme.js?v=6.0.0-44559e1"></script>
+  <!-- With JavaScript off this page is a question box that cannot answer and a
+       chat list that cannot open. Both are hidden rather than left there
+       looking alive; the message below takes their place. `<noscript>` in the
+       head may carry a style element, so this needs no inline handler and no
+       CSP exception. -->
+  <noscript><style>#composer,.meta-row,.rail-new,.rail-search,.rail-list,.rail-foot{display:none}</style></noscript>
+  <link rel="preconnect" href="https://en.wikipedia.org/" crossorigin>
+  <link rel="icon" href="/favicon.ico" sizes="48x48">
+  <link rel="icon" href="/assets/img/brand/facet.svg" type="image/svg+xml">
+  <link rel="icon" href="/assets/img/brand/facet-48.png" sizes="48x48" type="image/png">
+  <link rel="icon" href="/assets/img/brand/facet-192.png" sizes="192x192" type="image/png">
+  <link rel="apple-touch-icon" href="/assets/img/brand/facet-180.png">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebPage",
+    "name": "Amigo chat — Veridell",
+    "url": "https://veridell.pages.dev/chat/",
+    "isPartOf": {
+      "@type": "WebSite",
+      "url": "https://veridell.pages.dev/",
+      "name": "Veridell"
+    },
+    "inLanguage": "en"
+  }
+  </script>
 </head>
-<body data-page="chat">
-  <a class="em-skip" href="#prompt">Skip to the question box</a>
+<body class="is-empty amigo-chat">
+<a class="skip-link" href="#prompt">Skip to the question box</a>
 
-  <header class="em-bar em-chat-bar">
-    <div class="em-bar-in">
-      <a class="em-brand" href="/" aria-label="Veridell home">
-        <span class="em-brand-mark" aria-hidden="true">
-          <svg viewBox="0 0 96 96" role="img" aria-hidden="true" focusable="false">
-  <defs>
-    <linearGradient id="emMarkG" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0" stop-color="#1f7d63"/><stop offset="1" stop-color="#08302a"/>
-    </linearGradient>
-  </defs>
-  <rect width="96" height="96" rx="26" fill="url(#emMarkG)"/>
-  <path d="M28 31 L48 66 L68 31" fill="none" stroke="#f7f3ea" stroke-width="9.5" stroke-linecap="round" stroke-linejoin="round"/>
-  <circle cx="48" cy="24.5" r="5.2" fill="#e0a06a"/>
-</svg>
-        </span>
-        <span class="em-brand-word">Veridell</span>
-      </a>
+<aside class="rail" id="rail" aria-label="Your chats">
+  <a class="brand" href="/" aria-label="Veridell home">
+    <span class="mark" aria-hidden="true"><img src="/assets/img/brand/facet.svg" width="30" height="30" alt="" aria-hidden="true" decoding="async"></span>
+    <span class="brand-text"><b>Veridell</b><em>AI Mode</em></span>
+  </a>
 
-      <nav class="em-nav" aria-label="Primary">
-        <a href="/">Home</a>
-        <a href="/articles/">Articles</a>
-        <a href="/#/library">Library</a>
-        <a href="/help/">Help</a>
-      </nav>
+  <button type="button" class="rail-new" id="railNew">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4.6v14.8M4.6 12h14.8"/></svg>
+    <span>New chat</span>
+    <kbd>⌘K</kbd>
+  </button>
 
-      <button class="em-icon-btn" type="button" id="clearChat" aria-label="Start a new chat" title="New chat">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
+  <label class="rail-search" for="railSearch" aria-label="Search chats">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="10.9" cy="10.9" r="6.9"/><path d="m19.6 19.6-4.2-4.2"/></svg>
+    <input id="railSearch" type="search" placeholder="Search chats" autocomplete="off">
+  </label>
+
+  <div class="rail-scroll">
+    <div class="rail-head-row">
+      <p class="rail-head">Chats <span class="rail-count" id="railCount"></span></p>
+      <button type="button" class="rail-clear" id="railClear" title="Clear local chats and saved answers" aria-label="Clear local chats and saved answers" hidden>Clear all</button>
+    </div>
+    <div class="rail-list" id="railList"></div>
+  </div>
+
+  <nav class="rail-explore" aria-label="Explore Veridell">
+    <p class="rail-head">Explore Veridell</p>
+    <a href="/articles/"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4.6 5.4a1.6 1.6 0 0 1 1.6-1.6h4.2v16.4H6.2a1.6 1.6 0 0 1-1.6-1.6z"/><path d="M10.4 3.8h3.4a1.6 1.6 0 0 1 1.6 1.6v12.8a1.6 1.6 0 0 1-1.6 1.6h-3.4"/></svg><span>Articles</span></a>
+    <a href="/topics/"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m12 3.7 8.4 4.4-8.4 4.4-8.4-4.4z"/><path d="m3.6 12.1 8.4 4.4 8.4-4.4"/></svg><span>Topics</span></a>
+    <a href="/#/library"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="6.6"/><path d="m19.4 19.4-3.8-3.8"/></svg><span>Library</span></a>
+    <a href="/#/sources"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3.4 19 6.2v5c0 4.6-3 8-7 10-4-2-7-5.4-7-10v-5z"/><path d="m9.2 11.9 2 2 3.6-3.6"/></svg><span>Sources</span></a>
+    <a href="/how-it-works/"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="8.6"/><path d="M12 11v6M12 7.6v.6"/></svg><span>How it works</span></a>
+  </nav>
+
+  <p class="rail-foot"><span class="dot"></span><span id="railModel">Ready · answers grounded in Wikipedia</span></p>
+</aside>
+
+<div class="main">
+  <header class="top">
+    <button id="railToggle" type="button" class="ico rail-toggle" aria-label="Hide chat list" aria-expanded="true" aria-controls="rail" title="Chat list (Ctrl+B)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4.2 6.4h15.6M4.2 12h15.6M4.2 17.6h9.6"/></svg>
+    </button>
+    <h1 id="chatTitle">New chat</h1>
+    <div class="top-right">
+      <button id="deleteChatBtn" type="button" class="ico" aria-label="Delete this chat" title="Delete this chat" hidden>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4.5 7.3h15M9.4 7.3V5.5h5.2v1.8M6.6 7.3 7.6 20h8.8l1-12.7"/></svg>
       </button>
-      <button class="em-icon-btn" type="button" data-theme-toggle aria-label="Switch theme">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" aria-hidden="true"><path d="M20.3 14.1A8.5 8.5 0 0 1 9.9 3.7 8.5 8.5 0 1 0 20.3 14.1Z"/></svg>
-      </button>
+      <button id="savedAnswersBtn" type="button" class="ico" aria-label="Saved answers" title="Saved"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6.7 4.3h10.6v15.4L12 15.5l-5.3 4.2z"/></svg></button>
+      <button id="themeBtn" type="button" class="ico" aria-label="Switch theme" title="Light / dark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.3 14.1A8.5 8.5 0 0 1 9.9 3.7 8.5 8.5 0 1 0 20.3 14.1Z"/></svg></button>
     </div>
   </header>
 
-  <div class="em-chat-scroll" id="scroll" role="log" aria-live="polite" aria-label="Conversation">
-    <div class="em-chat-stage" id="stage"></div>
-  </div>
-
-  <div class="em-dock">
-    <div class="em-dock-in">
-      <form class="em-composer" id="composer" autocomplete="off">
-        <label class="em-sr" for="prompt">Ask Amigo a question</label>
-        <textarea id="prompt" rows="1" maxlength="2000" placeholder="Ask Amigo anything…" spellcheck="true"></textarea>
-        <button class="em-icon-btn em-mic" id="micBtn" type="button" aria-label="Speak your question" title="Speak your question" hidden>
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9.3" y="3.4" width="5.4" height="10.2" rx="2.7"/><path d="M5.7 11.3a6.3 6.3 0 0 0 12.6 0M12 17.6v3"/></svg>
-        </button>
-        <button class="em-icon-btn em-attach" id="attachBtn" type="button" aria-label="Attach a text file" title="Attach a text file">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m8.4 15.6 8.6-8.6a2.6 2.6 0 0 1 3.7 3.7l-8.6 8.6-4.6.9z"/><path d="m14.6 9.4 3.7 3.7"/></svg>
-        </button>
-        <button class="em-send" id="send" type="submit" aria-label="Send">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4.5 12 20 4.5 15.6 20l-4-6z"/><path d="m11.6 14 4-4"/></svg>
-        </button>
-      </form>
-
-      <input id="fileInput" type="file" hidden multiple
-             accept=".txt,.md,.markdown,.csv,.tsv,.json,.xml,.html,.log,.yml,.yaml,text/*">
-      <div class="em-tray" id="attachmentTray" aria-live="polite" hidden></div>
-
-      <div class="em-chat-tools">
-        <label class="em-sr" for="runtime">Runtime</label>
-        <select id="runtime" aria-label="Runtime">
-          <option value="cloud">Cloud · free (Workers AI)</option>
-          <option value="local">This device · Ollama</option>
-        </select>
-        <label class="em-sr" for="depth">Answer depth</label>
-        <select id="depth" aria-label="Answer depth">
-          <option value="quick">Quick</option>
-          <option value="detailed" selected>Detailed</option>
-          <option value="deep">Deep</option>
-        </select>
-        <label class="em-sr" for="lang">Source language</label>
-        <select id="lang" aria-label="Source language">
-          <option value="en">English</option>
-          <option value="hi">हिन्दी</option>
-          <option value="bn">বাংলা</option>
-          <option value="ta">தமிழ்</option>
-          <option value="te">తెలుగు</option>
-          <option value="mr">मराठी</option>
-          <option value="gu">ગુજરાતી</option>
-          <option value="kn">ಕನ್ನಡ</option>
-          <option value="ml">മലയാളം</option>
-          <option value="pa">ਪੰਜਾਬੀ</option>
-          <option value="ur">اردو</option>
-          <option value="sa">संस्कृतम्</option>
-        </select>
-        <span class="em-spacer"></span>
-        <span id="runtimeNote">Prompts go to this site’s server and the free Cloudflare Workers AI allocation.</span>
+  <div class="scroll" id="main" role="main" tabindex="-1">
+    <div class="stage">
+      <!-- The notice used to sit at the very end of <body>, below the whole
+           application: on a 390px phone it was several screens down, so a
+           reader without JavaScript saw a live-looking composer and no
+           explanation. It is now the first thing in the reading column. -->
+      <noscript><p class="hint">The chat needs JavaScript. You can still read the entries at <a href="/articles/">the library</a>.</p></noscript>
+        <div class="empty" id="empty">
+        <span class="empty-mark" aria-hidden="true"><img id="welcomeAmigo" class="amigo amigo--welcome" data-state="idle" src="/assets/img/amigo/front.png" width="239" height="320" alt="" aria-hidden="true" decoding="async"></span>
+        <div class="welcome-eyebrow"><span class="welcome-pulse" aria-hidden="true"></span> VERIDELL AI MODE</div>
+        <h2 class="empty-heading">Hi, I’m <em>Amigo</em>. What would you like to explore?</h2>
+        <p>Ask naturally. Amigo can chat, search the Veridell library, or research public sources — with citations when it makes a factual claim.</p>
+        <div class="welcome-trust" aria-label="How Amigo works">
+          <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3.4 19 6.2v5c0 4.6-3 8-7 10-4-2-7-5.4-7-10v-5z"/><path d="m9.2 11.9 2 2 3.6-3.6"/></svg>Source-grounded answers</span>
+          <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="10.9" cy="10.9" r="6.9"/><path d="m19.6 19.6-4.2-4.2"/></svg>Wikipedia article search</span>
+          <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3.3l1.7 4.6 4.6 1.7-4.6 1.7-1.7 4.6-1.7-4.6L5.7 9.6l4.6-1.7z"/><path d="M17.9 15.2l.8 2.1 2.1.8-2.1.8-.8 2.1-.8-2.1-2.1-.8 2.1-.8z"/></svg>Natural conversation</span>
+        </div>
+        <div class="starters" id="suggestions"></div>
+        <nav class="empty-links" aria-label="More from Veridell">
+          <a href="/#/explore">Explore topics</a>
+          <a href="/#/today">On this day</a>
+          <a href="/#/library">Read the library</a>
+        </nav>
       </div>
-
-      <div class="em-chat-tools em-ollama" id="ollamaRow" hidden>
-        <label for="ollamaModel">Model on this device</label>
-        <input id="ollamaModel" type="text" maxlength="120" value="qwen2.5:1.5b" autocomplete="off" spellcheck="false" list="ollamaModels">
-        <datalist id="ollamaModels"></datalist>
-        <button type="button" id="ollamaCheck">Check connection</button>
-        <a href="https://ollama.com/" target="_blank" rel="noopener noreferrer">Get Ollama ↗</a>
-      </div>
-      <p class="em-chat-tools" id="ollamaStatus" role="status" aria-live="polite" hidden></p>
+      <div class="thread" id="thread" role="log" aria-live="polite" aria-label="Conversation"></div>
     </div>
   </div>
 
-  <script type="module" src="../src/chat.js"></script>
+  <div class="dock" id="dock">
+    <div class="dock-in">
+      <p class="offline" id="offline" role="status" hidden>You are offline. Answers need a connection.</p>
+      <!-- No action attribute: `action="javascript:void(0)"` is a URL scheme
+           the page's own Content-Security-Policy forbids (form-action 'self'),
+           and nothing here needs it — the submit handler prevents the default
+           and the send button is type="button". A form with no action submits
+           to the current URL, which is the same page. -->
+      <div class="chat-mode-tabs" role="group" aria-label="Chat mode">
+        <button type="button" data-chat-mode="auto" class="is-active" aria-pressed="true">Auto</button>
+        <button type="button" data-chat-mode="chat" aria-pressed="false">Chat</button>
+        <button type="button" data-chat-mode="research" aria-pressed="false">Research</button>
+      </div>
+      <form class="composer" id="composer" autocomplete="off" novalidate>
+        <button class="plus" id="plusBtn" type="button" aria-label="Answer options" aria-expanded="false" aria-controls="optionsPanel" title="Answer options"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4.6v14.8M4.6 12h14.8"/></svg></button>
+        <button class="attach" id="attachBtn" type="button" aria-label="Attach a file" title="Attach a file"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m8.4 15.6 8.6-8.6a2.6 2.6 0 0 1 3.7 3.7l-8.6 8.6-4.6.9z"/><path d="m14.6 9.4 3.7 3.7"/></svg></button>
+        <label class="sr-only" for="prompt">Ask a question</label>
+        <textarea id="prompt" rows="1" maxlength="800" placeholder="Message Amigo…" spellcheck="true"></textarea>
+        <button class="mic" id="voiceBtn" type="button" aria-label="Voice input" title="Voice input" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9.3" y="3.4" width="5.4" height="10.2" rx="2.7"/><path d="M5.7 11.3a6.3 6.3 0 0 0 12.6 0M12 17.6v3"/></svg></button>
+        <button class="stop" id="stopBtn" type="button" hidden aria-label="Stop">Stop</button>
+        <button class="send" id="send" type="button" aria-label="Send"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4.3 11.9 20 4.4l-4.3 15.5-4.1-6.2z"/><path d="m11.6 13.7 4.2-4.2"/></svg></button>
+      </form>
+      <input id="fileInput" type="file" aria-label="Attach a file for Amigo to read" accept=".txt,.md,.markdown,.csv,.tsv,.json,.xml,.html,.htm,.log,.yaml,.yml,.pdf,image/png,image/jpeg,image/webp" multiple hidden>
+      <div class="attachment-tray" id="attachmentTray" aria-live="polite" hidden></div>
+      <div class="options-panel" id="optionsPanel" hidden>
+        <label class="opt opt-mode"><span>Chat behavior</span>
+          <select id="conversationMode" aria-label="Chat behavior">
+            <option value="auto" selected>Auto · chat or research</option>
+            <option value="chat">Conversation · natural chat and creative work</option>
+            <option value="research">Research · Wikipedia sources and citations</option>
+          </select>
+        </label>
+        <label class="opt"><span>Answer depth</span>
+          <select id="answerDepth" aria-label="Answer depth">
+            <option value="quick">Quick</option>
+            <option value="detailed" selected>Detailed</option>
+            <option value="deep">Deep</option>
+          </select>
+        </label>
+        <label class="opt"><span>Source language</span>
+          <select id="contentLanguage" aria-label="Source language">
+            <option value="en">English</option><option value="hi">हिन्दी</option><option value="bn">বাংলা</option>
+            <option value="ta">தமிழ்</option><option value="te">తెలుగు</option><option value="mr">मराठी</option>
+            <option value="gu">ગુજરાતી</option><option value="kn">ಕನ್ನಡ</option><option value="ml">മലയാളം</option>
+            <option value="pa">ਪੰਜਾਬੀ</option><option value="ur">اردو</option><option value="sa">संस्कृतम्</option>
+          </select>
+        </label>
+        <label class="opt"><span>Interface language</span>
+          <select id="uiLanguage" aria-label="Interface language">
+            <option value="en">English</option><option value="hi">हिंदी</option>
+          </select>
+        </label>
+        <label class="opt"><span id="readAloudLabel">Read-aloud voice</span>
+          <select id="readAloudMode" aria-label="Read-aloud voice">
+            <option value="browser" selected>Device voice · private</option>
+            <option value="natural">Natural English · cloud</option>
+          </select>
+        </label>
+        <p class="opt-note" id="readAloudNote">Natural cloud voice is available for English. It sends the text to Veridell’s speech endpoint; Hindi and other languages use a voice available on your device.</p>
+        <label class="opt"><span>Model</span>
+          <select id="modelChoice" aria-label="Model">
+            <option value="auto" selected>Auto · best free model</option>
+          </select>
+        </label>
+        <p class="opt-note" id="modelNote" hidden></p>
+        <label class="opt"><span>AI runtime · free first</span>
+          <select id="aiRuntime" aria-label="AI runtime">
+            <option value="free-cloud" selected>Free hosted · Cloudflare Workers AI</option>
+            <option value="local-ollama">Local AI · Ollama on this device</option>
+          </select>
+        </label>
+        <div class="local-ai-settings" id="localAISettings" hidden>
+          <p>Local mode sends prompts, extracted text and images directly to Ollama at this device’s loopback address, not to Veridell’s AI server. Ollama must run on the same device as this browser. Install Ollama, pull a model, allow this site’s exact origin in OLLAMA_ORIGINS, then connect below.</p>
+          <div class="local-ai-row">
+            <label for="localModelInput">Installed model name</label>
+            <input id="localModelInput" type="text" maxlength="120" value="qwen2.5:1.5b" autocomplete="off" spellcheck="false">
+            <button type="button" id="connectLocalAI">Check local models</button>
+          </div>
+          <p id="localAIStatus" role="status" aria-live="polite">Default: qwen2.5:1.5b · for image understanding, install a vision model such as llama3.2-vision.</p>
+          <a href="https://ollama.com/" target="_blank" rel="noopener noreferrer">Get Ollama ↗</a>
+        </div>
+        <section class="memory-settings" aria-labelledby="memoryTitle">
+          <div class="memory-heading"><strong id="memoryTitle">Amigo memory</strong><span>Saved only when you choose</span></div>
+          <p>Keep a few preferences or facts for future chats. Notes stay in this browser, are not encrypted, and are sent only when you turn memory use on. Avoid sensitive personal details.</p>
+          <label class="memory-toggle"><input id="useMemory" type="checkbox"> Use my saved notes in chats</label>
+          <div class="memory-add-row">
+            <label class="sr-only" for="memoryInput">Add a note for Amigo to remember</label>
+          <input id="memoryInput" type="text" maxlength="280" placeholder="Example: I prefer simple Hindi explanations…">
+            <button type="button" id="saveMemoryBtn">Save note</button>
+          </div>
+          <div id="memoryList" class="memory-list" aria-live="polite"></div>
+          <div class="memory-actions">
+            <button type="button" id="exportMemoryBtn">Export</button>
+            <button type="button" id="importMemoryBtn">Import</button>
+            <button type="button" id="clearMemoryBtn">Clear memories</button>
+            <input id="memoryImportInput" type="file" aria-label="Import saved notes from a JSON file" accept="application/json,.json" hidden>
+          </div>
+        </section>
+        <p class="opt-note">Voice recognition may use your browser’s speech service. It asks for permission before the first use. Read-aloud prefers on-device voices.</p>
+      </div>
+      <div class="meta-row">
+        <button type="button" class="mchip" id="optionsBtn" aria-expanded="false" aria-controls="optionsPanel">Detailed · English</button>
+        <span class="grow"></span>
+        <span class="hint" id="privacyHint">Sources from Wikipedia</span>
+      </div>
+      <p class="chat-note" id="chatNote">
+        No sign-in, email, phone number or personal profile is required. Your chat history is saved in this browser
+        on this device. When you send a message, its text and, when needed for context, up to eight recent turns from the active chat are
+        sent to the Veridell server and whichever free runtime you chose — Cloudflare Workers AI by default, or the OpenRouter free models when the operator has connected them; research search terms may also go to Wikimedia and, for academic queries, Crossref. Your saved memory is sent only when enabled. Text extracted from attached files is included only when you send the chat. Local Ollama mode sends prompts, extracted text and images directly to Ollama on this device instead. Browser voice recognition may use the browser's speech service. Optional Natural English read-aloud sends up to 1,200 characters of answer text to this site's /api/speech endpoint and a Cloudflare-hosted speech model; device voice remains the default. Technical request data may be processed by the hosting service for security and abuse prevention. Do not enter passwords, payment details or sensitive personal information.
+      </p>
+    </div>
+  </div>
+</div>
+
+<script type="module" src="/assets/js/build-watch.js?v=6.0.0-44559e1"></script>
+<script type="module" src="/assets/js/chat-page.js?v=6.0.0-44559e1"></script>
+  <nav class="bottom-nav" aria-label="Primary (phone)">
+    <a href="/#/ask"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4.2 11.6a7.8 7.8 0 0 1 15.6 0c0 4.3-3.5 7.8-7.8 7.8-1 0-2-.2-2.9-.6l-3.9 1.5 1.2-3.4a7.8 7.8 0 0 1-2.2-5.3Z"/></svg><span>Ask</span></a>
+    <a href="/#/explore"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="8.6"/><path d="m15.3 8.7-1.9 4.7-4.7 1.9 1.9-4.7z"/></svg><span>Explore</span></a>
+    <a href="/topics/"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m12 3.7 8.4 4.4-8.4 4.4-8.4-4.4z"/><path d="m3.6 12.1 8.4 4.4 8.4-4.4"/><path d="m3.6 16.2 8.4 4.4 8.4-4.4"/></svg><span>Topics</span></a>
+    <a href="/#/library"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4.6 5.4a1.6 1.6 0 0 1 1.6-1.6h4.2v16.4H6.2a1.6 1.6 0 0 1-1.6-1.6z"/><path d="M10.4 3.8h3.4a1.6 1.6 0 0 1 1.6 1.6v12.8a1.6 1.6 0 0 1-1.6 1.6h-3.4"/><path d="m15.4 6.4 2.9.8a1.6 1.6 0 0 1 1.1 2l-3.1 10.8"/></svg><span>Library</span></a>
+    <a href="/#/bookmarks"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6.7 4.3h10.6v15.4L12 15.5l-5.3 4.2z"/></svg><span>Saved</span></a>
+  </nav>
 </body>
 </html>

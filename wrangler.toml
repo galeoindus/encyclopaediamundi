@@ -3,30 +3,45 @@
 # A static site with no build step, plus Pages Functions in ./functions, so
 # Pages only needs to know where the files are.
 #
-#   npm run deploy
+#   npm run deploy        # creates the project if it is missing, then deploys
 #
-# or by hand — the first command is the one that is easy to forget:
+# or by hand:
 #
 #   npx wrangler pages project create veridell --production-branch=main
 #   npx wrangler pages deploy . --project-name=veridell
 #
-# A Pages project belongs to the account that created it. A fresh Cloudflare
-# account therefore has none, and `pages deploy` answers "Project not found"
-# until the project exists — that is a missing project, not a broken repository.
+# The project name here, the --project-name in .github/workflows/deploy.yml,
+# SITE.origin in assets/js/config.js and the host in robots.txt, sitemap.xml
+# and the pages are one identity: https://veridell.pages.dev .
+# Change them together, in one commit, or the canonical URLs stop matching the
+# host that actually serves the site.
 #
-# The project name, SITE.origin here and the canonical host in index.html,
-# robots.txt, sitemap.xml and the built pages are one identity:
-# https://veridell.pages.dev/
+# Headers and redirects live in _headers and _redirects at the repository root.
 
 name = "veridell"
 compatibility_date = "2026-01-01"
 pages_build_output_dir = "."
 
-# Workers AI: free, no key, the default runtime for /api/ask.
+# ── Workers AI ────────────────────────────────────────────────────────────
+# The /api/ask function reads this binding. It is free-tier friendly and
+# needs no key: Cloudflare runs the model.
+#
+# If the binding is added in the dashboard instead (Pages → Settings →
+# Functions → Bindings → Workers AI, variable name AI), this block is
+# redundant but harmless — the name must match.
 [ai]
 binding = "AI"
 
+# ── AI routing ────────────────────────────────────────────────────────────
+# These live in the repository, not only in the dashboard, because a Pages
+# deployment syncs plain-text variables from this file: anything set only in
+# the dashboard is written back to the dashboard's last value on the next
+# build, and a setting that disappears on deploy is worse than no setting.
+#
+# OpenRouter runs free-only: only model ids ending in `:free` are ever sent,
+# so the six-key pool adds capacity without adding a bill. A paid model still
+# needs ENABLE_PAID_AI=true (a secret, dashboard-only) plus
+# OPENROUTER_FREE_ONLY=false.
 [vars]
-# OpenRouter is only used when a key is present and this is set to "openrouter".
-AI_PROVIDER = "workers-ai"
+AI_PROVIDER = "openrouter"
 OPENROUTER_FREE_ONLY = "true"

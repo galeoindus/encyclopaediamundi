@@ -1,31 +1,48 @@
 {
   "name": "veridell",
-  "version": "1.0.0",
+  "version": "6.0.0",
   "private": true,
   "type": "module",
-  "description": "Veridell — a Wikimedia knowledge research and discovery site with a source-backed answer surface.",
+  "description": "Veridell — a privacy-first Wikimedia research and discovery platform with Amigo multi-turn AI conversation, cited answers and local chat history.",
   "homepage": "https://veridell.pages.dev/",
   "repository": {
     "type": "git",
     "url": "https://github.com/galeoindus/veridell.git"
   },
   "license": "MIT",
+  "keywords": [
+    "wikipedia",
+    "wikidata",
+    "knowledge",
+    "search",
+    "reader",
+    "cloudflare-pages",
+    "pwa"
+  ],
   "engines": {
     "node": ">=18"
   },
   "scripts": {
-    "build": "node scripts/build-pages.mjs",
     "start": "python3 -m http.server 4173",
     "serve": "python3 -m http.server 4173",
-    "test": "node --test tests/",
-    "check": "node --check src/main.js && node --check src/chat.js && node --check functions/api/ask.js",
-    "verify": "npm run check && npm run build && npm test",
+    "check": "node scripts/check.mjs && node scripts/audit-site.mjs",
+    "test": "node --test",
+    "verify": "npm run check && npm run test",
+    "articles": "python3 scripts/gen_articles.py",
+    "stamp:build": "node scripts/stamp-build.mjs",
+    "audit:site": "node scripts/audit-site.mjs",
+    "audit:deep": "node scripts/deep-audit.mjs",
+    "check:browser": "node scripts/back-nav-check.mjs && node scripts/translate-check.mjs && node scripts/interaction-check.mjs && node scripts/chat-rail-check.mjs",
+    "smoke": "node scripts/site-smoke.mjs",
+    "release": "node scripts/release.mjs",
+    "dev": "npx --yes wrangler pages dev . --port 4173",
+    "test:core": "node --test test/ask.test.mjs test/api-date.test.mjs test/chat-atelier.test.mjs test/chat-ui.test.mjs test/conversation.test.mjs test/credits-page.test.mjs test/home-aotd.test.mjs test/i18n.test.mjs test/icons.test.mjs test/models.test.mjs test/parse.test.mjs test/research-answer.test.mjs test/router.test.mjs test/sources.test.mjs test/world-langs.test.mjs test/global-theme.test.mjs test/translate-provider.test.mjs test/amigo-memory.test.mjs test/amigo-files.test.mjs test/ollama-client.test.mjs test/live-research.test.mjs test/articles.test.mjs",
+    "verify:live": "node scripts/post-deploy-check.mjs",
     "deploy": "node scripts/deploy.mjs"
   },
-  "dependencies": {
-    "jsdom": "^29.1.1"
-  },
+  "dependencies": {},
   "devDependencies": {
-    "jsdom": "^29.1.1"
+    "jsdom": "^29.1.1",
+    "ws": "^8.18.0"
   }
 }

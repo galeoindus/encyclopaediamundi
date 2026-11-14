@@ -1,0 +1,1424 @@
+/* Veridell chat — the answer surface.
+ *
+ * One page, four parts, top to bottom: a rail of past chats, a thin header,
+ * one reading column, one composer. Nothing floats over the text.
+ *
+ * The design language is the mark: a rising sun over two currents. So the
+ * page is built on two notes only — a deep indigo-green ink for structure and
+ * a warm brass for anything the reader can act on — and the sun is used once,
+ * in the empty state, where it has room to be a sun.
+ *
+ * Dark and light are the same tokens with different values, so the two can
+ * never drift apart.
+ */
+
+/* ── tokens ────────────────────────────────────────────────────────────── */
+:root {
+  --bg: #0b0f0e;
+  --rail: #0d1211;
+  --panel: #121a18;
+  --panel-2: #17211e;
+  --line: #1e2b27;
+  --line-2: #2b3b35;
+  --ink: #edf2ef;
+  --ink-2: #b9c7c1;
+  --muted: #7d8f88;
+  --accent: #5fc79a;
+  --brass: #c4762f;
+  --brass-soft: #d99a5e;
+  --user: #16302a;
+  --shadow: 0 18px 44px -26px rgba(0, 0, 0, .75);
+
+  --col: 768px;
+  --rail-w: 264px;
+  --r: 14px;
+  --r-sm: 10px;
+  --ease: cubic-bezier(.22, .61, .36, 1);
+
+  --sans: system-ui, -apple-system, 'Segoe UI', Roboto, 'Noto Sans Devanagari', 'Helvetica Neue', Arial, sans-serif;
+  --serif: 'Iowan Old Style', 'Palatino Linotype', Palatino, Georgia, 'Tiro Devanagari Hindi', serif;
+  --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+
+html[data-theme="light"] {
+  --bg: #fbf8f2;
+  --rail: #f4f0e6;
+  --panel: #ffffff;
+  --panel-2: #f8f4ec;
+  --line: #e6e0d2;
+  --line-2: #d5ccb9;
+  --ink: #14201c;
+  --ink-2: #3b4a44;
+  /* #6b7873 measured 4.05:1 on the rail and 4.35:1 on the page — both below
+     the 4.5:1 AA floor, and eight labels used it. This clears 5.19:1 on the
+     rail, which is the darkest surface it can land on. */
+  --muted: #5a6660;
+  --accent: #1a7a52;
+  --brass: #a8622c;
+  --brass-soft: #8f5222;
+  --user: #e7f1ea;
+  --shadow: 0 18px 40px -30px rgba(20, 30, 26, .45);
+}
+
+* { box-sizing: border-box; }
+
+html, body { height: 100%; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font: 15px/1.65 var(--sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  /* The shell is a grid, declared once at the end of this file. 100vh is kept
+     as the fallback because older browsers ignore dvh. */
+  height: 100vh;
+  height: 100dvh;
+  overflow: hidden;
+}
+
+/* The mark is defined once in the markup and pointed at with <use>. */
+.mark-defs { position: absolute; width: 0; height: 0; overflow: hidden; }
+
+.skip-link {
+  position: absolute; left: -9999px; top: 0; z-index: 60;
+  padding: 10px 14px; background: var(--accent); color: #04150d;
+  font-weight: 650; border-radius: 0 0 10px 0;
+}
+.skip-link:focus { left: 0; }
+
+.sr-only {
+  position: absolute; width: 1px; height: 1px;
+  padding: 0; margin: -1px; overflow: hidden;
+  clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+}
+
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+/* ── the rail ──────────────────────────────────────────────────────────── */
+.rail {
+  background: var(--rail);
+  border-right: 1px solid var(--line);
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  padding: 16px 12px 14px;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.brand {
+  display: flex; align-items: center; gap: 11px;
+  padding: 2px 6px 12px;
+  color: var(--ink); text-decoration: none;
+}
+.brand .mark {
+  width: 34px; height: 34px; flex: none;
+  display: grid; place-items: center;
+  border-radius: 11px;
+  box-shadow: 0 8px 18px -12px rgba(0, 0, 0, .8);
+}
+.brand .mark svg { width: 100%; height: 100%; display: block; }
+.brand-text { display: flex; flex-direction: column; line-height: 1.15; min-width: 0; }
+.brand-text b {
+  font-family: var(--serif);
+  font-size: 18px; font-weight: 600; letter-spacing: -0.015em;
+}
+.brand-text em {
+  font-style: normal;
+  font-size: 10px; font-weight: 700; letter-spacing: .14em;
+  text-transform: uppercase; color: var(--brass-soft);
+}
+
+.rail-new {
+  display: flex; align-items: center; gap: 9px;
+  padding: 10px 12px;
+  border: 1px solid var(--line-2); border-radius: 11px;
+  background: transparent; color: var(--ink);
+  font: inherit; font-size: 13px; font-weight: 600; cursor: pointer;
+  transition: border-color .15s var(--ease), background-color .15s var(--ease);
+}
+.rail-new:hover { border-color: var(--accent); background: var(--panel); }
+.rail-new svg { width: 14px; height: 14px; flex: none; }
+.rail-new span { flex: 1 1 auto; text-align: left; }
+.rail-new kbd {
+  font: 600 10px/1 var(--sans);
+  padding: 3px 5px; border-radius: 5px;
+  border: 1px solid var(--line-2); color: var(--muted);
+}
+
+.rail-search {
+  display: flex; align-items: center; gap: 8px;
+  padding: 8px 11px;
+  border: 1px solid var(--line); border-radius: 10px;
+  color: var(--muted);
+  transition: border-color .15s var(--ease);
+}
+.rail-search:focus-within { border-color: var(--line-2); color: var(--ink-2); }
+.rail-search svg { width: 13px; height: 13px; flex: none; }
+.rail-search input {
+  flex: 1; min-width: 0;
+  border: 0; outline: none; background: transparent;
+  color: var(--ink); font: inherit; font-size: 12.5px;
+}
+.rail-search input::placeholder { color: var(--muted); }
+.rail-search input::-webkit-search-cancel-button { display: none; }
+
+.rail-scroll { flex: 1 1 auto; overflow-y: auto; min-height: 0; overscroll-behavior: contain; }
+.rail-head {
+  margin: 14px 6px 6px;
+  font-size: 10px; font-weight: 700; letter-spacing: .1em;
+  text-transform: uppercase; color: var(--muted);
+}
+.rail-head-row {
+  display: flex; align-items: baseline; justify-content: space-between; gap: 8px;
+  margin: 14px 6px 6px;
+}
+.rail-head-row .rail-head { margin: 0; }
+.rail-count {
+  display: inline-block; margin-left: 4px;
+  font-size: 10px; font-weight: 600; letter-spacing: 0;
+  color: var(--muted); opacity: .85;
+}
+.rail-clear {
+  border: 0; border-radius: 7px; padding: 3px 7px;
+  background: transparent; color: var(--muted);
+  font: inherit; font-size: 10.5px; font-weight: 650; letter-spacing: .02em;
+  cursor: pointer;
+  transition: background-color .12s var(--ease), color .12s var(--ease);
+}
+.rail-clear:hover { background: color-mix(in srgb, #b3261e 14%, transparent); color: #d2604f; }
+
+/* Today / Earlier */
+.rail-group {
+  margin: 10px 6px 4px;
+  font-size: 10px; font-weight: 650; letter-spacing: .08em;
+  text-transform: uppercase; color: var(--muted); opacity: .8;
+}
+
+.rail-list { display: flex; flex-direction: column; gap: 1px; }
+.rail-empty { margin: 4px 6px; font-size: 11.5px; color: var(--muted); line-height: 1.55; }
+
+/* one row per chat: open it, or delete it */
+.rail-row {
+  display: flex; align-items: center; gap: 2px;
+  border-radius: 9px;
+  transition: background-color .12s var(--ease);
+}
+.rail-row:hover { background: var(--panel); }
+.rail-row.is-active { background: color-mix(in srgb, var(--accent) 13%, transparent); }
+.rail-row .rail-item {
+  flex: 1 1 auto; min-width: 0;
+  padding: 8px 10px;
+  border: 0; border-radius: 9px;
+  background: transparent; color: var(--ink-2);
+  font: inherit; font-size: 12.5px; text-align: left;
+  cursor: pointer;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.rail-row .rail-item.is-active { color: var(--ink); font-weight: 550; }
+.rail-del {
+  flex: none;
+  width: 26px; height: 26px; margin-right: 4px;
+  display: grid; place-items: center;
+  border: 0; border-radius: 7px;
+  background: transparent; color: var(--muted);
+  cursor: pointer; opacity: 0;
+  transition: opacity .12s var(--ease), background-color .12s var(--ease), color .12s var(--ease);
+}
+.rail-del svg { width: 13px; height: 13px; }
+.rail-row:hover .rail-del,
+.rail-row:focus-within .rail-del,
+.rail-del:focus-visible { opacity: 1; }
+.rail-del:hover { background: color-mix(in srgb, #b3261e 16%, transparent); color: #d2604f; }
+@media (hover: none) { .rail-del { opacity: .7; } }
+
+.rail-foot {
+  margin: 0; padding: 9px 10px;
+  border: 1px solid var(--line); border-radius: 10px;
+  font-size: 11px; color: var(--muted);
+  display: flex; align-items: center; gap: 7px;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.rail-foot .dot {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--accent); flex: none;
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 18%, transparent);
+}
+
+/* ── the main column ───────────────────────────────────────────────────── */
+.main {
+  display: flex; flex-direction: column;
+  min-width: 0; min-height: 0;
+}
+
+.top {
+  display: flex; align-items: center; gap: 9px;
+  padding: 12px 24px; min-height: 56px; flex: none;
+  border-bottom: 1px solid transparent;
+}
+.top h1 {
+  margin: 0; font-size: 13px; font-weight: 550; color: var(--ink-2);
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  max-width: min(52ch, 62%);
+}
+.top-right { margin-left: auto; display: flex; gap: 2px; }
+.top-right .ico[hidden] { display: none; }
+
+.ico {
+  width: 34px; height: 34px;
+  display: grid; place-items: center;
+  border: 0; border-radius: 9px;
+  background: transparent; color: var(--muted); cursor: pointer;
+  transition: background-color .14s var(--ease), color .14s var(--ease);
+}
+.ico:hover { background: var(--panel); color: var(--ink); }
+.ico svg { width: 16px; height: 16px; }
+.rail-toggle { margin-right: 2px; }
+
+.scroll {
+  flex: 1 1 auto;
+  overflow-y: auto;
+  min-height: 0;
+  padding: 0 24px;
+  scroll-behavior: auto;
+}
+.scroll:focus { outline: none; }
+
+.stage {
+  max-width: var(--col);
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 26px;
+  padding: 20px 0 12px;
+}
+
+/* ── the first screen ──────────────────────────────────────────────────── */
+body.is-empty .scroll { display: flex; align-items: center; justify-content: center; }
+body.is-empty .stage { gap: 0; padding: 0; width: 100%; }
+body.is-empty .thread { display: none; }
+body:not(.is-empty) .empty { display: none; }
+
+.empty { text-align: center; }
+
+/* The sun, at the size it was drawn for. */
+.empty-mark {
+  display: grid; place-items: center;
+  width: 62px; height: 62px; margin: 0 auto 18px;
+  border-radius: 20px;
+  box-shadow: var(--shadow);
+}
+.empty-mark svg { width: 100%; height: 100%; display: block; }
+
+.empty .empty-heading {
+  margin: 0 0 10px;
+  font-family: var(--serif);
+  font-size: clamp(27px, 3.5vw, 36px);
+  font-weight: 400; line-height: 1.18; letter-spacing: -0.02em;
+}
+.empty .empty-heading em { font-style: normal; color: var(--brass-soft); }
+.empty > p {
+  margin: 0 auto 28px; max-width: 44ch;
+  color: var(--muted); font-size: 14.5px;
+}
+
+.starters {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(184px, 1fr));
+  gap: 10px;
+  text-align: left;
+}
+.starters button {
+  padding: 14px 15px;
+  border: 1px solid var(--line); border-radius: var(--r);
+  background: var(--panel); color: var(--ink);
+  font: inherit; text-align: left; cursor: pointer;
+  transition: border-color .15s var(--ease), transform .15s var(--ease);
+}
+.starters button:hover { border-color: var(--brass); transform: translateY(-1px); }
+.starters b {
+  display: block; font-size: 12px; font-weight: 700;
+  letter-spacing: .06em; text-transform: uppercase;
+  color: var(--brass-soft); margin-bottom: 4px;
+}
+.starters span { font-size: 12.5px; color: var(--ink-2); line-height: 1.5; }
+
+/* Under the starters: the three doors out of the chat into the rest of the
+   site. Quiet, one line, so they never compete with the question box. */
+.empty-links {
+  display: flex; flex-wrap: wrap; justify-content: center; gap: 6px 18px;
+  margin-top: 22px;
+}
+.empty-links a {
+  font-size: 12px; color: var(--muted); text-decoration: none;
+  border-bottom: 1px solid transparent;
+  transition: color .14s var(--ease), border-color .14s var(--ease);
+}
+.empty-links a:hover { color: var(--ink); border-bottom-color: var(--line-2); }
+
+/* ── the conversation ──────────────────────────────────────────────────── */
+.thread { display: flex; flex-direction: column; gap: 26px; }
+
+.q {
+  align-self: flex-end;
+  max-width: 82%;
+  padding: 10px 15px;
+  border-radius: 16px 16px 5px 16px;
+  background: var(--user);
+  border: 1px solid color-mix(in srgb, var(--accent) 20%, var(--line));
+  font-size: 14.5px;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.a { display: flex; gap: 12px; }
+/* The answer's avatar is the mark itself, not a coloured square. */
+.a::before {
+  content: "";
+  width: 26px; height: 26px; flex: none; margin-top: 2px;
+  border-radius: 9px;
+  background-image: url("/assets/img/brand/facet.svg");
+  background-size: cover;
+  background-repeat: no-repeat;
+}
+.a > * { min-width: 0; }
+.a-body { flex: 1 1 auto; min-width: 0; }
+
+.a-meta {
+  display: flex; align-items: center; gap: 7px;
+  font-size: 10px; font-weight: 700;
+  letter-spacing: .09em; text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 6px;
+}
+.a-meta .dot {
+  width: 5px; height: 5px; border-radius: 50%;
+  background: var(--accent); flex: none;
+}
+.a-meta .who {
+  font-size: 11.5px; font-weight: 700; letter-spacing: 0.01em;
+  text-transform: none; color: var(--ink);
+}
+.a-meta .badge {
+  padding: 1px 7px; border-radius: 999px;
+  border: 1px solid var(--line); color: var(--muted);
+  font-size: 9px; font-weight: 650; letter-spacing: 0.06em;
+}
+.a-meta .src-name {
+  text-transform: none; letter-spacing: 0;
+  font-size: 12px; font-weight: 500; color: var(--ink-2);
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+
+/* ── the answer, as prose ──────────────────────────────────────────────── */
+.md { display: flex; flex-direction: column; gap: 12px; font-size: 14.5px; color: var(--ink-2); }
+.md > *:first-child { margin-top: 0; }
+.md p { margin: 0; line-height: 1.68; }
+.md h2, .md h3, .md h4 {
+  margin: 6px 0 0;
+  font-size: 11.5px; font-weight: 700;
+  letter-spacing: .07em; text-transform: uppercase;
+  color: var(--brass-soft);
+}
+.md h2 { font-size: 12px; }
+.md > p:first-child {
+  font-family: var(--serif);
+  font-size: 17.5px; line-height: 1.6; color: var(--ink);
+}
+.md strong { color: var(--ink); font-weight: 600; }
+.md ul, .md ol { margin: 0; padding-left: 20px; display: flex; flex-direction: column; gap: 6px; }
+.md li::marker { color: var(--brass); }
+.md blockquote {
+  margin: 0; padding: 6px 14px;
+  border-left: 2px solid var(--line-2);
+  color: var(--muted); font-style: italic;
+}
+.md code {
+  padding: 1px 5px; border-radius: 5px;
+  background: color-mix(in srgb, var(--accent) 12%, transparent);
+  font-family: var(--mono);
+  font-size: .9em; color: var(--ink);
+}
+.md hr { border: 0; border-top: 1px solid var(--line); margin: 4px 0; }
+.md a { color: var(--brass-soft); text-decoration: none; }
+.md a:hover { text-decoration: underline; }
+.md-row {
+  display: grid; grid-auto-flow: column; grid-auto-columns: 1fr;
+  gap: 10px; padding: 7px 0;
+  border-bottom: 1px solid var(--line); font-size: 13.5px;
+}
+.md.typing::after {
+  content: "";
+  display: inline-block;
+  width: 6px; height: 1em; margin-left: 2px;
+  vertical-align: -0.15em;
+  border-radius: 2px;
+  background: var(--accent);
+  animation: caret 1s steps(2, start) infinite;
+}
+@keyframes caret { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+
+.cite {
+  display: inline-block; min-width: 15px;
+  padding: 0 3px; margin: 0 1px;
+  border-radius: 4px;
+  background: color-mix(in srgb, var(--accent) 16%, transparent);
+  color: var(--accent);
+  font-size: 9.5px; font-weight: 750;
+  text-align: center; text-decoration: none;
+  vertical-align: super; line-height: 1.5;
+}
+.cite:hover { background: var(--accent); color: #04150d; }
+
+/* ── sources: a short list of cards, two up ───────────────────────────── */
+.src-panel { margin-top: 16px; }
+.src-head {
+  margin: 0 0 8px;
+  font-size: 9.5px; font-weight: 700; letter-spacing: .1em;
+  text-transform: uppercase; color: var(--muted);
+}
+.src-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+  gap: 8px;
+}
+.src-card {
+  display: flex; align-items: center; gap: 10px;
+  padding: 9px 11px;
+  border: 1px solid var(--line); border-radius: 12px;
+  background: var(--panel);
+  color: var(--ink-2); text-decoration: none;
+  transition: border-color .14s var(--ease), background-color .14s var(--ease), transform .14s var(--ease);
+}
+.src-card:hover { border-color: var(--accent); color: var(--ink); transform: translateY(-1px); }
+.src-n {
+  flex: none; width: 20px; height: 20px;
+  display: grid; place-items: center;
+  border-radius: 6px;
+  background: color-mix(in srgb, var(--accent) 16%, transparent);
+  color: var(--accent);
+  font-size: 10px; font-weight: 750;
+}
+.src-body { display: flex; flex-direction: column; min-width: 0; gap: 1px; }
+.src-t {
+  font-size: 12.5px; font-weight: 600; color: var(--ink);
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.src-d { font-size: 10.5px; color: var(--muted); }
+
+.a-actions { display: flex; flex-wrap: wrap; gap: 2px; margin-top: 4px; }
+.a-actions button {
+  padding: 6px 10px;
+  border: 0; border-radius: 8px;
+  background: transparent; color: var(--muted);
+  font: inherit; font-size: 11.5px; font-weight: 550; cursor: pointer;
+  transition: background-color .12s var(--ease), color .12s var(--ease);
+}
+.a-actions button:hover { background: var(--panel); color: var(--ink); }
+.a-actions button[data-speak="on"] { color: var(--accent); }
+
+.followups { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+.followups button {
+  padding: 6px 12px;
+  border: 1px solid var(--line); border-radius: 999px;
+  background: transparent; color: var(--ink-2);
+  font: inherit; font-size: 12px; cursor: pointer;
+  transition: border-color .14s var(--ease), color .14s var(--ease);
+}
+.followups button:hover { border-color: var(--brass); color: var(--ink); }
+
+/* ── states ────────────────────────────────────────────────────────────── */
+.working { display: flex; align-items: center; gap: 11px; color: var(--muted); font-size: 13px; }
+.working .amigo-avatar { width: 22px; height: 22px; }
+
+.note {
+  padding: 13px 15px;
+  border: 1px solid color-mix(in srgb, var(--brass) 42%, var(--line));
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--brass) 8%, transparent);
+}
+.note strong { display: block; margin-bottom: 3px; font-size: 13.5px; }
+.note p { margin: 0 0 9px; font-size: 13px; color: var(--ink-2); }
+.note button {
+  padding: 6px 12px; border-radius: 8px;
+  border: 1px solid var(--brass); background: transparent;
+  color: var(--ink); font: inherit; font-size: 12px; font-weight: 600; cursor: pointer;
+}
+
+/* ── saved answers ─────────────────────────────────────────────────────── */
+.saved-top { display: flex; align-items: center; gap: 10px; }
+.saved-top h2 { margin: 0; font-family: var(--serif); font-size: 19px; font-weight: 600; }
+.saved-top button {
+  padding: 6px 11px; border: 1px solid var(--line); border-radius: 8px;
+  background: transparent; color: var(--muted); font: inherit; font-size: 12px; cursor: pointer;
+}
+.saved-card {
+  padding: 14px 15px;
+  border: 1px solid var(--line); border-radius: var(--r);
+  background: var(--panel);
+}
+.saved-card h3 { margin: 0 0 5px; font-size: 13.5px; }
+.saved-card p { margin: 0 0 9px; font-size: 12.5px; color: var(--muted); }
+
+/* The quiet buttons in the saved view (Back, Remove) and anywhere else a
+   button is secondary to the content around it. */
+.ghost {
+  padding: 6px 11px;
+  border: 1px solid var(--line); border-radius: 8px;
+  background: transparent; color: var(--muted);
+  font: inherit; font-size: 12px; font-weight: 550;
+  cursor: pointer;
+  transition: border-color .14s var(--ease), color .14s var(--ease);
+}
+.ghost:hover { border-color: var(--line-2); color: var(--ink); }
+
+/* ── the composer ──────────────────────────────────────────────────────── */
+.dock { flex: none; padding: 14px 24px 20px; }
+.dock-in { max-width: var(--col); margin: 0 auto; width: 100%; }
+
+.composer {
+  display: flex; align-items: flex-end; gap: 6px;
+  padding: 8px 8px 8px 9px;
+  border: 1px solid var(--line-2); border-radius: 24px;
+  background: var(--panel);
+  box-shadow: 0 10px 30px -26px rgba(0, 0, 0, .8);
+  transition: border-color .16s var(--ease), box-shadow .16s var(--ease);
+}
+.composer:focus-within {
+  border-color: color-mix(in srgb, var(--accent) 55%, var(--line-2));
+  box-shadow: 0 14px 34px -24px rgba(0, 0, 0, .85);
+}
+.composer textarea {
+  flex: 1; min-width: 0;
+  min-height: 26px; max-height: 168px;
+  padding: 7px 4px;
+  border: 0; outline: none; resize: none;
+  background: transparent; color: var(--ink);
+  font: inherit; font-size: 14.5px; line-height: 1.55;
+}
+.composer textarea::placeholder { color: var(--muted); }
+
+.plus, .mic {
+  width: 34px; height: 34px; flex: none;
+  display: grid; place-items: center;
+  border-radius: 50%;
+  border: 1px solid var(--line); background: transparent;
+  color: var(--ink-2); cursor: pointer;
+  transition: border-color .14s var(--ease), color .14s var(--ease), transform .14s var(--ease);
+}
+.mic { border: 0; color: var(--muted); width: 32px; height: 32px; font-size: 0; }
+.plus svg, .mic svg { width: 15px; height: 15px; }
+.plus:hover, .mic:hover { color: var(--ink); border-color: var(--accent); }
+.mic.is-listening { color: var(--accent); }
+.mic.is-listening svg { animation: pulse 1.4s ease-in-out infinite; }
+@keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: .35; } }
+
+.composer .send {
+  width: 34px; height: 34px; flex: none;
+  display: grid; place-items: center;
+  border: 0; border-radius: 50%;
+  background: var(--accent); color: #04150d; cursor: pointer;
+  transition: transform .14s var(--ease), opacity .14s var(--ease);
+}
+.composer .send:hover:not(:disabled) { transform: translateY(-1px); }
+.composer .send:disabled { opacity: .38; cursor: default; }
+.composer .send svg { width: 15px; height: 15px; }
+
+.composer .stop {
+  flex: none; height: 34px; padding: 0 14px;
+  border: 1px solid var(--line-2); border-radius: 17px;
+  background: transparent; color: var(--ink);
+  font: inherit; font-size: 12px; font-weight: 600; cursor: pointer;
+}
+
+.meta-row {
+  display: flex; align-items: center; gap: 8px;
+  margin-top: 9px; padding: 0 6px;
+  font-size: 11px; color: var(--muted);
+}
+.meta-row .grow { flex: 1; }
+.meta-row .mchip {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 5px 11px;
+  border: 1px solid var(--line); border-radius: 999px;
+  background: transparent;
+  color: var(--ink-2); font: inherit; font-size: 11.5px; font-weight: 600;
+  cursor: pointer;
+  max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  transition: border-color .14s var(--ease), color .14s var(--ease);
+}
+.meta-row .mchip::before {
+  content: ""; width: 5px; height: 5px; border-radius: 50%;
+  background: var(--brass); flex: none;
+}
+.meta-row .mchip:hover { border-color: var(--brass); color: var(--ink); }
+.meta-row .mchip[aria-expanded="true"] { border-color: var(--accent); color: var(--accent); }
+.hint {
+  margin: 0; font-size: 10.5px; color: var(--muted);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+
+.offline {
+  margin: 0 0 8px; padding: 8px 12px;
+  border: 1px solid var(--brass); border-radius: 10px;
+  font-size: 12px; font-weight: 600; color: var(--ink);
+  background: color-mix(in srgb, var(--brass) 12%, transparent);
+}
+.offline[hidden] { display: none; }
+
+/* ── answer options: one panel, opened from the chip or the plus ───────── */
+.options-panel {
+  display: grid; gap: 10px;
+  margin-bottom: 10px;
+  padding: 13px 14px;
+  border: 1px solid var(--line-2); border-radius: 14px;
+  background: var(--panel);
+  box-shadow: var(--shadow);
+}
+.options-panel[hidden] { display: none; }
+.options-panel .opt {
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+}
+.options-panel .opt > span {
+  font-size: 12px; color: var(--muted);
+  font-weight: 600; letter-spacing: .01em;
+}
+.options-panel select {
+  appearance: none;
+  padding: 7px 26px 7px 10px;
+  border: 1px solid var(--line); border-radius: 9px;
+  background: var(--bg);
+  color: var(--ink); font: inherit; font-size: 12.5px; cursor: pointer;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23888' stroke-width='2.4' stroke-linecap='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat; background-position: right 7px center; background-size: 12px;
+}
+.options-panel select:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+
+/* ── the small floating things ─────────────────────────────────────────── */
+.jump {
+  position: fixed;
+  left: calc(var(--rail-w) + (100vw - var(--rail-w)) / 2);
+  transform: translateX(-50%);
+  bottom: 138px; z-index: 40;
+  padding: 7px 14px;
+  border: 1px solid var(--line-2); border-radius: 999px;
+  background: var(--panel); color: var(--ink-2);
+  font: inherit; font-size: 11.5px; font-weight: 600;
+  cursor: pointer;
+  box-shadow: var(--shadow);
+}
+.jump:hover { border-color: var(--accent); color: var(--ink); }
+.jump[hidden] { display: none; }
+
+.chat-toast {
+  position: fixed; left: 50%; bottom: 26px; transform: translateX(-50%);
+  z-index: 70;
+  display: flex; align-items: center; gap: 12px;
+  padding: 10px 12px 10px 16px;
+  border: 1px solid var(--line-2); border-radius: 999px;
+  background: var(--panel); color: var(--ink);
+  font-size: 12.5px; box-shadow: var(--shadow);
+}
+.chat-toast button {
+  border: 0; background: transparent; color: var(--accent);
+  font: inherit; font-size: 12.5px; font-weight: 700; cursor: pointer;
+  padding: 4px 8px; border-radius: 999px;
+}
+.chat-toast button:hover { background: color-mix(in srgb, var(--accent) 14%, transparent); }
+
+/* ── the shell ─────────────────────────────────────────────────────────────
+   Declared once, here, after everything that could compete with it. The rail
+   is a column; the main area is three rows: header, reading column, composer.
+   `display: contents` on .main lets its three children take grid rows of
+   their own, so the composer is always the last row and can never end up
+   beside the header. */
+body {
+  display: grid;
+  grid-template-columns: var(--rail-w) minmax(0, 1fr);
+  grid-template-rows: auto minmax(0, 1fr) auto;
+}
+.rail   { grid-column: 1; grid-row: 1 / -1; height: 100%; min-height: 0; }
+.main   { display: contents; }
+.top    { grid-column: 2; grid-row: 1; }
+.scroll { grid-column: 2; grid-row: 2; }
+.dock   { grid-column: 2; grid-row: 3; }
+
+body.rail-hidden { grid-template-columns: 0 minmax(0, 1fr); }
+.rail { transition: transform .22s var(--ease), opacity .18s var(--ease); }
+body.rail-hidden .rail {
+  transform: translateX(-100%);
+  opacity: 0;
+  pointer-events: none;
+  border-right: 0;
+}
+
+/* ── laptops ───────────────────────────────────────────────────────────── */
+@media (max-width: 1100px) and (min-width: 901px) {
+  :root { --rail-w: 218px; --col: 660px; }
+  .rail { padding: 14px 9px 12px; }
+  .rail-row .rail-item { font-size: 12px; }
+  .rail-new kbd { display: none; }
+}
+@media (min-width: 1101px) {
+  :root { --col: 720px; }
+}
+
+/* ── phones: the rail is a drawer ──────────────────────────────────────── */
+@media (max-width: 900px) {
+  body { grid-template-columns: minmax(0, 1fr); }
+  body.rail-hidden { grid-template-columns: minmax(0, 1fr); }
+
+  .rail {
+    position: fixed;
+    top: 0; left: 0; bottom: 0;
+    z-index: 60;
+    width: min(292px, 86vw);
+    height: 100%;
+    padding: max(16px, env(safe-area-inset-top)) 12px 14px;
+    transform: translateX(-100%);
+    opacity: 1;
+    border-right: 1px solid var(--line);
+    box-shadow: 0 0 48px rgba(0, 0, 0, .45);
+  }
+  body:not(.rail-hidden) .rail { transform: translateX(0); }
+  body:not(.rail-hidden)::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: 55;
+    background: rgba(0, 0, 0, .45);
+  }
+
+  .top { padding: 10px 16px; }
+  .top h1 { max-width: 56%; }
+  .scroll { padding: 0 16px; }
+  .dock { padding: 10px 16px max(14px, env(safe-area-inset-bottom)); }
+  .dock-in { max-width: 100%; }
+
+  .q { max-width: 92%; }
+  .jump { left: 50%; bottom: 128px; }
+  .empty .empty-heading { font-size: 26px; }
+  .empty-mark { width: 54px; height: 54px; border-radius: 17px; margin-bottom: 14px; }
+  .starters { grid-template-columns: 1fr; }
+  .meta-row .hint { display: none; }
+  .options-panel { margin-bottom: 8px; }
+  .a { gap: 10px; }
+  .a::before { width: 22px; height: 22px; border-radius: 8px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .md.typing::after,
+  .mic.is-listening svg { animation: none; }
+  .rail, .composer, .starters button, .composer .send { transition: none; }
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   THE ASSISTANT SURFACE, SETTLED
+   ══════════════════════════════════════════════════════════════════════════
+   Four things a reader asked for after using the page for a while, all of
+   them about the same complaint — that it read like a form rather than like
+   an assistant:
+
+     · the answer column was narrower than the reading column elsewhere on
+       the site, so long answers wrapped early and scrolled for ever;
+     · the question bubble was a heavy block of colour;
+     · the sources under an answer were chips in a row that pushed the page
+       sideways on a phone;
+     · the composer sat in its own tray with a visible seam.
+
+   None of these change what the page does. They change how much of the
+   screen the reading gets. */
+
+/* The answer column matches the site's reading measure. */
+.stage { max-width: var(--col); padding: 26px 0 16px; gap: 30px; }
+
+/* The question is a quiet mark in the margin, the way an assistant app
+   shows what you asked without shouting it. */
+.q {
+  max-width: min(78%, 46ch);
+  padding: 10px 16px;
+  border-radius: 18px 18px 6px 18px;
+  background: color-mix(in srgb, var(--user) 78%, var(--panel));
+  border: 1px solid color-mix(in srgb, var(--accent) 16%, var(--line));
+  font-size: 14.5px;
+  line-height: 1.55;
+}
+
+/* The answer itself: more air between blocks, a real heading rhythm. */
+.a { gap: 14px; }
+.a-body { padding-bottom: 4px; }
+.md { gap: 14px; font-size: 15px; line-height: 1.72; }
+.md p { line-height: 1.72; }
+.md h2 { font-size: 12px; letter-spacing: .08em; margin-top: 12px; }
+.md ul, .md ol { padding-left: 1.15em; }
+.md li { margin: 5px 0; line-height: 1.65; }
+
+/* Sources wrap instead of running off the side of a phone. */
+.src-chips, .a-sources, .chips {
+  display: flex; flex-wrap: wrap; gap: 7px;
+  max-width: 100%;
+}
+
+/* The composer: one surface, no tray, and it stays put while the answer
+   scrolls. The seam under it was the dock's padding showing through.
+   It is a grid row, not a sticky element: `position: sticky` on a grid item
+   whose row is `auto` resolved the row to zero height, which left the
+   composer floating in the middle of the page — the audit's F-01. The grid
+   already pins it to the last row, so sticky has nothing to add. */
+.dock {
+  position: relative; bottom: auto;
+  padding: 10px 24px 18px;
+  background: linear-gradient(to top, var(--bg) 62%, color-mix(in srgb, var(--bg) 0%, transparent));
+}
+.dock-in { max-width: var(--col); }
+.composer {
+  border-radius: 26px;
+  padding: 9px 9px 9px 14px;
+  background: var(--panel);
+  border: 1px solid var(--line-2);
+  box-shadow: 0 14px 40px -30px rgba(0, 0, 0, .9);
+}
+.composer:focus-within {
+  border-color: color-mix(in srgb, var(--accent) 60%, var(--line-2));
+  box-shadow: 0 18px 46px -28px rgba(0, 0, 0, .95);
+}
+.composer textarea { font-size: 15px; padding: 8px 2px; }
+.composer .send { width: 36px; height: 36px; }
+.composer .send svg { width: 16px; height: 16px; }
+
+/* The empty state is the first thing anyone sees: give the heading room. */
+.empty .empty-heading { font-size: clamp(29px, 3.8vw, 40px); }
+.empty > p { max-width: 48ch; font-size: 15px; }
+.starters { gap: 11px; }
+.starters button { padding: 15px 16px; border-radius: 15px; }
+.starters span { font-size: 13px; }
+
+/* ── phones ────────────────────────────────────────────────────────────── */
+@media (max-width: 760px) {
+  .stage { padding: 16px 0 10px; gap: 24px; }
+  .q { max-width: 88%; }
+  .dock { padding: 8px 12px 14px; }
+  .composer { padding: 7px 7px 7px 12px; border-radius: 22px; }
+  .composer textarea { font-size: 15.5px; }
+  .md { font-size: 14.5px; }
+  .empty .empty-heading { font-size: clamp(25px, 7vw, 32px); }
+  .starters { grid-template-columns: 1fr; }
+  .top { padding: 10px 14px; }
+  .scroll { padding: 0 14px; }
+}
+
+/* Nothing on this page may scroll sideways. */
+html, body { max-width: 100%; overflow-x: hidden; }
+.main, .scroll, .stage, .thread, .a, .a-body { min-width: 0; }
+
+/* ── the pre-ask note ─────────────────────────────────────────────────────
+   The audit's F-03: the chat is the only part of the product that sends the
+   reader's words to a third party, and the empty page never said so. This
+   sits under the composer, in the muted token, until the first answer
+   arrives — then the thread's own sources take over the explaining. */
+.chat-note {
+  margin: 10px 2px 0;
+  max-width: 72ch;
+  font-size: 12.5px;
+  line-height: 1.55;
+  color: var(--muted);
+}
+body:not(.is-empty) .chat-note { display: none; }
+
+@media (max-width: 760px) {
+  .chat-note { font-size: 12px; line-height: 1.5; margin-top: 8px; }
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   THE SHELL, SETTLED — the composer is on the floor
+   ══════════════════════════════════════════════════════════════════════════
+   The audit's F-01: on an empty chat the question box floated about
+   two-thirds of the way down the page with 190 px of dead space beneath it,
+   and it moved again the moment the first answer arrived.
+
+   The cause was the shell itself. `.main` was `display: contents`, so its
+   three children were asked to occupy rows of the body's grid — and the third
+   row resolved to zero height, which left the composer pinned to the top of a
+   zero-height area. Measured at 1440×1000: grid rows 59px / 941px / 0px, dock
+   top 583px.
+
+   So the main column is a flex column of its own: header, thread, composer,
+   in that order, with the thread taking the remaining height. The composer is
+   therefore always the last thing on the page and always on the floor, empty
+   conversation or not. */
+
+body {
+  display: grid;
+  grid-template-columns: var(--rail-w) minmax(0, 1fr);
+  grid-template-rows: minmax(0, 1fr);
+  height: 100vh;
+  height: 100dvh;
+}
+
+.rail { grid-column: 1; grid-row: 1; height: 100%; min-height: 0; }
+
+.main {
+  display: flex;
+  flex-direction: column;
+  grid-column: 2;
+  grid-row: 1;
+  min-width: 0;
+  min-height: 0;
+  height: 100%;
+}
+
+.top   { grid-column: auto; grid-row: auto; flex: 0 0 auto; }
+.scroll { grid-column: auto; grid-row: auto; flex: 1 1 auto; min-height: 0; overflow-y: auto; }
+.dock  { grid-column: auto; grid-row: auto; flex: 0 0 auto; }
+
+/* the empty state centres inside the thread area, not inside the page */
+body.is-empty .scroll {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+body.is-empty .stage { width: 100%; padding: 0 0 8px; }
+body:not(.is-empty) .scroll { display: block; }
+
+@media (max-width: 900px) {
+  body { grid-template-columns: minmax(0, 1fr); }
+  .main { grid-column: 1; }
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   AI MODE — the chat, rebuilt as an assistant surface
+   ══════════════════════════════════════════════════════════════════════════
+   The page was a dark two-column shell with a serif greeting, a small
+   composer and cards inside cards. It read as a settings screen with a text
+   box in it, not as something you ask a question of.
+
+   What it is now, in the shape Google's AI Mode and Gemini use:
+
+     · one calm surface, sans-serif throughout, no decorative panels
+     · the question box is the loudest thing on the page: a large pill with a
+       soft edge, and it never moves between states
+     · the greeting is short and left alone; the example questions are pills
+     · an answer is prose in a 720px column, with the sources as a row of
+       small numbered chips above it and follow-up questions as pills below
+     · the rail is a quiet list of past chats, and a drawer on a phone
+
+   Nothing about the behaviour changes: same ids, same classes, same script. */
+
+/* ── the surface ────────────────────────────────────────────────────────── */
+:root {
+  --bg: #0e1211;
+  --rail: #121716;
+  --panel: #161c1a;
+  --panel-2: #1b2220;
+  --line: #232b28;
+  --line-2: #303a36;
+  --ink: #f0f3f1;
+  --ink-2: #c3ccc7;
+  --muted: #9aa5a0;
+  --accent: #6cc9a0;
+  --brass: #d08a4e;
+  --brass-soft: #dda066;
+  --user: #1d2624;
+  --col: 720px;
+  --rail-w: 248px;
+  --ease: cubic-bezier(.22, .61, .36, 1);
+}
+
+html[data-theme="light"] {
+  --bg: #fdfdfb;
+  --rail: #f7f6f2;
+  --panel: #ffffff;
+  --panel-2: #f2f1ec;
+  --line: #e8e6df;
+  --line-2: #d8d5cb;
+  --ink: #1c1f1e;
+  --ink-2: #3c4441;
+  --muted: #5c635f;
+  --accent: #1f6f56;
+  --brass: #9c5a26;
+  --brass-soft: #8a5220;
+  --user: #f0efe9;
+}
+
+/* Sans everywhere. The serif greeting was the single biggest reason the page
+   read as an article rather than as an assistant. */
+.empty .empty-heading,
+.brand-text b,
+.md h2, .md h3, .md h4 {
+  font-family: var(--sans);
+}
+
+/* ── the rail: quiet ────────────────────────────────────────────────────── */
+.rail { border-right: 1px solid var(--line); padding: 14px 10px 12px; gap: 8px; }
+.brand { padding: 2px 6px 10px; }
+.brand .mark { width: 30px; height: 30px; border-radius: 9px; box-shadow: none; }
+.brand-text b { font-size: 16.5px; font-weight: 600; letter-spacing: -0.01em; }
+.brand-text em { font-size: 9px; letter-spacing: .16em; color: var(--muted); }
+.rail-new { border-radius: 999px; padding: 9px 12px; font-size: 12.5px; border-color: var(--line-2); }
+.rail-search { border-radius: 999px; }
+.rail-head-row { margin: 12px 6px 4px; }
+.rail-row .rail-item { font-size: 12.5px; padding: 7px 10px; }
+.rail-foot { border-radius: 999px; font-size: 10.5px; }
+
+/* ── the header: thin, no rule ──────────────────────────────────────────── */
+.top { padding: 10px 20px; min-height: 52px; }
+.top h1 { font-size: 13px; font-weight: 500; color: var(--muted); }
+
+/* ── the first screen ───────────────────────────────────────────────────── */
+/* Greeting near the top and the box at the bottom, the way an assistant app
+   opens: the eye goes to the greeting, the hand goes to the box. */
+body.is-empty .scroll { align-items: flex-start; }
+body.is-empty .stage { padding-top: clamp(24px, 9vh, 96px); }
+body.is-empty .empty { text-align: left; max-width: var(--col); margin-inline: auto; width: 100%; }
+
+.empty-mark { width: 44px; height: 44px; margin: 0 0 20px; border-radius: 14px; box-shadow: none; }
+.empty .empty-heading {
+  font-size: clamp(26px, 3.6vw, 38px);
+  font-weight: 500;
+  line-height: 1.22;
+  letter-spacing: -0.022em;
+  margin: 0 0 10px;
+}
+
+.empty > p { margin: 0 0 24px; max-width: 52ch; font-size: 14.5px; line-height: 1.6; color: var(--muted); }
+
+/* the example questions: pills, two to a row, not cards */
+.starters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  text-align: left;
+}
+.starters button {
+  padding: 9px 14px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--panel);
+  font-size: 13px;
+  line-height: 1.4;
+  color: var(--ink-2);
+}
+.starters button:hover { border-color: var(--line-2); background: var(--panel-2); transform: none; }
+.starters b { display: none; }
+.starters span { font-size: 13px; color: inherit; }
+
+.empty-links { justify-content: flex-start; gap: 6px 16px; margin-top: 22px; }
+.empty-links a { font-size: 12.5px; }
+
+/* ── the question box ───────────────────────────────────────────────────── */
+.dock {
+  padding: 8px 20px calc(14px + env(safe-area-inset-bottom, 0px));
+  background: linear-gradient(to top, var(--bg) 70%, color-mix(in srgb, var(--bg) 0%, transparent));
+}
+.composer {
+  border-radius: 26px;
+  padding: 10px 10px 10px 18px;
+  background: var(--panel);
+  border: 1px solid var(--line-2);
+  box-shadow: 0 6px 24px -18px rgba(0, 0, 0, .5);
+  gap: 8px;
+}
+.composer:focus-within {
+  border-color: color-mix(in srgb, var(--accent) 60%, var(--line-2));
+  box-shadow: 0 8px 28px -18px rgba(0, 0, 0, .55);
+}
+.composer textarea {
+  font-size: 16px;
+  line-height: 1.5;
+  padding: 9px 2px;
+  min-height: 28px;
+  color: var(--ink);
+}
+
+.plus, .mic { width: 32px; height: 32px; border: 0; color: var(--muted); }
+.plus:hover, .mic:hover { color: var(--ink); background: var(--panel-2); border-radius: 50%; }
+.composer .send {
+  width: 38px; height: 38px;
+  background: var(--accent);
+  color: #06231a;
+}
+html[data-theme="light"] .composer .send { color: #ffffff; }
+.composer .send svg { width: 17px; height: 17px; }
+
+.meta-row { margin-top: 8px; padding: 0 4px; font-size: 10.5px; }
+.meta-row .mchip { border: 0; padding: 4px 8px; font-size: 11px; background: transparent; }
+.meta-row .mchip::before { background: var(--accent); }
+.hint { font-size: 10.5px; }
+
+.chat-note { font-size: 11.5px; line-height: 1.5; color: var(--muted); margin-top: 8px; }
+
+/* ── the conversation ───────────────────────────────────────────────────── */
+.stage { padding: 18px 0 8px; gap: 26px; }
+.thread { gap: 28px; }
+
+/* the question: a soft bubble on the right, not a block of colour */
+.q {
+  align-self: flex-end;
+  max-width: min(80%, 52ch);
+  padding: 10px 16px;
+  border-radius: 20px 20px 6px 20px;
+  background: var(--user);
+  border: 0;
+  font-size: 15px;
+  line-height: 1.55;
+  color: var(--ink);
+}
+
+/* the answer: an assistant line, then prose */
+.a { gap: 12px; }
+/* the legacy second mark that used to sit beside every answer: removed. The
+   avatar in .a-meta is the assistant's one identity on the page. */
+.a::before { content: none; }
+.a-meta { margin-bottom: 4px; }
+.a-meta .who { font-size: 12px; font-weight: 600; letter-spacing: 0; text-transform: none; color: var(--ink-2); }
+.a-meta .badge { border-radius: 999px; font-size: 9.5px; }
+.md { font-size: 15.5px; line-height: 1.75; gap: 14px; color: var(--ink); }
+.md p { line-height: 1.75; }
+.md h2, .md h3, .md h4 {
+  font-size: 13px; font-weight: 650;
+  letter-spacing: .04em; text-transform: none;
+  color: var(--brass-soft);
+  margin-top: 10px;
+}
+.md ul, .md ol { padding-left: 1.1em; }
+.md li { margin: 6px 0; }
+.md a { color: var(--accent); }
+
+/* ── the sources: a row of numbered chips above the answer ──────────────── */
+.src-panel { margin: 0 0 6px; padding: 0; border: 0; background: none; }
+.src-head {
+  margin: 0 0 6px;
+  font-size: 10.5px; font-weight: 700; letter-spacing: .09em; text-transform: uppercase;
+  color: var(--muted);
+}
+.src-cards { display: flex; flex-wrap: wrap; gap: 6px; }
+.src-card {
+  display: inline-flex; align-items: center; gap: 6px;
+  max-width: 100%;
+  padding: 5px 11px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--panel);
+  font-size: 12px; line-height: 1.3;
+  color: var(--ink-2);
+  text-decoration: none;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.src-card:hover { border-color: var(--line-2); background: var(--panel-2); color: var(--ink); }
+
+/* ── follow-ups and actions ─────────────────────────────────────────────── */
+.followups { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 14px; }
+.followups button, .followups a {
+  padding: 7px 13px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: transparent;
+  font-size: 12.5px;
+  color: var(--ink-2);
+}
+.followups button:hover, .followups a:hover { background: var(--panel-2); border-color: var(--line-2); color: var(--ink); }
+
+.a-actions { margin-top: 12px; gap: 4px; }
+.a-actions button, .a-actions a {
+  border: 0; background: transparent;
+  border-radius: 8px;
+  padding: 5px 8px;
+  font-size: 11.5px;
+  color: var(--muted);
+}
+.a-actions button:hover, .a-actions a:hover { background: var(--panel-2); color: var(--ink); }
+
+/* ── the small floating things ──────────────────────────────────────────── */
+.jump {
+  border-radius: 999px;
+  background: var(--panel);
+  border: 1px solid var(--line-2);
+  box-shadow: 0 8px 22px -14px rgba(0, 0, 0, .6);
+  font-size: 12px;
+}
+
+/* ── a phone ────────────────────────────────────────────────────────────── */
+@media (max-width: 760px) {
+  .top { padding: 8px 12px; }
+  .scroll { padding: 0 14px; }
+  body.is-empty .stage { padding-top: 18px; }
+  .empty .empty-heading { font-size: clamp(24px, 7vw, 30px); }
+  .empty > p { font-size: 14px; margin-bottom: 18px; }
+  .starters { gap: 6px; }
+  .starters button { padding: 8px 12px; font-size: 12.5px; }
+  .dock { padding: 6px 10px calc(10px + env(safe-area-inset-bottom, 0px)); }
+  .composer { border-radius: 22px; padding: 8px 8px 8px 14px; }
+  .composer textarea { font-size: 16px; }
+  .q { max-width: 88%; font-size: 14.5px; }
+  .md { font-size: 15px; }
+  .chat-note { display: none; }
+}
+
+/* The phone navigation bar sits at the bottom of the viewport, and the chat
+   shell is a fixed-height column — so the composer was overlapping the bar by
+   a few pixels and the note under it was half hidden behind it. The dock
+   clears the bar instead. */
+@media (max-width: 1024px) {
+  .dock { padding-bottom: calc(64px + env(safe-area-inset-bottom, 0px)); }
+  body.is-empty .chat-note { margin-bottom: 2px; }
+}
+
+/* ── the same soft material as the rest of the site ──────────────────────
+   The chat was rebuilt as an assistant surface but still used hairline
+   outlines for its chips and its composer, which is the drawn-box look the
+   rest of the site has just dropped. Chips are a tone now, the composer is a
+   lifted surface, and the rail divider is a whisper. */
+
+.starters button,
+.src-card,
+.followups button,
+.followups a {
+  border: 1px solid transparent;
+  background: color-mix(in srgb, var(--panel-2) 70%, transparent);
+  box-shadow: 0 1px 1px color-mix(in srgb, var(--ink) 4%, transparent);
+  transition: background-color .24s cubic-bezier(.22,.61,.36,1),
+              box-shadow .24s cubic-bezier(.22,.61,.36,1),
+              transform .24s cubic-bezier(.22,.61,.36,1);
+}
+.starters button:hover,
+.src-card:hover,
+.followups button:hover,
+.followups a:hover {
+  background: var(--panel-2);
+  box-shadow: 0 6px 18px -14px color-mix(in srgb, var(--ink) 40%, transparent);
+  transform: translateY(-1px);
+}
+
+.composer {
+  border: 1px solid transparent;
+  background: var(--panel);
+  box-shadow: 0 2px 4px color-mix(in srgb, var(--ink) 4%, transparent),
+              0 18px 44px -30px color-mix(in srgb, var(--ink) 45%, transparent);
+}
+.composer:focus-within {
+  border-color: color-mix(in srgb, var(--accent) 45%, transparent);
+  box-shadow: 0 2px 6px color-mix(in srgb, var(--ink) 5%, transparent),
+              0 22px 52px -30px color-mix(in srgb, var(--ink) 50%, transparent);
+}
+
+.rail { border-right: 1px solid color-mix(in srgb, var(--line) 60%, transparent); }
+.rail-new,
+.rail-search { border-color: transparent; background: color-mix(in srgb, var(--panel) 70%, transparent); }
+.rail-new:hover,
+.rail-search:focus-within { background: var(--panel); border-color: transparent; }
+
+.jump { border-color: transparent; box-shadow: 0 10px 30px -18px color-mix(in srgb, var(--ink) 60%, transparent); }
+.meta-row .mchip { background: transparent; box-shadow: none; }
+.a-actions button, .a-actions a { border-radius: 999px; }
+
+/* the answer's own avatar: a soft dot, not a framed square */
+.a::before { box-shadow: 0 2px 8px -4px color-mix(in srgb, var(--ink) 50%, transparent); }
+
+/* ══════════════════════════════════════════════════════════════════════════
+   THE CONVERSATION
+   ══════════════════════════════════════════════════════════════════════════
+   The page had the right parts in the right order, but it did not read as a
+   conversation: every turn was a block of document, spaced the same as every
+   other block, with a label above it. A reader could not see at a glance
+   where their question ended and the answer began.
+
+   A transcript now. The question is a message on the right, the answer is a
+   message on the left under the mark, and the pair is tighter than the gap
+   between turns — which is what makes a chat scan as a dialogue rather than
+   as a list of sections. Nothing is added to the markup; the script already
+   emits `q` then `a` for each turn, so the sibling selector can do the
+   grouping. */
+
+.thread { gap: 10px; }
+
+/* a turn: the question, then its answer, then a wide gap before the next */
+.q { margin-top: 18px; }
+.q:first-child { margin-top: 0; }
+.q + .a { margin-top: 4px; }
+.a + .q { margin-top: 26px; }
+
+/* the question, as a message */
+.q {
+  align-self: flex-end;
+  max-width: min(82%, 54ch);
+  padding: 11px 16px;
+  border-radius: 20px 20px 6px 20px;
+  background: color-mix(in srgb, var(--accent) 16%, var(--panel));
+  color: var(--ink);
+  font-size: 15px;
+  line-height: 1.55;
+  box-shadow: 0 1px 2px color-mix(in srgb, var(--ink) 5%, transparent);
+}
+html[data-theme="light"] .q { background: color-mix(in srgb, var(--accent) 12%, #ffffff); }
+
+/* the answer, as a message from the assistant */
+.a {
+  align-self: flex-start;
+  max-width: 100%;
+  gap: 10px;
+  padding: 0;
+}
+.a::before { width: 24px; height: 24px; border-radius: 8px; margin-top: 1px; }
+.a-body { padding-bottom: 2px; }
+.a-meta { margin-bottom: 6px; gap: 6px; }
+.a-meta .who { font-size: 12.5px; font-weight: 650; color: var(--ink); }
+.a-meta .dot { width: 4px; height: 4px; }
+.a-meta .badge { border: 0; background: color-mix(in srgb, var(--panel-2) 80%, transparent); padding: 2px 8px; }
+
+.md { font-size: 15.5px; line-height: 1.72; gap: 12px; }
+
+.md h2 { margin-top: 12px; font-size: 13px; letter-spacing: .02em; }
+
+/* the sources sit under the answer as a quiet row, the way a chat cites */
+.src-panel { margin: 10px 0 0; }
+.src-head { font-size: 10px; letter-spacing: .1em; margin-bottom: 5px; }
+.src-cards { gap: 5px; }
+.src-card { padding: 4px 10px; font-size: 11.5px; border-radius: 999px; }
+
+/* the actions and the follow-ups belong to the answer, not to the page */
+.a-actions { margin-top: 10px; gap: 2px; }
+.followups { margin-top: 12px; gap: 6px; }
+
+/* ── the typing state, as a message ─────────────────────────────────────
+   It used to be a spinner and a line of text sitting loose in the column.
+   It is a bubble on the assistant's side now, with three dots, so the reader
+   sees the bot "writing" in the same place the answer will appear. */
+
+.working {
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  margin-left: 34px;
+  padding: 10px 16px;
+  border-radius: 18px 18px 18px 6px;
+  background: color-mix(in srgb, var(--panel-2) 85%, transparent);
+  color: var(--muted);
+  font-size: 13px;
+}
+.working .amigo-avatar { width: 16px; height: 16px; }
+
+/* ── a phone ────────────────────────────────────────────────────────────── */
+@media (max-width: 760px) {
+  .q { max-width: 88%; font-size: 14.5px; padding: 10px 14px; }
+  .a + .q { margin-top: 22px; }
+  .md { font-size: 15px; }
+  .working { margin-left: 0; }
+}
+
+/* The dock's gradient faded to transparent at its top edge, so the last
+   message showed through the composer and looked cut off mid-sentence. The
+   dock is its own row in the column — it needs an opaque surface, not a fade. */
+.dock {
+  background: var(--bg);
+  box-shadow: 0 -1px 0 color-mix(in srgb, var(--line) 45%, transparent);
+}
+/* and the thread keeps a little room so the last line is never flush with it */
+.thread { padding-bottom: 6px; }
+
+/* F-04 — the chat rail collapses into a drawer at 900 px, but the phone tab bar
+   switches on at 1024 px, so between 901 and 1024 (an iPad in portrait) a
+   reader got both navigations at once. The drawer is the navigation here. */
+body.amigo-chat .bottom-nav { display: none !important; }

@@ -1,43 +1,78 @@
-<!doctype html>
-<html lang="en">
+<!DOCTYPE html>
+<html lang="en" data-theme="dark" data-comfort="auto">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <title>Veridell — every answer, with its source</title>
-  <meta name="description" content="Ask a question in your own words and get a clear answer built from Wikipedia and Wikidata, with the source behind every claim.">
-  <link rel="canonical" href="https://veridell.pages.dev/">
-  <meta name="theme-color" content="#f7f3ea" media="(prefers-color-scheme: light)">
-  <meta name="theme-color" content="#0e1512" media="(prefers-color-scheme: dark)">
+  <meta name="veridell-build" content="6.0.0-44559e1">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Veridell — ask anything, get the answer with its sources</title>
+  <meta name="description" content="Veridell turns a question into a source-linked answer from Wikipedia and Wikidata. Ask in Hindi or English and follow every citation back to its article.">
+  <meta name="veridell-version" content="6.0.0">
+  <meta name="theme-color" content="#f5f0e6" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#101713" media="(prefers-color-scheme: dark)">
   <meta name="color-scheme" content="light dark">
+  <meta name="application-name" content="Veridell">
+  <meta name="author" content="Veridell">
+
+  <!-- Canonical: the app is one document, so every fragment and parameter
+       variant of it is the same URL. Without this they compete as duplicates. -->
+  <link rel="canonical" href="https://veridell.pages.dev/">
+  <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
+  <meta name="googlebot" content="index, follow, max-image-preview:large, max-snippet:-1">
 
   <meta property="og:type" content="website">
+  <meta property="og:title" content="Veridell — Source-based Wikipedia answers in Hindi &amp; English">
+  <meta property="og:description" content="Ask a question in your own words and get a source-linked answer from Wikipedia and Wikidata — key points, facts and the citations behind them.">
   <meta property="og:site_name" content="Veridell">
-  <meta property="og:title" content="Veridell — every answer, with its source">
-  <meta property="og:description" content="A question in your own words, answered from Wikipedia and Wikidata, with the source behind every claim.">
   <meta property="og:url" content="https://veridell.pages.dev/">
-  <meta name="twitter:card" content="summary">
-  <meta name="twitter:title" content="Veridell">
-  <meta name="twitter:description" content="Every answer, with its source.">
+  <meta property="og:locale" content="en_IN">
+  <meta property="og:locale:alternate" content="hi_IN">
+  <meta property="og:image" content="https://veridell.pages.dev/assets/img/brand/og-card.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Veridell — Source-based Wikipedia answers in Hindi &amp; English">
+  <meta name="twitter:description" content="Ask a question in Hindi or English, get a source-linked answer from Wikipedia and Wikidata, and follow every citation back.">
+  <meta name="twitter:image" content="https://veridell.pages.dev/assets/img/brand/og-card.png">
 
-  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
-  <link rel="manifest" href="manifest.webmanifest">
-  <script src="src/theme-boot.js"></script>
-  <link rel="stylesheet" href="styles/site.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com/">
+  <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin>
+  <link rel="preconnect" href="https://en.wikipedia.org/">
+  <link rel="preconnect" href="https://upload.wikimedia.org/" crossorigin>
 
+<link rel="manifest" href="/manifest.webmanifest">
+
+  <link rel="stylesheet" href="/assets/css/bundle-b3d27ef444.css?v=6.0.0-44559e1">
+
+  <!-- The modules the first screen needs, fetched in parallel rather than
+       discovered one after another. Everything else loads on demand. -->
+  <link rel="modulepreload" href="/assets/js/app.js?v=6.0.0-44559e1">
+  <link rel="modulepreload" href="/assets/js/config.js?v=6.0.0-44559e1">
+  <link rel="modulepreload" href="/assets/js/api.js?v=6.0.0-44559e1">
+  <link rel="modulepreload" href="/assets/js/i18n.js?v=6.0.0-44559e1">
+  <link rel="modulepreload" href="/assets/js/ui.js?v=6.0.0-44559e1">
+  <link rel="modulepreload" href="/assets/js/router.js?v=6.0.0-44559e1">
+  <link rel="modulepreload" href="/assets/js/components.js?v=6.0.0-44559e1">
+  <link rel="modulepreload" href="/assets/js/composer.js?v=6.0.0-44559e1">
+  <link rel="modulepreload" href="/assets/js/answerui.js?v=6.0.0-44559e1">
+  <link rel="modulepreload" href="/assets/js/sources.js?v=6.0.0-44559e1">
+
+  <!-- What this site IS, in the form a search engine reads without running any
+       script: a WebSite, whose publisher is an organisation, with a search box
+       that can be handed a query directly. -->
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
     "@graph": [
       {
         "@type": "WebSite",
-        "@id": "https://veridell.pages.dev/#site",
+        "@id": "https://veridell.pages.dev/#website",
         "url": "https://veridell.pages.dev/",
         "name": "Veridell",
-        "description": "A knowledge research and discovery site built from Wikipedia and Wikidata.",
-        "inLanguage": "en",
+        "alternateName": "Veridell — every answer, with its source",
+        "description": "A Wikimedia knowledge research and discovery platform: ask a question, get a source-linked answer.",
+        "inLanguage": ["en", "hi"],
+        "publisher": { "@id": "https://veridell.pages.dev/#org" },
         "potentialAction": {
           "@type": "SearchAction",
-          "target": "https://veridell.pages.dev/#/ask?q={search_term_string}",
+          "target": { "@type": "EntryPoint", "urlTemplate": "https://veridell.pages.dev/#/search?q={search_term_string}" },
           "query-input": "required name=search_term_string"
         }
       },
@@ -45,55 +80,235 @@
         "@type": "Organization",
         "@id": "https://veridell.pages.dev/#org",
         "name": "Veridell",
-        "url": "https://veridell.pages.dev/"
+        "url": "https://veridell.pages.dev/",
+        "logo": {"@type": "ImageObject", "url": "https://veridell.pages.dev/assets/img/brand/facet-512.png", "width": 512, "height": 512}
+      },
+      {
+        "@type": "WebApplication",
+        "name": "Veridell",
+        "applicationCategory": "ReferenceApplication",
+        "operatingSystem": "Any",
+        "url": "https://veridell.pages.dev/",
+        "isAccessibleForFree": true,
+        "offers": { "@type": "Offer", "price": "0", "priceCurrency": "INR" }
       }
     ]
   }
   </script>
+  <script src="/assets/js/image-fallback.js?v=6.0.0-44559e1"></script>
+  <script src="/assets/js/global-theme.js?v=6.0.0-44559e1"></script>
+  <link rel="icon" href="/favicon.ico" sizes="48x48">
+  <link rel="icon" href="/assets/img/brand/facet.svg" type="image/svg+xml">
+  <link rel="icon" href="/assets/img/brand/facet-48.png" sizes="48x48" type="image/png">
+  <link rel="icon" href="/assets/img/brand/facet-192.png" sizes="192x192" type="image/png">
+  <link rel="apple-touch-icon" href="/assets/img/brand/facet-180.png">
 </head>
-<body data-page="app">
-  <a class="em-skip" href="#view">Skip to the content</a>
-  <header class="em-bar" id="bar"></header>
+<body>
+  <div class="read-progress" aria-hidden="true"><span id="readBar"></span></div>
+  <a class="skip-link" href="#main">Skip to content</a>
+  <p class="status-strip is-warn" id="statusStrip" hidden></p>
+  <div class="grain" aria-hidden="true"></div>
 
-  <main class="em-main" id="view" tabindex="-1">
-    <noscript>
-      <div class="em-page em-column">
-        <h1>Veridell</h1>
-        <p>This site reads Wikipedia in your browser, so it needs JavaScript. The written articles are still readable:
-          <a href="/articles/">the article index</a>.</p>
-      </div>
-    </noscript>
-  </main>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a class="brand" href="#/" aria-label="Veridell home">
+        <span class="brand-mark" aria-hidden="true"><svg viewBox="0 0 96 96" role="img" aria-hidden="true"><defs><linearGradient id="vdbg1" x1=".06" y1="0" x2=".94" y2="1"><stop offset="0" stop-color="#082A26"/><stop offset=".52" stop-color="#12564C"/><stop offset="1" stop-color="#9E5626"/></linearGradient></defs><rect width="96" height="96" rx="23" fill="url(#vdbg1)"/><path d="M25 27h13.5L48 63.5 57.5 27H71L52.5 72h-9z" fill="#FFF1D9"/><path d="M57.5 27H71L52.5 72h-4.6z" fill="#C6844C"/><path d="M57.5 27H71l-4.2 10.1z" fill="#E0A26A"/><circle cx="48" cy="79.5" r="4.4" fill="#FFF3DA"/></svg>
+        </span>
+        <span class="brand-word">Veridell</span>
+      </a>
 
-  <footer class="em-foot">
-    <div class="em-foot-in">
-      <div class="em-foot-col">
-        <strong>Read</strong>
-        <a href="/articles/">Articles</a>
-        <a href="/topics/">Topics</a>
-        <a href="/#/library">Library</a>
-        <a href="/#/today">On this day</a>
+      <nav class="topnav" aria-label="Primary">
+        <a href="/chat/">Chat</a>
+        <a href="#/explore" data-i18n="explore">Explore</a>
+        <a href="/topics/" data-i18n="topics">Topics</a>
+        <a href="/help/" data-i18n="help">Help</a>
+        <span class="nav-sep" aria-hidden="true"></span>
+        <button type="button" class="btn btn-ghost btn-icon" id="langBtn" data-i18n-title="langTitle" title="Content language">EN</button>
+        <button type="button" class="btn btn-ghost btn-icon" id="uiLangBtn" data-i18n-title="uiLangTitle" title="Interface language">हिं</button>
+        <button type="button" class="btn btn-ghost btn-icon" id="tocBtn" aria-expanded="false" title="Jump to a section" aria-label="Jump to a section"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4.2 6.4h15.6M4.2 12h10.2M4.2 17.6h13"/></svg>
+        </button>
+        <button type="button" class="btn btn-ghost btn-icon" id="themeBtn" data-i18n-title="themeTitle" aria-label="Follow the system theme"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.3 14.1A8.5 8.5 0 0 1 9.9 3.7 8.5 8.5 0 1 0 20.3 14.1Z"/></svg>
+        </button>
+      </nav>
+    </div>
+  </header>
+
+  <div class="app-shell">
+    <aside class="app-side" id="appSide" aria-label="Sections">
+      <h2 class="side-heading" data-i18n="discoverGroup">Discover</h2>
+      <a class="side-link" href="#/"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.9 10.4 12 3.9l8.1 6.5"/><path d="M6 9.3v9.6a1.3 1.3 0 0 0 1.3 1.3h9.4a1.3 1.3 0 0 0 1.3-1.3V9.3"/><path d="M10.1 20.2v-4.9h3.8v4.9"/></svg>
+        <span data-i18n="home">Home</span>
+      </a>
+      <a class="side-link" href="/research/"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9.2 3.4h5.6M10.3 3.4v6.3l-4.6 8a2 2 0 0 0 1.7 3h9.2a2 2 0 0 0 1.7-3l-4.6-8V3.4"/></svg>
+        <span>Research</span>
+      </a>
+      <a class="side-link" href="#/explore"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="8.6"/><path d="m15.3 8.7-1.9 4.7-4.7 1.9 1.9-4.7z"/></svg>
+        <span data-i18n="explore">Explore</span>
+      </a>
+      <a class="side-link" href="#/library"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4.6 5.4a1.6 1.6 0 0 1 1.6-1.6h4.2v16.4H6.2a1.6 1.6 0 0 1-1.6-1.6z"/><path d="M10.4 3.8h3.4a1.6 1.6 0 0 1 1.6 1.6v12.8a1.6 1.6 0 0 1-1.6 1.6h-3.4"/><path d="m15.4 6.4 2.9.8a1.6 1.6 0 0 1 1.1 2l-3.1 10.8"/></svg>
+        <span data-i18n="library">Library</span>
+      </a>
+      <a class="side-link" href="/topics/"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m12 3.7 8.4 4.4-8.4 4.4-8.4-4.4z"/><path d="m3.6 12.1 8.4 4.4 8.4-4.4"/><path d="m3.6 16.2 8.4 4.4 8.4-4.4"/></svg>
+        <span data-i18n="topics">Topics</span>
+      </a>
+      <a class="side-link" href="#/today"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.7" y="5.3" width="16.6" height="15" rx="3.2"/><path d="M3.7 10.4h16.6M8.2 3.3v3.4M15.8 3.3v3.4"/></svg>
+        <span data-i18n="today">On this day</span>
+      </a>
+
+      <h2 class="side-heading" data-i18n="libraryGroup">My library</h2>
+      <a class="side-link" href="#/bookmarks"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6.7 4.3h10.6v15.4L12 15.5l-5.3 4.2z"/></svg>
+        <span data-i18n="bookmarks">Saved</span>
+      </a>
+      <a class="side-link" href="#/history"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.7 12a8.3 8.3 0 1 0 2.5-5.9"/><path d="M3.3 4.4v4.3h4.3"/><path d="M12 7.9V12l3.1 1.8"/></svg>
+        <span data-i18n="history">Reading history</span>
+      </a>
+      <p class="side-note" data-i18n="localOnlyNote">Saved answers and reading history stay in this browser.</p>
+
+      <h2 class="side-heading" data-i18n="aboutGroup">About</h2>
+      <a class="side-link" href="#/sources"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><ellipse cx="12" cy="6.3" rx="7.3" ry="2.9"/><path d="M4.7 6.3v11.4c0 1.6 3.3 2.9 7.3 2.9s7.3-1.3 7.3-2.9V6.3"/><path d="M4.7 12c0 1.6 3.3 2.9 7.3 2.9s7.3-1.3 7.3-2.9"/></svg>
+        <span data-i18n="sources">Sources &amp; attribution</span>
+      </a>
+      <a class="side-link" href="/how-it-works/"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="8.4"/><path d="M12 11.2v5M12 8.3h.01"/></svg>
+        <span data-i18n="howItWorks">How it works</span>
+      </a>
+      <a class="side-link" href="/help/"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="8.4"/><path d="M9.6 9.4a2.5 2.5 0 0 1 4.9.6c0 1.6-2.4 1.9-2.4 3.4"/><path d="M12 16.6h.01"/></svg>
+        <span data-i18n="help">Help</span>
+      </a>
+    </aside>
+
+    <div class="app-main">
+      <main id="main" tabindex="-1">
+        <!-- Pre-rendered so a crawler that does not run JavaScript, or a
+             reader who has it switched off, still gets a real page: what the
+             site is, what it does, and links into the crawlable index pages.
+             The app clears this the moment it boots, so nobody sees it twice. -->
+        <section class="site-intro" aria-label="About Veridell">
+          <div class="wrap-narrow">
+            <p class="kicker">Every answer, with its source · Hindi &amp; English</p>
+            <h1>Wikipedia, <span class="grad">understood</span>.</h1>
+            <p class="lead">Veridell turns a question into a clear, source-linked answer. Ask in your own words and it reads live from Wikipedia and Wikidata — a direct answer, the key points, a topic-wise breakdown and the facts, each one traceable back to the article it came from. Article breakdowns quote published source sentences; chat can add an optional AI explanation that is grounded in the selected source passages and carries numbered citations you can open.</p>
+            <div class="intro-grid">
+              <div class="intro-card">
+                <span class="ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4.6 5.4a1.6 1.6 0 0 1 1.6-1.6h4.2v16.4H6.2a1.6 1.6 0 0 1-1.6-1.6z"/><path d="M10.4 3.8h3.4a1.6 1.6 0 0 1 1.6 1.6v12.8a1.6 1.6 0 0 1-1.6 1.6h-3.4"/><path d="m15.4 6.4 2.9.8a1.6 1.6 0 0 1 1.1 2l-3.1 10.8"/></svg></span>
+                <div><h2>Ask, don't hunt</h2><p>One question returns a direct answer with the points that support it, instead of a list of links to sift through.</p></div>
+              </div>
+              <div class="intro-card">
+                <span class="ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><ellipse cx="12" cy="6.3" rx="7.3" ry="2.9"/><path d="M4.7 6.3v11.4c0 1.6 3.3 2.9 7.3 2.9s7.3-1.3 7.3-2.9V6.3"/><path d="M4.7 12c0 1.6 3.3 2.9 7.3 2.9s7.3-1.3 7.3-2.9"/></svg></span>
+                <div><h2>Every claim sourced</h2><p>Facts come from the Wikipedia infobox and Wikidata, and each answer keeps the citations attached so you can check it yourself.</p></div>
+              </div>
+              <div class="intro-card">
+                <span class="ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4.2 6.4h15.6M4.2 12h15.6M4.2 17.6h9.6"/></svg></span>
+                <div><h2>Read in Hindi or English</h2><p>Ask and read in either language, with the article, its sections and its references kept together.</p></div>
+              </div>
+              <div class="intro-card">
+                <span class="ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6.7 4.3h10.6v15.4L12 15.5l-5.3 4.2z"/></svg></span>
+                <div><h2>Save what matters</h2><p>Bookmark answers and keep a reading history, stored in your own browser and never sent anywhere.</p></div>
+              </div>
+            </div>
+            <nav class="intro-links" aria-label="Explore Veridell">
+              <a href="/articles/">Articles</a>
+              <a href="/topics/">Topics</a>
+              <a href="/questions/">Popular questions</a>
+              <a href="/how-it-works/">How it works</a>
+              <a href="/help/">Help</a>
+            </nav>
+          </div>
+        </section>
+        <noscript>
+          <div class="wrap-narrow">
+            <div class="panel">
+              <h2 class="article-title">Veridell — every answer has a source</h2>
+              <p>You are reading this because JavaScript is switched off. The interactive chat needs it, but the whole library below works without it: every entry is a complete page with its text, its facts and the original source linked at the end.</p>
+              <h3>Browse the entries</h3>
+              <ul>
+                <li><a href="/articles/Unified_Payments_Interface/">Unified Payments Interface</a> — India's instant payment network</li>
+                <li><a href="/articles/Ashoka/">Ashoka</a> — the Mauryan emperor</li>
+                <li><a href="/articles/ISRO/">ISRO</a> — the Indian Space Research Organisation</li>
+                <li><a href="/articles/Chandrayaan-3/">Chandrayaan-3</a> — the lunar landing mission</li>
+                <li><a href="/articles/Photosynthesis/">Photosynthesis</a> — how plants make food</li>
+                <li><a href="/articles/Black_hole/">Black hole</a> — gravity with no escape</li>
+                <li><a href="/articles/Vedas/">Vedas</a> — the oldest Indian texts</li>
+                <li><a href="/articles/Chess/">Chess</a> — the game and its history</li>
+              </ul>
+              <h3>More</h3>
+              <ul>
+                <li><a href="/articles/">All articles</a></li>
+                <li><a href="/topics/">Topics</a></li>
+                <li><a href="/questions/">Questions this site can answer</a></li>
+                <li><a href="/research/">Research Desk</a> — search and compare sources</li>
+                <li><a href="/how-it-works/">How it works</a></li>
+                <li><a href="/help/">Help</a></li>
+              </ul>
+            </div>
+          </div>
+        </noscript>
+      </main>
+    </div>
+
+    <aside class="app-rail" id="appRail" aria-label="Discover">
+      <div class="rail-card">
+        <span class="sk-line sk-60"></span>
+        <span class="sk-line sk-90"></span>
+        <span class="sk-line sk-80"></span>
       </div>
-      <div class="em-foot-col">
-        <strong>About</strong>
-        <a href="/how-it-works/">How it works</a>
-        <a href="/help/">Help</a>
-        <a href="/#/sources">Sources</a>
-        <a href="/#/credits">Credits</a>
-        <a href="https://github.com/galeoindus/veridell" target="_blank" rel="noopener noreferrer">GitHub</a>
+    </aside>
+  </div>
+
+  <footer class="site-foot">
+    <div class="foot-inner">
+      <div class="foot-col">
+        <div class="foot-brand">
+          <span class="brand-mark" aria-hidden="true"><svg viewBox="0 0 96 96" role="img" aria-hidden="true"><defs><linearGradient id="vdbg2" x1=".06" y1="0" x2=".94" y2="1"><stop offset="0" stop-color="#082A26"/><stop offset=".52" stop-color="#12564C"/><stop offset="1" stop-color="#9E5626"/></linearGradient></defs><rect width="96" height="96" rx="23" fill="url(#vdbg2)"/><path d="M25 27h13.5L48 63.5 57.5 27H71L52.5 72h-9z" fill="#FFF1D9"/><path d="M57.5 27H71L52.5 72h-4.6z" fill="#C6844C"/><path d="M57.5 27H71l-4.2 10.1z" fill="#E0A26A"/><circle cx="48" cy="79.5" r="4.4" fill="#FFF3DA"/></svg>
+          </span>
+          <strong>Veridell</strong>
+        </div>
+        <p data-i18n="footAbout">A Wikipedia-based knowledge explorer. It turns free knowledge into a core answer, the article itself and Markdown you can keep.</p>
       </div>
-      <div class="em-foot-col">
-        <strong>Talk</strong>
-        <a href="/chat/">Amigo chat</a>
-        <a href="/questions/">Questions</a>
-        <a href="/research/">Research desk</a>
+      <div class="foot-col">
+        <strong data-i18n="footProject">Project</strong>
+        <ul>
+          <li><a href="/articles/">Articles</a></li>
+          <li><a href="/topics/">Topics</a></li>
+          <li><a href="/questions/">Questions</a></li>
+          <li><a href="#/library" data-i18n="library">Library</a></li>
+          <li><a href="/how-it-works/">How it works</a></li>
+          <li><a href="/help/">Help</a></li>
+          <li><a href="#/about" data-i18n="about">About Veridell</a></li>
+          <li><a href="#/support" data-i18n="supportLink">If you need help</a></li>
+          <li><a href="#/sources" data-i18n="sourcesAttribution">Sources &amp; attribution</a></li>
+          <li><a href="#/credits" data-i18n="credits">Credits &amp; contributors</a></li>
+          <li><a href="https://github.com/galeoindus/veridell" id="repoLink" target="_blank" rel="noopener" data-i18n="githubRepo">GitHub repository</a></li>
+          <li><a href="#/feedback" data-i18n="feedback">Feedback</a></li>
+        </ul>
+      </div>
+      <div class="foot-col">
+        <strong data-i18n="footLegal">Legal</strong>
+        <ul>
+          <li><a href="#/privacy" data-i18n="privacy">Privacy</a></li>
+          <li><a href="#/terms" data-i18n="terms">Terms</a></li>
+          <li><a href="#/accessibility" data-i18n="accessibility">Accessibility</a></li>
+          <li><a href="https://foundation.wikimedia.org/wiki/Policy:Terms_of_Use" target="_blank" rel="noopener">Wikimedia Terms of Use</a></li>
+        </ul>
       </div>
     </div>
-    <div class="em-foot-in">
-      <p>Wikipedia text is available under CC BY-SA 4.0 and Wikidata under CC0 1.0. Veridell is an independent reader, not affiliated with or endorsed by the Wikimedia Foundation. Answers are built from published sources; where a model writes, it says so.</p>
+    <div class="foot-legal">
+      <p data-i18n="attribution">Wikipedia article text is available under the Creative Commons Attribution-ShareAlike Licence (CC BY-SA 4.0). Wikidata data is released under CC0 1.0. Files on Wikimedia Commons carry their own licence, shown with each image. Veridell is an independent reader and is not affiliated with or endorsed by the Wikimedia Foundation.</p>
+      <p data-i18n="aiNote">Article breakdowns quote published source sentences. In chat, an AI model is prompted to explain the selected source passages only and attach numbered citations. Open the original sources to verify every claim.</p>
+      <p class="foot-version">Veridell <span id="appVersion">v6.0.0</span> <span id="appBuild" class="foot-build"></span></p>
     </div>
   </footer>
 
-  <script type="module" src="src/main.js"></script>
+  <script type="module" src="/assets/js/app.js?v=6.0.0-44559e1"></script>
+  <script type="module" src="/assets/js/build-watch.js?v=6.0.0-44559e1"></script>
+  <script src="/assets/js/chat-launcher.js?v=6.0.0-44559e1" defer></script>
+  <nav class="bottom-nav glass" aria-label="Primary">
+    <a href="/#/ask"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4.2 11.6a7.8 7.8 0 0 1 15.6 0c0 4.3-3.5 7.8-7.8 7.8-1 0-2-.2-2.9-.6l-3.9 1.5 1.2-3.4a7.8 7.8 0 0 1-2.2-5.3Z"/></svg><span>Ask</span></a>
+    <a href="/#/explore"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="8.6"/><path d="m15.3 8.7-1.9 4.7-4.7 1.9 1.9-4.7z"/></svg><span>Explore</span></a>
+    <a href="/topics/"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m12 3.7 8.4 4.4-8.4 4.4-8.4-4.4z"/><path d="m3.6 12.1 8.4 4.4 8.4-4.4"/><path d="m3.6 16.2 8.4 4.4 8.4-4.4"/></svg><span>Topics</span></a>
+    <a href="/#/library"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4.6 5.4a1.6 1.6 0 0 1 1.6-1.6h4.2v16.4H6.2a1.6 1.6 0 0 1-1.6-1.6z"/><path d="M10.4 3.8h3.4a1.6 1.6 0 0 1 1.6 1.6v12.8a1.6 1.6 0 0 1-1.6 1.6h-3.4"/><path d="m15.4 6.4 2.9.8a1.6 1.6 0 0 1 1.1 2l-3.1 10.8"/></svg><span>Library</span></a>
+    <a href="/#/bookmarks"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6.7 4.3h10.6v15.4L12 15.5l-5.3 4.2z"/></svg><span>Saved</span></a>
+  </nav>
+  
+  
 </body>
 </html>

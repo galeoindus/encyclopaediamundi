@@ -1,17 +1,24 @@
 # Veridell — https://veridell.pages.dev/
 #
-# Every page the site serves is meant to be read, so nothing is closed except
-# the things that are not pages: the Functions bundle and the build scripts.
+# Every answer the site gives is built from public sources and every article is
+# a real, indexable page, so there is nothing here to hide from a crawler.
+# Only the things that are not pages at all are closed: the Functions bundle,
+# the build scripts and the test suite.
 
 User-agent: *
 Allow: /
 Disallow: /functions/
 Disallow: /scripts/
+Disallow: /test/
 
-# The app is one document behind a hash router; a fragment is never a separate
-# URL to a crawler. The crawlable surface is the real directories — /, /chat/,
-# /articles/, /topics/, /questions/, /research/, /help/, /how-it-works/ — and
-# every one of them is in the sitemap.
+# The app is one document served under many fragments (#/ask, #/article/…).
+# A fragment is never a separate URL to a crawler, so the crawlable surface is
+# the real directories: /, /articles/, /topics/, /questions/, /research/,
+# /chat/, /help/ and /how-it-works/. They are all listed in the sitemap below.
+
+# ── assistants and answer engines ─────────────────────────────────────────
+# The site publishes llms.txt and a full sitemap for exactly this: an answer
+# engine may read the pages and quote them, with the source attached.
 
 User-agent: GPTBot
 Allow: /
@@ -19,7 +26,13 @@ Allow: /
 User-agent: OAI-SearchBot
 Allow: /
 
+User-agent: ChatGPT-User
+Allow: /
+
 User-agent: ClaudeBot
+Allow: /
+
+User-agent: Claude-Web
 Allow: /
 
 User-agent: PerplexityBot
@@ -28,7 +41,14 @@ Allow: /
 User-agent: Google-Extended
 Allow: /
 
+User-agent: Applebot-Extended
+Allow: /
+
+User-agent: CCBot
+Allow: /
+
 Sitemap: https://veridell.pages.dev/sitemap.xml
 
-# A plain-text description of the site for language models.
+# A plain-text description of the site written for language models, not for
+# browsers. It explains the two reading modes and where data goes.
 LLMs-Txt: https://veridell.pages.dev/llms.txt

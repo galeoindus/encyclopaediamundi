@@ -1,0 +1,487 @@
+/* Veridell — AI Mode surface.
+ *
+ * The chat stops looking like a messenger and starts looking like a search
+ * that answers: one calm column, a large rounded composer that owns the floor,
+ * answers that sit on a soft card instead of floating in a bubble stream, and
+ * sources and follow-ups as chips rather than a panel of cards.
+ *
+ * This sheet is last in the chat cascade on purpose. It re-settles the shell
+ * the earlier layers built (chat-page > chat-redesign > amigo-chat >
+ * chat-atelier > chat-experience) instead of adding a sixth language on top
+ * of them: no new colours, only the --im-* tokens those layers already own.
+ */
+
+/* ── the rail: a quiet index, not a second brand ───────────────────────── */
+html body.amigo-chat .rail {
+  padding: 16px 12px 12px;
+  background: color-mix(in srgb, var(--im-surface) 62%, var(--im-bg));
+  border-right: 1px solid var(--im-border);
+}
+html body.amigo-chat .brand { gap: 10px; padding: 4px 6px 14px; }
+/* The mark is the site's own facet, not a second Amigo. Two mascots on one
+   screen was the bug: the rail drew the character beside a hero that already
+   had it, so the page opened with the same face twice. */
+html body.amigo-chat .brand .mark {
+  width: 30px; height: 30px;
+  border-radius: 10px;
+  overflow: hidden;
+  background: var(--im-accent-soft);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--im-accent) 18%, transparent);
+}
+html body.amigo-chat .brand .mark img { width: 100%; height: 100%; object-fit: contain; }
+html body.amigo-chat .brand-text { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
+html body.amigo-chat .brand-text b {
+  font-family: var(--sans);
+  font-size: 13.5px; font-weight: 650; letter-spacing: -.015em; color: var(--im-text);
+}
+html body.amigo-chat .brand-text em {
+  font-style: normal; font-size: 9.5px; font-weight: 650;
+  letter-spacing: .12em; text-transform: uppercase; color: var(--im-muted);
+}
+html body.amigo-chat .rail-new {
+  min-height: 40px;
+  border: 1px solid var(--im-border);
+  border-radius: 999px;
+  background: var(--im-surface);
+  /* The layer below paints the button with a gradient and white type; this
+     surface is plain, so the label has to take the ink colour or it vanishes. */
+  color: var(--im-text);
+  font-weight: 600;
+  box-shadow: none;
+}
+html[data-theme="dark"] body.amigo-chat .rail-new,
+html[data-theme="light"] body.amigo-chat .rail-new { color: var(--im-text); }
+html body.amigo-chat .rail-new:hover { filter: none; background: var(--im-accent-soft); }
+html body.amigo-chat .rail-new kbd,
+html[data-theme="dark"] body.amigo-chat .rail-new kbd {
+  border-color: transparent;
+  background: color-mix(in srgb, var(--im-text) 7%, transparent);
+  color: var(--im-muted);
+}
+html body.amigo-chat .rail-new:hover { border-color: var(--im-accent); background: var(--im-accent-soft); }
+html body.amigo-chat .rail-new kbd {
+  border-radius: 6px; padding: 1px 6px;
+  background: color-mix(in srgb, var(--im-text) 6%, transparent);
+  font-size: 10px; color: var(--im-muted);
+}
+html body.amigo-chat .rail-search { border-radius: 999px; }
+html body.amigo-chat .rail-row { border-radius: 12px; }
+html body.amigo-chat .rail-foot {
+  border-top: 1px solid var(--im-border);
+  padding-top: 10px; margin-top: 8px;
+  font-size: 11px; color: var(--im-muted);
+}
+
+/* ── the header: a thin line of controls, no title shouting ────────────── */
+html body.amigo-chat .top {
+  padding: 10px clamp(12px, 2.4vw, 26px);
+  border-bottom: 1px solid color-mix(in srgb, var(--im-border) 60%, transparent);
+  background: color-mix(in srgb, var(--im-bg) 84%, transparent);
+  backdrop-filter: saturate(140%) blur(10px);
+}
+html body.amigo-chat .top h1 {
+  font-size: 13.5px; font-weight: 600; letter-spacing: -.01em;
+  color: var(--im-muted);
+}
+html body.amigo-chat .top .ico { border-radius: 999px; }
+html body.amigo-chat .top .ico:hover { background: var(--im-surface-2); color: var(--im-text); }
+
+/* ── the opening screen ────────────────────────────────────────────────── */
+html body.amigo-chat .stage { width: min(calc(100% - 48px), 880px); margin-inline: auto; }
+html body.amigo-chat .empty {
+  width: 100%;
+  max-width: 760px;
+  margin-inline: auto;
+  padding: clamp(28px, 7vh, 76px) 0 8px;
+  text-align: center;
+}
+html body.amigo-chat .empty::before,
+html body.amigo-chat .empty::after { display: none; }
+/* One Amigo, at the size of a face in a conversation — not a billboard. */
+html body.amigo-chat .empty-mark {
+  width: 76px; height: 76px;
+  margin: 0 auto 18px;
+  border-radius: 0;
+  background: none;
+  box-shadow: none;
+}
+html body.amigo-chat .empty-mark img { width: 100%; height: 100%; object-fit: contain; }
+html body.amigo-chat .welcome-eyebrow {
+  display: inline-flex; align-items: center; gap: 7px;
+  padding: 4px 11px 4px 8px;
+  border: 1px solid var(--im-border);
+  border-radius: 999px;
+  background: var(--im-surface);
+  font-size: 9.5px; font-weight: 700;
+  letter-spacing: .11em; text-transform: uppercase;
+  color: var(--im-muted);
+}
+html body.amigo-chat .welcome-pulse { width: 6px; height: 6px; box-shadow: 0 0 0 3px var(--im-accent-soft); }
+html body.amigo-chat .empty-heading {
+  max-width: 15ch;
+  margin: 18px auto 12px;
+  font-family: var(--sans);
+  font-size: clamp(28px, 4.4vw, 46px);
+  font-weight: 600;
+  letter-spacing: -.04em;
+  line-height: 1.1;
+  text-wrap: balance;
+  color: var(--im-text);
+}
+html body.amigo-chat .empty-heading em {
+  font-style: normal;
+  background: linear-gradient(96deg, var(--im-accent), color-mix(in srgb, var(--im-accent) 55%, var(--im-warm, var(--im-accent))));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+html body.amigo-chat .empty > p {
+  max-width: 48ch;
+  margin: 0 auto;
+  font-size: 14.5px; line-height: 1.65;
+  color: var(--im-muted);
+  text-wrap: pretty;
+}
+html body.amigo-chat .welcome-trust {
+  display: flex; justify-content: center; flex-wrap: wrap;
+  gap: 8px; margin: 18px 0 4px;
+}
+html body.amigo-chat .welcome-trust span {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 5px 11px;
+  border: 1px solid color-mix(in srgb, var(--im-border) 80%, transparent);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--im-surface) 70%, transparent);
+  font-size: 11px; font-weight: 550; color: var(--im-muted);
+}
+html body.amigo-chat .welcome-trust svg { width: 13px; height: 13px; color: var(--im-accent); }
+
+/* starters: three doors, equal weight, one line each */
+html body.amigo-chat .starters {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  margin-top: 26px;
+  text-align: left;
+}
+html body.amigo-chat .starters button {
+  display: flex; flex-direction: column; gap: 4px;
+  min-height: 74px;
+  padding: 14px 15px;
+  border: 1px solid var(--im-border);
+  border-radius: 18px;
+  background: var(--im-surface);
+  box-shadow: 0 1px 0 color-mix(in srgb, var(--im-text) 3%, transparent);
+  transition: border-color .16s ease, background .16s ease, transform .16s ease;
+}
+html body.amigo-chat .starters button:hover,
+html body.amigo-chat .starters button:focus-visible {
+  border-color: color-mix(in srgb, var(--im-accent) 45%, var(--im-border));
+  background: color-mix(in srgb, var(--im-accent-soft) 55%, var(--im-surface));
+  transform: translateY(-1px);
+}
+html body.amigo-chat .starters b {
+  font-size: 12.5px; font-weight: 650; letter-spacing: -.01em; color: var(--im-text);
+}
+html body.amigo-chat .starters span {
+  font-size: 12px; line-height: 1.5; color: var(--im-muted);
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+}
+html body.amigo-chat .empty-links { margin-top: 20px; gap: 6px; }
+html body.amigo-chat .empty-links a {
+  padding: 5px 10px; border-radius: 999px;
+  font-size: 11.5px; color: var(--im-muted);
+}
+html body.amigo-chat .empty-links a:hover { background: var(--im-surface-2); color: var(--im-text); }
+
+/* ── the conversation ──────────────────────────────────────────────────── */
+html body.amigo-chat .thread {
+  width: 100%;
+  max-width: 780px;
+  margin-inline: auto;
+  padding: 18px 0 6px;
+  gap: clamp(20px, 2.4vw, 30px);
+}
+html body.amigo-chat .q {
+  max-width: min(74%, 600px);
+  padding: 11px 16px;
+  border: 1px solid color-mix(in srgb, var(--im-accent) 22%, var(--im-border));
+  border-radius: 20px 20px 6px 20px;
+  background: var(--im-accent-soft);
+  color: var(--im-text);
+  font-size: 14.5px;
+  line-height: 1.55;
+}
+/* The answer is one card: meta line, prose, sources, actions — the shape an
+   AI answer takes, so a long thread reads as a stack of answers, not chat. */
+html body.amigo-chat .a { gap: 10px; }
+html body.amigo-chat .a::before {
+  width: 26px; height: 26px; border-radius: 8px;
+  background-size: contain; background-position: center;
+}
+html body.amigo-chat .a-body {
+  padding: 16px 18px 10px;
+  border: 1px solid var(--im-border);
+  border-radius: 20px;
+  background: var(--im-surface);
+  box-shadow: 0 1px 2px color-mix(in srgb, var(--im-text) 4%, transparent);
+}
+html body.amigo-chat .a-meta { margin-bottom: 10px; }
+html body.amigo-chat .a-meta .who { font-size: 12px; }
+html body.amigo-chat .a-body .md { max-width: 72ch; gap: 12px; font-size: 14.5px; line-height: 1.66; }
+html body.amigo-chat .a-body .md > p:first-child {
+  font-family: var(--sans);
+  font-size: 16px;
+  font-weight: 550;
+  line-height: 1.55;
+  color: var(--im-text);
+  letter-spacing: -.01em;
+}
+html body.amigo-chat .a-body .md h2,
+html body.amigo-chat .a-body .md h3 {
+  font-size: 11px; letter-spacing: .09em;
+  color: var(--im-muted);
+  margin-top: 10px;
+}
+html body.amigo-chat .a-body .md li::marker { color: var(--im-accent); }
+html body.amigo-chat .cite {
+  border-radius: 6px;
+  background: var(--im-accent-soft);
+  color: var(--im-accent);
+  font-size: 10px;
+}
+html body.amigo-chat .cite:hover { background: var(--im-accent); color: var(--im-bg); }
+
+/* sources: a chip row, the way a search result cites itself */
+html body.amigo-chat .src-panel { margin-top: 14px; }
+html body.amigo-chat .src-head {
+  font-size: 9.5px; letter-spacing: .1em;
+  color: var(--im-muted);
+  margin-bottom: 7px;
+}
+html body.amigo-chat .src-cards {
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 7px;
+}
+html body.amigo-chat .src-card {
+  padding: 8px 10px;
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--im-surface-2) 70%, var(--im-surface));
+}
+html body.amigo-chat .src-card:hover { background: var(--im-surface-2); }
+html body.amigo-chat .src-n {
+  width: 18px; height: 18px; border-radius: 999px;
+  background: var(--im-accent-soft); color: var(--im-accent);
+  font-size: 9.5px;
+}
+html body.amigo-chat .a-actions { gap: 4px; margin-top: 6px; padding-top: 6px; }
+html body.amigo-chat .a-actions button {
+  padding: 6px 11px;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  font-size: 11.5px;
+  color: var(--im-muted);
+}
+html body.amigo-chat .a-actions button:hover {
+  border-color: var(--im-border);
+  background: var(--im-surface-2);
+  color: var(--im-text);
+}
+html body.amigo-chat .followups { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 12px; }
+html body.amigo-chat .followups button {
+  padding: 7px 13px;
+  border: 1px solid var(--im-border);
+  border-radius: 999px;
+  background: var(--im-surface);
+  font-size: 12px; color: var(--im-text);
+}
+html body.amigo-chat .followups button:hover { border-color: var(--im-accent); background: var(--im-accent-soft); }
+
+/* ── the composer: the floor of the page, one big rounded surface ──────── */
+html body.amigo-chat .dock {
+  padding: 10px clamp(12px, 2.4vw, 26px) max(16px, env(safe-area-inset-bottom));
+  border-top: 0;
+  background: linear-gradient(to top,
+    var(--im-bg) 42%,
+    color-mix(in srgb, var(--im-bg) 82%, transparent) 76%,
+    transparent);
+}
+/* The 1px specular rule the experience layer draws over the dock reads as a
+   seam across the page once the composer owns the floor. */
+html body.amigo-chat .dock::before { display: none; }
+html body.amigo-chat .dock-in {
+  max-width: 780px;
+  display: flex;
+  flex-direction: column;
+}
+html body.amigo-chat .chat-mode-tabs {
+  display: inline-flex; gap: 2px;
+  align-self: center;
+  width: max-content; max-width: 100%;
+  margin: 0 auto 9px;
+  padding: 3px;
+  border: 1px solid var(--im-border);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--im-surface) 78%, transparent);
+  width: fit-content;
+}
+html body.amigo-chat .chat-mode-tabs button {
+  padding: 5px 14px;
+  border: 0; border-radius: 999px;
+  background: transparent;
+  font: inherit; font-size: 12px; font-weight: 600;
+  color: var(--im-muted);
+  cursor: pointer;
+}
+html body.amigo-chat .chat-mode-tabs button:hover { color: var(--im-text); }
+html body.amigo-chat .chat-mode-tabs button.is-active,
+html body.amigo-chat .chat-mode-tabs button[aria-pressed="true"] {
+  background: var(--im-surface);
+  color: var(--im-text);
+  box-shadow: 0 1px 3px color-mix(in srgb, var(--im-text) 12%, transparent);
+}
+html body.amigo-chat .composer {
+  align-items: flex-end;
+  gap: 4px;
+  padding: 8px 8px 8px 10px;
+  border: 1px solid var(--im-border);
+  border-radius: 26px;
+  background: var(--im-surface);
+  box-shadow:
+    0 1px 2px color-mix(in srgb, var(--im-text) 6%, transparent),
+    0 14px 34px -26px color-mix(in srgb, var(--im-text) 45%, transparent);
+  transition: border-color .16s ease, box-shadow .16s ease;
+}
+html body.amigo-chat .composer:focus-within {
+  border-color: color-mix(in srgb, var(--im-accent) 55%, var(--im-border));
+  box-shadow:
+    0 0 0 3px color-mix(in srgb, var(--im-accent) 14%, transparent),
+    0 14px 34px -26px color-mix(in srgb, var(--im-text) 45%, transparent);
+}
+html body.amigo-chat .composer textarea {
+  font-size: 15px; line-height: 1.55;
+  padding: 8px 2px;
+  max-height: 180px;
+}
+html body.amigo-chat .composer textarea::placeholder { color: var(--im-muted); }
+html body.amigo-chat .plus,
+html body.amigo-chat .attach,
+html body.amigo-chat .mic {
+  width: 34px; height: 34px;
+  border: 0; border-radius: 999px;
+  background: transparent; color: var(--im-muted);
+}
+html body.amigo-chat .plus:hover,
+html body.amigo-chat .attach:hover,
+html body.amigo-chat .mic:hover { background: var(--im-surface-2); color: var(--im-text); }
+html body.amigo-chat .composer .send {
+  width: 36px; height: 36px;
+  border: 0; border-radius: 999px;
+  background: var(--im-accent);
+  color: var(--im-bg);
+  box-shadow: 0 4px 12px -6px color-mix(in srgb, var(--im-accent) 70%, transparent);
+}
+html body.amigo-chat .composer .send:hover:not(:disabled) { transform: scale(1.04); }
+html body.amigo-chat .composer .send:disabled { background: var(--im-surface-2); color: var(--im-muted); box-shadow: none; }
+html body.amigo-chat .composer .stop {
+  height: 36px; padding: 0 14px;
+  border: 1px solid var(--im-border); border-radius: 999px;
+  background: var(--im-surface-2); color: var(--im-text);
+  font-size: 12px; font-weight: 600;
+}
+html body.amigo-chat .meta-row { padding: 8px 4px 0; }
+html body.amigo-chat .meta-row .mchip {
+  padding: 4px 11px;
+  border: 1px solid var(--im-border);
+  border-radius: 999px;
+  background: transparent;
+  font-size: 11px; font-weight: 550;
+  color: var(--im-muted);
+}
+html body.amigo-chat .meta-row .mchip:hover { border-color: var(--im-accent); color: var(--im-text); }
+html body.amigo-chat .meta-row .hint { font-size: 10.5px; color: var(--im-muted); }
+html body.amigo-chat .chat-note {
+  max-width: 78ch; margin: 8px auto 0;
+  font-size: 10.5px; line-height: 1.6;
+  color: color-mix(in srgb, var(--im-muted) 82%, transparent);
+}
+
+/* ── phones ────────────────────────────────────────────────────────────── */
+@media (max-width: 860px) {
+  html body.amigo-chat .starters { grid-template-columns: 1fr; gap: 8px; }
+  html body.amigo-chat .starters button { min-height: 0; flex-direction: row; align-items: baseline; gap: 8px; padding: 12px 14px; }
+  html body.amigo-chat .starters span { -webkit-line-clamp: 1; }
+  html body.amigo-chat .empty { padding-top: clamp(16px, 4vh, 40px); }
+  html body.amigo-chat .empty-mark { width: 64px; height: 64px; margin-bottom: 14px; }
+  html body.amigo-chat .stage { width: calc(100% - 24px); }
+  html body.amigo-chat .q { max-width: 86%; }
+  html body.amigo-chat .a-body { padding: 14px 14px 8px; border-radius: 18px; }
+  html body.amigo-chat .a::before { display: none; }
+  html body.amigo-chat .composer { border-radius: 22px; }
+  html body.amigo-chat .chat-mode-tabs { display: none; }
+  html body.amigo-chat .chat-note { display: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html body.amigo-chat .starters button,
+  html body.amigo-chat .composer .send { transition: none; }
+}
+
+/* ── the rail's doorways into the rest of the site ─────────────────────── */
+html body.amigo-chat .rail-explore {
+  display: flex; flex-direction: column; gap: 1px;
+  padding: 10px 0 6px;
+  border-top: 1px solid var(--im-border);
+  margin-top: 4px;
+}
+html body.amigo-chat .rail-explore .rail-head {
+  margin: 0 8px 5px;
+  font-size: 9.5px; font-weight: 700;
+  letter-spacing: .11em; text-transform: uppercase;
+  color: var(--im-muted);
+}
+html body.amigo-chat .rail-explore a {
+  display: flex; align-items: center; gap: 9px;
+  padding: 7px 9px;
+  border-radius: 10px;
+  color: var(--im-muted);
+  text-decoration: none;
+  font-size: 12.5px; font-weight: 550;
+}
+html body.amigo-chat .rail-explore a:hover,
+html body.amigo-chat .rail-explore a:focus-visible {
+  background: var(--im-surface-2);
+  color: var(--im-text);
+}
+html body.amigo-chat .rail-explore svg { width: 15px; height: 15px; flex: none; opacity: .8; }
+
+/* ── what the answer is made of: badge, citation count, model ──────────── */
+html body.amigo-chat .a-meta { flex-wrap: wrap; gap: 6px; }
+html body.amigo-chat .a-meta .verify {
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  border: 1px solid color-mix(in srgb, var(--im-accent) 32%, var(--im-border));
+  background: color-mix(in srgb, var(--im-accent-soft) 62%, transparent);
+  color: color-mix(in srgb, var(--im-accent) 88%, var(--im-text));
+  font-size: 9.5px; font-weight: 700; letter-spacing: .04em;
+  text-transform: none;
+}
+html body.amigo-chat .a-meta .model-chip {
+  padding: 2px 8px;
+  border-radius: 999px;
+  border: 1px solid var(--im-border);
+  color: var(--im-muted);
+  font-size: 9.5px; font-weight: 600; letter-spacing: .02em;
+  text-transform: none;
+  max-width: 22ch; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+html body.amigo-chat .a-meta .src-name { max-width: 32ch; }
+
+/* A site answer is navigation, so its links should read like links. */
+html body.amigo-chat .a-body .md a:not(.cite) {
+  color: var(--im-accent);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 2px;
+}
+html body.amigo-chat .a-body .md a:not(.cite):hover { text-decoration-thickness: 2px; }

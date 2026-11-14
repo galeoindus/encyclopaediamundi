@@ -1,0 +1,2752 @@
+/* Veridell — additions on top of the design system.
+ *
+ * styles.css is the original Veridell design system, kept intact. Everything
+ * in this file is either a new component the rebuild introduced (the language
+ * menu, the offline strip's spacing) or a small correction to a rule that did
+ * not survive the move from a captured page to a live app.
+ */
+
+/* --------------------------------------------------------- corrections */
+
+/* The bottom bar carries five destinations, not four. */
+.bottom-nav { grid-template-columns: repeat(5, 1fr); }
+
+/* The placeholder tile in Saved/History centres an icon. */
+.saved-ph { display: grid; place-items: center; color: var(--forest-ink); }
+.saved-ph svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 1.7; }
+
+/* .dash-action headings are styled as h3 in the design system; make the
+   h2 fallback look identical wherever an older template still emits one. */
+.dash-action h2 { margin: 0; font-size: 15px; font-family: var(--font-display); letter-spacing: -0.01em; }
+
+/* Give the reading-progress bar room to breathe above the sticky topbar. */
+.read-progress { z-index: 61; }
+
+/* Article body: keep infobox/figure removal from leaving a gap. */
+.panel .prose > .mw-parser-output:empty { display: none; }
+
+/* --------------------------------------------------------- language menu */
+
+.lang-menu {
+  position: fixed;
+  z-index: 300;
+  min-width: 190px;
+  max-height: min(60vh, 420px);
+  overflow: auto;
+  padding: 6px;
+  border: 1px solid var(--border-2);
+  border-radius: var(--radius);
+  background: var(--surface);
+  box-shadow: var(--shadow-lg);
+  animation: rise 0.16s var(--ease) both;
+}
+
+.lang-menu-item {
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: 9px 12px;
+  border: 0;
+  border-radius: var(--radius-xs);
+  background: transparent;
+  color: var(--text);
+  font: inherit;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.lang-menu-item:hover { background: var(--surface-2); }
+
+.lang-menu-item.is-active {
+  background: color-mix(in srgb, var(--forest) 14%, var(--surface));
+  color: var(--text);
+  font-weight: 650;
+}
+
+.lang-menu-item.is-active::after { content: " ✓"; color: var(--copper-ink); }
+
+/* --------------------------------------------------------- offline strip */
+
+.status-strip { letter-spacing: 0.01em; }
+
+/* --------------------------------------------------------- tiny helpers */
+
+/* Buttons that carry an icon and a label inside .article-actions. */ .article-actions .btn svg, .row-cta .btn svg {
+  width: 16px;
+  height: 16px;
+  fill: none;
+  stroke: currentColor;
+}
+
+/* The bookmark toggle shows its on-state clearly. */
+.btn.is-on { border-color: var(--accent); color: var(--copper-ink); }
+
+/* Feedback form controls reuse the searchbar shell, full width. */
+form.panel .searchbar,
+form.panel .select {
+  width: 100%;
+  font: inherit;
+  font-size: 15px;
+  padding: 12px 14px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-2);
+  background: var(--surface);
+  color: var(--text);
+  resize: vertical;
+}
+
+form.panel .select { cursor: pointer; }
+
+/* A skeleton line used by the rail and cards. */
+.rail-card .sk-line { display: block; height: 12px; border-radius: 6px; margin: 8px 0; }
+
+@media (prefers-reduced-motion: reduce) {
+  .lang-menu { animation: none; }
+}
+
+/* Suggest rows: title above description, thumbnail fixed size. */
+.suggest-item > span { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.suggest-item .si-title { display: block; font-weight: 600; }
+.suggest-item .si-desc { display: block; color: var(--muted); font-size: 13px; }
+.suggest-item img { width: 34px; height: 34px; object-fit: cover; border-radius: 8px; flex: 0 0 auto; background: var(--surface-2); }
+
+/* The article rail is the narrow column; the prose is the wide one. The design
+   system moved the rail with `order:-1` for a DOM that had it last, so pin the
+   order now that the rail is appended after the panel. */
+.article-grid.rail-open .toc-rail { order: 0; }
+.article-grid.rail-open .panel { order: -1; }
+.toc-rail .factbox { margin-top: 0; }
+
+/* ---------------------------------------------------------- icon sizing */
+
+/* Icons injected from JS carry a viewBox but no width/height, so anywhere the
+   design system does not already set a size they would stretch to fill. Pin
+   the few containers that rely on the markup's own width/height. */
+.dash-hero-badge svg { width: 14px; height: 14px; flex: 0 0 auto; }
+.hero-clock svg { width: 17px; height: 17px; }
+.state .ic svg { width: 34px; height: 34px; }
+.saved-ph svg { width: 20px; height: 20px; }
+.src-mark svg { width: 14px; height: 14px; }
+
+/* --------------------------------------------------- the hero gradient */
+
+/* In the captured stylesheet `.dash-grad` kept `background-clip: text` and
+   `color: transparent` but lost its gradient, which left the second half of
+   the headline invisible. Restore it. */
+.dash-hero h1 .dash-grad {
+  background-image: linear-gradient(100deg, var(--copper) 0%, #d08a62 45%, var(--accent-2) 100%);
+  background-size: 100% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+}
+[data-theme="dark"] .dash-hero h1 .dash-grad {
+  background-image: linear-gradient(100deg, #d08a62 0%, #e0a271 45%, var(--accent-2) 100%);
+}
+
+/* ------------------------------------------------------- small screens */
+
+@media (max-width: 700px) {
+  .dash-hero-badge { align-self: center; text-align: center; }
+  /* Keep every navigation option reachable; just tighten it so it wraps
+     neatly instead of overflowing. */
+  .topbar-inner { gap: 6px; }
+  .topnav { margin-left: auto; }
+  .topnav a { padding: 7px 8px; font-size: 12.5px; }
+}
+
+/* ======================================================================
+   The hero assumes a dark panel
+   ======================================================================
+   The design system styles every control inside .dash-hero for a dark
+   background — white text on translucent white. The hero itself is not
+   dark (it inherits the page background, and its own gradient was lost in
+   the capture), so in light mode the depth buttons, the meaning switch, the
+   chips and the clock were white on cream and effectively invisible.
+   Restore the theme-aware styling for all of them. */
+
+.dash-hero .searchbar { background: var(--surface); border-color: var(--border-2); }
+.dash-hero .depth-btn { background: var(--surface); border-color: var(--border-2); color: var(--text); }
+.dash-hero .depth-btn:hover { background: var(--surface-2); color: var(--text); }
+.dash-hero .depth-btn.is-active,
+.dash-hero .depth-btn[aria-pressed="true"] { background: var(--primary); border-color: var(--primary); color: var(--on-primary); }
+.dash-hero .mode-btn { color: var(--muted); }
+.dash-hero .mode-btn.is-active { background: var(--surface); color: var(--text); box-shadow: var(--shadow-sm); }
+.dash-hero .chip-btn { background: var(--surface); border-color: var(--border-2); color: var(--text); }
+.dash-hero .chip-btn:hover { background: var(--surface-2); color: var(--text); }
+.dash-hero .chip-btn.is-active { background: var(--primary); border-color: var(--primary); color: var(--on-primary); }
+.dash-hero .chips .chip { background: var(--surface); border-color: var(--border-2); color: var(--text); }
+.dash-hero .chips .chip:hover { background: var(--surface-2); color: var(--accent); }
+.dash-hero .chips > span { color: var(--faint) !important; }
+.dash-hero .trust-strip { color: var(--muted); }
+.dash-hero .trust-strip li::before { color: var(--forest-ink); }
+.dash-hero .hero-clock { background: var(--surface); border-color: var(--border-2); color: var(--text); }
+.dash-hero .hero-clock span { color: var(--muted); }
+.dash-hero .example-prompts button { background: var(--surface); border-color: var(--border-2); color: var(--text); }
+.dash-hero .example-prompts button:hover { background: var(--surface-2); color: var(--accent); }
+
+/* ------------------------------------------------------------ depth row */
+
+/* The depth control is a row of three choices plus the meaning switch. Let it
+   stretch the width it has instead of huddling in the middle. */
+.dash-depth { width: 100%; justify-content: space-between; row-gap: 10px; }
+.depth { flex: 1 1 auto; }
+.dash-hero .dash-depth { justify-content: center; }
+@media (max-width: 700px) {
+  .dash-depth { justify-content: center; }
+}
+
+/* ------------------------------------------------------- topic breakdown */
+
+/* Each topic block opens short, with one control to read the whole section. */
+.topic-block .topic-short { margin: 0 0 10px; color: var(--text); font-size: 16px; line-height: 1.7; }
+.topic-block .topic-full[hidden] { display: none; }
+.topic-block .topic-more {
+  margin-top: 10px;
+  border: 1px solid var(--border-2);
+  background: var(--surface-2);
+  color: var(--copper-ink);
+  border-radius: 999px;
+  padding: 5px 13px;
+  font: inherit;
+  font-size: 12.5px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.topic-block .topic-more:hover { border-color: var(--accent); }
+.topic-block .topic-more::after { content: " ▾"; }
+.topic-block.is-open .topic-more::after { content: " ▴"; }
+.topic-block .topic-short strong { font-weight: 600; }
+
+/* --------------------------------------------------------------- feedback */
+
+/* The emoji feedback row on answers and articles. */
+.fb-btn { font-family: var(--font-body); font-size: 13.5px; color: var(--text); }
+.fb-emoji { font-family: var(--font-body); }
+
+/* --------------------------------------------------------- language bar */
+
+.langbar { border-radius: var(--radius); margin: 0 0 18px; border: 1px solid var(--border-2); }
+.langbar-inner { flex-wrap: wrap; gap: 8px; }
+.langbar .pill { cursor: pointer; }
+
+/* ------------------------------------------------------------ scope note */
+
+.scope-note {
+  border: 1px solid var(--border-2);
+  border-left: 3px solid var(--copper);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  color: var(--muted);
+  font-size: 13px;
+  max-width: var(--measure);
+}
+
+/* -------------------------------------------------------- article tables */
+
+.prose .table-scroll { margin: 18px 0; }
+.prose .table-scroll > table { margin: 0; border-collapse: collapse; font-size: 14px; }
+.prose .table-scroll th,
+.prose .table-scroll td { padding: 8px 12px; border: 1px solid var(--border-2); text-align: left; }
+.prose .table-scroll th { background: var(--surface-2); font-weight: 650; }
+
+/* ----------------------------------------------------------- feedback box */
+
+.feedback { margin: 26px 0 0; padding-top: 18px; border-top: 1px solid var(--border); }
+.feedback .panel-head { margin-bottom: 10px; }
+.feedback .fb-note textarea { font: inherit; font-size: 14.5px; border: 1px solid var(--border-2); border-radius: var(--radius-sm); background: var(--surface); color: var(--text); resize: vertical; }
+.btn-sm { padding: 8px 13px; font-size: 13.5px; }
+
+/* Keep the topbar tidy when the wrapped rows appear on a narrow screen. */
+.topbar-inner { row-gap: 6px; }
+
+/* ======================================================================
+   Reading views use the whole width
+   ======================================================================
+   An article is the point of the page, so the discover rail steps aside and
+   the reading column takes the space. On a laptop the article is then the
+   full width of the shell; on a phone it is the single column. */
+[data-view="article"] .app-rail,
+[data-view="library"] .app-rail,
+[data-view="work"] .app-rail,
+[data-view="ask"] .app-rail,
+[data-view="search"] .app-rail { display: none !important; }
+
+/* The design system hides the sidebar and collapses the shell to one column
+   below 1041px. The override has to follow the same breakpoint, or the
+   now-empty sidebar column eats the page on a tablet. */
+[data-view="article"] .app-shell,
+[data-view="article"] .app-shell:has(.app-rail:not(:empty)),
+[data-view="library"] .app-shell,
+[data-view="library"] .app-shell:has(.app-rail:not(:empty)),
+[data-view="work"] .app-shell,
+[data-view="work"] .app-shell:has(.app-rail:not(:empty)),
+[data-view="ask"] .app-shell,
+[data-view="ask"] .app-shell:has(.app-rail:not(:empty)),
+[data-view="search"] .app-shell,
+[data-view="search"] .app-shell:has(.app-rail:not(:empty)) { grid-template-columns: minmax(0, 1fr); }
+
+@media (min-width: 1041px) {
+  [data-view="article"] .app-shell,
+  [data-view="article"] .app-shell:has(.app-rail:not(:empty)),
+  [data-view="library"] .app-shell,
+  [data-view="library"] .app-shell:has(.app-rail:not(:empty)),
+  [data-view="work"] .app-shell,
+  [data-view="work"] .app-shell:has(.app-rail:not(:empty)),
+  [data-view="ask"] .app-shell,
+  [data-view="ask"] .app-shell:has(.app-rail:not(:empty)),
+  [data-view="search"] .app-shell,
+  [data-view="search"] .app-shell:has(.app-rail:not(:empty)) { grid-template-columns: 236px minmax(0, 1fr); }
+}
+
+[data-view="article"] .wrap { max-width: var(--maxw); }
+[data-view="article"] .panel .prose { max-width: 78ch; }.toc-jump {
+  border: 1px solid var(--border-2);
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+  box-shadow: var(--shadow);
+  padding: 16px 18px 18px;
+  margin: 0 0 22px;
+  max-height: 62vh;
+  overflow: auto;
+}
+.toc-jump[hidden] { display: none; }
+.toc-jump-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin-bottom: 12px; }
+.toc-jump-head h2 {
+  margin: 0; font-family: var(--font-body); font-size: 11.5px; font-weight: 600;
+  text-transform: uppercase; letter-spacing: 0.13em; color: var(--copper-ink);
+}
+.toc-jump-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 2px; }
+.toc-jump-list a {
+  display: flex; align-items: center; gap: 10px; padding: 8px 10px;
+  border-radius: var(--radius-xs); color: var(--text); font-size: 14.5px;
+}
+.toc-jump-list a:hover { background: var(--surface-2); text-decoration: none; }
+.toc-jump-list .topic-num { width: 22px; height: 22px; font-size: 11.5px; }
+
+/* --------------------------------------------------- pictures in topics */
+
+.topic-figure { margin: 0 0 12px; display: grid; gap: 6px; }
+.topic-figure img {
+  display: block; width: auto; max-width: 100%; max-height: 300px;
+  border-radius: var(--radius); border: 1px solid var(--border-2); background: var(--surface-2);
+}
+.topic-figure figcaption { font-size: 12.5px; color: var(--muted); line-height: 1.5; }
+
+/* ----------------------------------------------------------- library */
+
+.card-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.card-meta-extra { font-size: 11.5px; color: var(--faint); }
+.chip.is-active {
+  background: var(--primary); border-color: var(--primary); color: var(--on-primary); font-weight: 600;
+}
+.chip.is-active:hover { color: var(--on-primary); }
+
+/* ======================================================================
+   The article template the audit asks for
+   ====================================================================== */
+
+/* Breadcrumbs: Home > Source > Article. Real links, current page last. */
+.crumbs { margin: 0 0 14px; }
+.crumbs ol { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; list-style: none; margin: 0; padding: 0; font-size: 13px; }
+.crumbs li { display: flex; align-items: center; gap: 6px; color: var(--muted); }
+.crumbs li + li::before { content: "›"; color: var(--faint); }
+.crumbs a { color: var(--muted); }
+.crumbs a:hover { color: var(--accent); }
+.crumbs [aria-current="page"] { color: var(--text); font-weight: 600; }
+
+/* Reading measure for the breakdown: 65-85 characters a line, not 110. */
+.topic-block .topic-short p,
+.topic-block .topic-full p,
+.topic-block .topic-short,
+.topic-block .topic-full { max-width: 78ch; }
+.topic-block .line-list > li { max-width: 78ch; }
+
+/* Inline citation markers in the full article text. */
+.prose sup.cite a,
+.prose sup.reference a {
+  font-size: 0.72em; padding: 0 2px; color: var(--copper-ink); text-decoration: none;
+  font-variant-numeric: tabular-nums;
+}
+.prose sup.cite a:hover { text-decoration: underline; }
+
+/* The reference list. */
+.reference-list { counter-reset: ref; margin: 0; padding: 0; list-style: none; max-width: 82ch; }
+.reference-list li {
+  counter-increment: ref; position: relative; padding: 9px 0 9px 34px;
+  border-bottom: 1px solid var(--border); font-size: 13.5px; color: var(--muted);
+  overflow-wrap: break-word; scroll-margin-top: 90px;
+}
+.reference-list li::before {
+  content: "[" counter(ref) "]"; position: absolute; left: 0; top: 9px;
+  color: var(--copper-ink); font-variant-numeric: tabular-nums; font-weight: 600;
+}
+.reference-list li:target { background: color-mix(in srgb, var(--sage) 45%, transparent); border-radius: var(--radius-xs); }
+
+/* Per-image credit and licence inside a gallery caption. */
+
+/* The modification notice sits with the sources, not hidden in the footer. */
+.modification-notice { border-top: 1px dashed var(--border-2); padding-top: 10px; margin-top: 12px; }
+
+/* A long reference list should not push the page wide. */
+.references, .sec:has(.reference-list) { overflow-wrap: break-word; }
+
+/* ======================================================================
+   Contents with reading progress
+   ====================================================================== */
+
+.toc-jump-head h2 { margin: 0; }
+.toc-jump-meta { margin: 2px 0 0; font-size: 12.5px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.toc-jump-bar {
+  height: 3px; border-radius: 999px; background: var(--surface-2);
+  margin: 10px 0 12px; overflow: hidden;
+}
+.toc-jump-bar > span {
+  display: block; height: 100%; width: 0;
+  background: linear-gradient(90deg, var(--forest), var(--copper));
+  transition: width 220ms var(--ease);
+}
+@media (prefers-reduced-motion: reduce) { .toc-jump-bar > span { transition: none; } }
+
+.toc-jump-list a { position: relative; }
+.toc-mark {
+  width: 9px; height: 9px; border-radius: 50%; flex: 0 0 auto;
+  border: 1.5px solid var(--border-2); background: transparent;
+}
+.toc-jump-list .is-current { background: var(--surface-2); }
+.toc-jump-list .is-current .toc-mark { border-color: var(--copper); background: var(--copper); }
+.toc-jump-list .is-current .toc-label { font-weight: 600; }
+.toc-jump-list .is-read .toc-mark { border-color: var(--forest); background: var(--forest); }
+.toc-jump-list .is-read .toc-label { color: var(--muted); }
+.toc-jump-list .toc-label { min-width: 0; overflow-wrap: anywhere; }
+
+/* Anchored headings must clear the sticky header. */
+.topic-block, .prose h2, .prose h3, .sec[id] { scroll-margin-top: 84px; }
+
+/* ======================================================================
+   Interaction polish the guidelines call for
+   ====================================================================== */
+
+/* A visible focus ring, only for keyboard users. */
+:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+  border-radius: var(--radius-xs);
+}
+.topbar :focus-visible { outline-offset: -2px; }
+
+/* Comfortable hit targets, and no double-tap zoom on controls. */
+button, .btn, [role="button"], .tab, .chip, .depth-btn, .chip-btn {
+  touch-action: manipulation;
+  min-height: 40px;
+}
+.btn-icon, .btn-sm { min-height: 36px; min-width: 36px; }
+.toc-jump-list a, .side-link, .bottom-nav a { min-height: 40px; }
+
+/* iOS zooms the page when a focused input is under 16px. */
+@media (max-width: 700px) {
+  input, select, textarea, .searchbar textarea, .searchbar input { font-size: 16px; }
+}
+
+/* Tap highlight follows the design rather than the platform default. */
+* { -webkit-tap-highlight-color: rgba(180, 106, 69, 0.18); }
+
+/* ======================================================================
+   Evidence Desk: the composer, the shell, and calmer surfaces
+   ====================================================================== */
+
+.composer-label {
+  display: block; font-size: 12.5px; font-weight: 600; letter-spacing: 0.04em;
+  text-transform: uppercase; color: var(--muted); margin: 0 0 6px 2px;
+}
+.mode-help { margin: 8px 2px 0; font-size: 13px; color: var(--muted); }
+.composer-prompt { margin: 8px 2px 0; font-size: 13px; color: var(--danger); }
+.searchbar { flex-wrap: wrap; }
+.searchbar .composer-label { flex: 1 1 100%; }
+.searchbar .mode-help, .searchbar .composer-prompt { flex: 1 1 100%; }
+
+/* The mode control is a segmented choice, labelled in plain language. */
+.mode { background: var(--surface-2); border-radius: 999px; padding: 3px; display: inline-flex; gap: 2px; }
+.mode-btn { min-height: 34px; padding: 0 14px; border-radius: 999px; font-size: 13.5px; }
+
+/* Grouped sidebar: a heading per group, not one long list. */
+.side-heading {
+  margin: 16px 0 6px; padding: 0 12px; font-family: var(--font-body);
+  font-size: 11px; font-weight: 600; letter-spacing: 0.13em; text-transform: uppercase;
+  color: var(--copper-ink);
+}
+.side-heading:first-child { margin-top: 4px; }
+.side-note { margin: 8px 12px 4px; font-size: 12px; line-height: 1.5; color: var(--faint); }
+
+/* Four destinations on a phone, not five. */
+.bottom-nav { grid-template-columns: repeat(4, 1fr); }
+
+/* Ordinary reading sections use borders and contrast, not heavy shadows.
+   Shadows are reserved for menus and dialogs, which float above the page. */
+.sec:has(> .sec-head), .panel, .toc-jump { box-shadow: none; border: 1px solid var(--border-2); }
+.lang-menu, .suggest { box-shadow: var(--float-1); }
+
+/* Muted text and borders need to survive the contrast check. */
+:root { --muted: #4f554d; --faint: #545b52; }
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) { --muted: #a8b0a6; --faint: #9aa29a; }
+}
+[data-theme="dark"] { --muted: #a8b0a6; --faint: #9aa29a; }
+
+/* A calm reading measure for the answer, matching the article. */
+.qa-answer .line-list > li, .points-list .point-text { max-width: 72ch; }
+
+/* Small pieces the Evidence Desk additions need. */
+.lang-menu-title {
+  margin: 0 0 6px; padding: 4px 12px 0; font-size: 11px; font-weight: 600;
+  letter-spacing: 0.12em; text-transform: uppercase; color: var(--copper-ink);
+}
+.selected-note {
+  margin: 0 0 12px; font-size: 13px; color: var(--muted);
+  padding-left: 12px; border-left: 2px solid var(--copper);
+}
+.selected-note a { color: var(--copper-ink); font-weight: 600; }
+.method-summary { margin-left: auto; font-size: 12px; color: var(--faint); font-variant-numeric: tabular-nums; }
+.method-note > summary { display: flex; align-items: baseline; gap: 10px; }
+.error-query { font-size: 14px; color: var(--text); font-weight: 600; }
+.error-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 10px; }
+
+.foot-build { color: var(--faint); }
+
+/* ======================================================================
+   Contents in the side rail, and the article read as points
+   ====================================================================== */
+
+/* The rail sits at the top of the side and stays put while reading. */
+.toc-rail .toc-jump { position: sticky; top: 84px; }
+.toc-rail .toc-jump-list { max-height: min(62vh, 560px); overflow-y: auto; }
+.article-grid:not(.rail-open) > .toc-rail { display: none; }
+
+/* The article reads the way the breakdown reads: one point per sentence. */
+.points-prose { margin: 0 0 18px; padding-left: 22px; display: grid; gap: 8px; }
+.points-prose > li { line-height: 1.62; max-width: 72ch; }
+.points-prose > li::marker { color: var(--copper); }
+.prose .points-prose { margin-bottom: 20px; }
+
+/* Markdown actions stay out of the way until asked for. */
+.md-disclosure { position: relative; display: inline-block; }
+.md-disclosure-panel {
+  display: flex; gap: 8px; flex-wrap: wrap; margin-top: 8px;
+  padding: 10px; border: 1px solid var(--border-2); border-radius: var(--radius-sm);
+  background: var(--surface-2);
+}
+
+/* On a phone the rail becomes a block above the content, closed by default. */
+@media (max-width: 1039px) {
+  .article-grid { grid-template-columns: 1fr; }
+  .article-grid > .toc-rail { order: -1; }
+  .toc-rail .toc-jump { position: static; }
+  .toc-rail .toc-jump-list { max-height: 50vh; }
+}
+
+/* ======================================================================
+   Corrections: the focus ring, the rail, and the action row
+   ====================================================================== */
+
+/* `#main` is focused after every render so a screen reader starts at the top.
+   It is not a control, so it must not draw a focus ring — that ring was
+   drawing a box around the whole page. */
+#main:focus, #main:focus-visible, [tabindex="-1"]:focus-visible { outline: none; }
+
+/* One scroller in the rail, not two nested ones fighting over the Close
+   button. */
+.toc-rail .toc-jump {
+  position: sticky; top: 84px;
+  display: flex; flex-direction: column;
+  max-height: calc(100vh - 116px);
+  padding: 16px 16px 14px;
+}
+.toc-rail .toc-jump-head { flex: 0 0 auto; align-items: center; margin-bottom: 8px; }
+.toc-rail .toc-jump-head .btn { min-height: 32px; padding: 0 10px; font-size: 13px; }
+.toc-rail .toc-jump-bar { flex: 0 0 auto; margin: 8px 0 10px; }
+.toc-rail .toc-jump-list { flex: 1 1 auto; min-height: 0; overflow-y: auto; max-height: none; padding-right: 2px; }
+.toc-rail .toc-jump-list a { align-items: flex-start; padding: 7px 8px; font-size: 14px; }
+.toc-rail .toc-jump-list .toc-mark { margin-top: 6px; }
+.toc-rail .toc-jump-list .toc-label { min-width: 0; overflow-wrap: anywhere; }
+
+/* The rail itself, and the panel beside it. */
+.toc-rail { display: grid; gap: 16px; align-content: start; }
+.toc-rail > * { min-width: 0; }.md-disclosure { display: inline-flex; flex-direction: column; align-items: flex-start; }
+.md-disclosure-panel { margin-top: 6px; }
+
+/* Actions live in the rail, collapsed until asked for. */
+.rail-actions-body .btn { justify-content: flex-start; min-height: 40px; width: 100%; }
+.rail-actions-body .md-disclosure { width: 100%; }
+.rail-actions-body .md-disclosure > .btn { width: 100%; }
+.rail-actions-body .md-disclosure-panel { width: 100%; }
+.rail-actions-body .md-disclosure-panel .btn { width: auto; }
+
+/* Anchored targets must clear the sticky header when jumped to. */
+.topic-block, .prose h2, .prose h3, .prose h4, .sec[id], [id^="topic-"] { scroll-margin-top: 96px; }
+
+/* The reading views use the width the shell gives them. */
+[data-view="article"] #main, [data-view="ask"] #main, [data-view="search"] #main {
+  max-width: none; width: 100%;
+}
+.article-grid { grid-template-columns: minmax(0, 1fr) 320px; gap: 24px; align-items: start; }
+@media (min-width: 1560px) { .article-grid { grid-template-columns: minmax(0, 1fr) 360px; } }
+
+/* ======================================================================
+   The composer, the sidebar, and the width of the reading views
+   ====================================================================== */
+
+/* A composer reads top to bottom: label, the field, then the controls on one
+   line with the mode choice and the submit at the end. It was a wrapped flex
+   row, which put the controls in a different place on every page. */
+.searchbar:has(> .composer-tools) {
+  display: grid; grid-template-columns: minmax(0, 1fr); gap: 10px;
+  align-items: stretch; padding: 14px 16px 12px;
+}
+.searchbar:has(> .composer-tools) > .composer-label { grid-column: 1 / -1; margin: 0; }
+.searchbar:has(> .composer-tools) > textarea { width: 100%; min-height: 42px; }
+.searchbar:has(> .composer-tools) > .composer-tools {
+  display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin: 0;
+  justify-content: flex-start;
+}
+.searchbar:has(> .composer-tools) > .composer-tools > .mode { margin-left: auto; }
+.searchbar:has(> .composer-tools) > .composer-tools > .btn-icon { width: 40px; height: 40px; min-height: 40px; }
+.searchbar:has(> .composer-tools) > .composer-tools > button[type="submit"] { min-height: 40px; padding: 0 22px; }
+.searchbar:has(> .composer-tools) > .mode-help,
+.searchbar:has(> .composer-tools) > .composer-prompt { grid-column: 1 / -1; margin: 0; }
+
+/* One icon size in the sidebar, so the list reads as a list. */
+.side-link { gap: 10px; padding: 9px 12px; font-size: 14.5px; }
+.side-link > svg { width: 18px; height: 18px; flex: 0 0 auto; }
+
+/* The answer uses the width the shell gives it. */
+.wrap-narrow:has(.qa-wide), .qa-wide { max-width: none; width: 100%; }
+.qa-wide > .article-grid { width: 100%; }
+.article-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+
+/* The reading views carry their own contents rail, so the discovery rail
+   beside them would be a second column of noise — and it was squeezing the
+   answer to 900px. */
+[data-view="article"] .app-rail, [data-view="ask"] .app-rail, [data-view="search"] .app-rail { display: none; }
+
+/* The section number must not collide with the label it belongs to. */
+.toc-jump-list .topic-num { width: auto; min-width: 26px; padding: 0 5px; }
+.toc-jump-list a > .topic-num { flex: 0 0 auto; }
+.toc-jump-list .toc-label { flex: 1 1 auto; }
+
+/* ======================================================================
+   The composer: the suggestion list, and the field's height
+   ====================================================================== */
+
+/* The glass shell carries `contain: layout style paint`, and `paint` clips a
+   child to the shell's own box. The suggestion list is a child of the
+   composer that opens *below* it, so it was being clipped away — typing
+   looked like nothing was happening. Drop containment on the composer only. */
+.searchbar.glass { contain: none; }
+
+/* The suggestion list needs to sit above the answer beneath it. */
+.searchbar .suggest { z-index: 80; }
+
+/* An empty field must show its whole placeholder. It wraps to two lines on a
+   phone, and the textarea was staying one line tall, so the second line was
+   cut in half — the "squashed" search bar. */
+@media (max-width: 700px) {
+  .searchbar:has(> .composer-tools) > textarea { min-height: 54px; }
+}
+
+/* ======================================================================
+   The article reads across the whole width, contents at the top
+   ======================================================================
+   The reader asked for two things: the article should use the width the
+   site has, not a narrow column squeezed beside a rail; and the contents
+   ("jump to a section") should sit at the top, not down the side. So the
+   side rail is gone from the reading views, the contents panel opens above
+   the answer, and every control is one row. */
+
+.panel-wide { max-width: none; width: 100%; }
+.panel-wide .prose,
+.panel-wide .topic-block .topic-short,
+.panel-wide .topic-block .topic-full,
+.panel-wide .topic-block .line-list > li { max-width: 88ch; }
+
+/* The contents panel, above the answer, closed until asked for. */
+.toc-top { margin: 0 0 20px; }
+.toc-top[hidden] { display: none; }
+.toc-top .toc-jump { position: static; max-height: min(64vh, 620px); overflow: auto; }
+
+/* One row of controls, all on the same line. The Markdown disclosure opens
+   as a floating panel so it cannot push its neighbours out of line — that
+   ragged row was the "scattered" look. */
+.art-actions { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; margin: 0 0 16px; }
+.art-actions > .btn, .art-actions > .md-disclosure > .btn { min-height: 40px; height: 40px; white-space: nowrap; }
+.art-actions .md-disclosure { position: relative; }
+.art-actions .md-disclosure-panel {
+  position: absolute; top: calc(100% + 6px); left: 0; z-index: 90;
+  margin-top: 0; min-width: 220px;
+}
+
+/* The contents button in the header should not look active when there is
+   nothing to show. */
+#tocBtn[aria-expanded="true"] { border-color: var(--accent); color: var(--copper-ink); }
+
+/* The reading views use the site's width. */
+[data-view="article"] .wrap, [data-view="ask"] .wrap { max-width: var(--maxw); }
+
+/* The base .article-grid rule used to come after the phone rule below, so a
+   phone kept the two-column layout and the answer was squeezed into a sliver.
+   Keep the stacking rule last, where it wins. */
+@media (max-width: 1039px) {
+  .article-grid { grid-template-columns: minmax(0, 1fr); }
+}
+
+/* The Markdown actions panel is hidden with the `hidden` attribute, but the
+   panel's own `display: flex` outranks the browser's [hidden] rule, so it was
+   showing all the time. Once the panel left the collapsed rail and joined the
+   top row, that became visible. Pin it. */
+.md-disclosure-panel[hidden] { display: none; }
+
+/* ======================================================================
+   The article as points
+   ======================================================================
+   The reader wanted the article to read the way the core answer reads —
+   one sentence, one point — not like a Wikipedia page and not as a separate
+   "breakdown" of collapsed topic boxes. So each section is a heading and the
+   same .line-list the core answer uses. */
+
+.point-block { margin: 0 0 24px; scroll-margin-top: 96px; }
+.point-block-head {
+  display: flex; align-items: baseline; gap: 10px; margin: 0 0 10px;
+  font-family: var(--font-head); font-weight: 600; font-size: 19px; line-height: 1.25;
+}
+.point-block-head .topic-num {
+  font-family: var(--font-body); font-size: 12px; font-weight: 600;
+  color: var(--copper-ink); min-width: 1.4em; font-variant-numeric: tabular-nums;
+}
+.point-block .line-list { margin: 0; }
+.point-block .line-list > li { max-width: 88ch; }
+
+/* ======================================================================
+   The article is one centred column
+   ======================================================================
+   The reader asked for the article to sit centred, with the pictures centred
+   in it, and the whole thing to read as one ordered column. The reading
+   column is centred in the shell and the gallery is centred inside it. */
+
+.panel-wide { max-width: 900px; margin-inline: auto; }
+.panel-wide .gallery { justify-content: center; }
+.panel-wide .gallery figure,
+.panel-wide .art-figure,
+.panel-wide .topic-figure { margin-inline: auto; text-align: center; }
+.panel-wide figure img,
+.panel-wide .gallery img,
+.panel-wide .art-figure img { margin-inline: auto; }
+
+/* The tabs and the top controls line up on the same centred axis. */
+[data-view="article"] .tabs { justify-content: center; }
+
+/* One aligned column: the heading, the controls, the tabs and the article all
+   sit on the same centred axis, instead of a wide head above a narrow body. */
+[data-view="article"] .wrap { max-width: 940px; }
+.panel-wide { max-width: none; }
+
+/* ======================================================================
+   The article keeps Wikipedia's structure, read as points
+   ======================================================================
+   Sections, pictures and tables stay where Wikipedia puts them; each
+   paragraph is re-read as one point per sentence; and the pictures are
+   centred in the column. */
+
+.art-section { margin: 0 0 26px; scroll-margin-top: 96px; }
+.art-section-head {
+  display: flex; align-items: baseline; gap: 10px; margin: 0 0 12px;
+  font-family: var(--font-head); font-weight: 600; font-size: 22px; line-height: 1.25;
+}
+.art-section-head .topic-num {
+  font-family: var(--font-body); font-size: 12px; font-weight: 600;
+  color: var(--copper-ink); min-width: 1.4em; font-variant-numeric: tabular-nums;
+}
+
+/* Pictures and tables: no floats, centred, never wider than the column. */
+.art-body .thumb, .art-body figure, .art-body .gallery,
+.art-body .thumbinner, .art-body .floatright, .art-body .floatleft, .art-body .tright, .art-body .tleft {
+  float: none !important; margin-inline: auto !important; max-width: 100% !important; text-align: center;
+}
+.art-body img { max-width: 100%; height: auto; margin-inline: auto; }
+.art-body .thumbcaption, .art-body figcaption { text-align: center; }
+.art-body .table-scroll { margin: 18px auto; }
+
+/* ======================================================================
+   The article spreads across the width, with no side panel
+   ======================================================================
+   The reader asked for the article to spread out the way the core answer
+   does, and for the left-hand panel to be gone — the contents is the
+   "Jump to a section" button at the top instead. */
+
+[data-view="article"] .wrap { max-width: none; }
+.panel-wide .line-list > li,
+.art-body > p,
+.art-body > ul > li { max-width: 104ch; }
+
+/* No side navigation on the article: the header still carries the
+   destinations, and the contents is the button at the top. */
+[data-view="article"] .app-side { display: none !important; }
+[data-view="article"] .app-shell,
+[data-view="article"] .app-shell:has(.app-rail:not(:empty)) { grid-template-columns: minmax(0, 1fr); }
+
+/* ======================================================================
+   Veridell v5 — "Morphisms"
+   ======================================================================
+   Not one style painted over everything. Each morphism is given the job
+   it is actually good at, and only that job — which is the rule the
+   design references all agree on: one base material per surface, never a
+   different style on every card.
+
+   The system, surface by surface:
+
+     · AURORA / MESH  — the background. A slow, soft colour field behind
+       the page so the glass layer above it has something to refract.
+
+     · SKELETON PAPER — grain and a faint paper tooth under the reading
+       surfaces, so long prose sits on something that feels like a page.
+
+     · LIQUID GLASS (glassmorphism, navigation layer only) — the top bar,
+       the side rail, the bottom dock, and every floating overlay (the
+       suggestion list, the language menu, the toast). Apple's guidance is
+       explicit that the glass material belongs to the functional layer
+       that floats above content, never to the content cards themselves,
+       and that glass is never stacked on glass. That is how it is used
+       here: translucent, blurred, saturating, with one hairline highlight
+       along the top edge and a deep, soft shadow beneath.
+
+     · CLAYMORPHISM — the content layer: every card, panel, article
+       surface and the hero. Inflated soft-3D shapes: big radii, a light
+       inner shadow top-left, a darker one bottom-right, a soft drop, and
+       a gentle gradient across the face for volume.
+
+     · NEUMORPHISM — the controls that should feel pressed rather than
+       raised: text fields, the segmented switches, tabs and the active
+       state of a control. Used only there, and always with a visible
+       border, because neumorphism on its own cannot clear the 3:1
+       non-text contrast a control edge needs.
+
+     · BENTO — the layout of the dashboard bands and the category grid:
+       tiles of two sizes that lock together, one idea per tile.
+
+     · MICRO-INTERACTION — a lift, a squish, a specular sweep. Never the
+       only signal for a state.
+
+   Accessibility is a floor, not a finish: text 4.5:1, control edges 3:1,
+   a visible focus ring in the brand's ink, and real fallbacks for
+   reduced motion, reduced transparency, increased contrast and print.
+   ====================================================================== */
+
+:root {
+  --ease-out: cubic-bezier(.22, .68, .3, 1);
+  --focus: var(--copper-ink);
+
+  /* ---------------------------------------------------- clay (content) */
+  --clay-r: 26px;
+  --clay-r-lg: 34px;
+  --clay-r-sm: 16px;
+  --clay-r-pill: 999px;
+
+  --clay-face: linear-gradient(145deg,
+      color-mix(in srgb, var(--surface) 100%, #ffffff 8%),
+      color-mix(in srgb, var(--surface) 94%, var(--sand)));
+  --clay-hi: inset 6px 6px 12px color-mix(in srgb, #ffffff 92%, transparent);
+  --clay-lo: inset -7px -7px 14px color-mix(in srgb, var(--forest) 13%, transparent);
+  --clay-drop: 0 22px 40px -22px color-mix(in srgb, var(--forest) 46%, transparent),
+               0 8px 16px -12px color-mix(in srgb, var(--forest) 30%, transparent);
+
+  --clay-press-hi: inset -5px -5px 10px color-mix(in srgb, #ffffff 70%, transparent);
+  --clay-press-lo: inset 6px 6px 12px color-mix(in srgb, var(--forest) 20%, transparent);
+
+  --clay-cta: linear-gradient(145deg,
+      color-mix(in srgb, var(--copper) 92%, #ffffff), var(--copper-deep));
+  --clay-cta-hi: inset 6px 6px 13px color-mix(in srgb, #ffffff 40%, transparent);
+  --clay-cta-lo: inset -7px -7px 14px color-mix(in srgb, #000000 26%, transparent);
+  --clay-cta-drop: 0 20px 34px -20px color-mix(in srgb, var(--copper-deep) 80%, transparent);
+
+  /* --------------------------------------- liquid glass (navigation) */
+  --glass-bg: color-mix(in srgb, var(--surface) 60%, transparent);
+  --glass-bg-strong: color-mix(in srgb, var(--surface) 82%, transparent);
+  --glass-line: color-mix(in srgb, #ffffff 62%, transparent);
+  --glass-hi: inset 0 1px 0 color-mix(in srgb, #ffffff 55%, transparent);
+  --glass-drop: 0 18px 44px -24px color-mix(in srgb, var(--forest) 62%, transparent),
+                0 6px 16px -12px color-mix(in srgb, var(--forest) 34%, transparent);
+  --glass-blur: 22px;
+  --glass-sat: 1.6;
+
+  /* ------------------------------------- neumorphism (pressed controls) */
+  --neo-face: linear-gradient(145deg,
+      color-mix(in srgb, var(--surface) 88%, var(--bg)),
+      color-mix(in srgb, var(--surface) 97%, #ffffff));
+  --neo-in: inset 5px 5px 11px color-mix(in srgb, var(--forest) 16%, transparent),
+            inset -5px -5px 11px color-mix(in srgb, #ffffff 92%, transparent);
+  --neo-edge: color-mix(in srgb, var(--border-2) 92%, var(--forest));
+
+  /* --------------------------------------------------- paper (prose) */
+  --paper-tooth: radial-gradient(color-mix(in srgb, var(--forest) 7%, transparent) .5px, transparent .6px);
+  --paper-bg: color-mix(in srgb, var(--surface) 97%, var(--sand));
+}
+
+[data-theme="dark"] {
+  --focus: var(--sage);
+
+  --clay-face: linear-gradient(145deg,
+      color-mix(in srgb, var(--surface) 100%, #ffffff 6%),
+      color-mix(in srgb, var(--surface) 88%, #000000));
+  --clay-hi: inset 6px 6px 14px color-mix(in srgb, #ffffff 7%, transparent);
+  --clay-lo: inset -7px -7px 16px color-mix(in srgb, #000000 55%, transparent);
+  --clay-drop: 0 26px 46px -24px rgba(0, 0, 0, .92), 0 10px 20px -14px rgba(0, 0, 0, .72);
+
+  --clay-press-hi: inset -5px -5px 10px color-mix(in srgb, #ffffff 5%, transparent);
+  --clay-press-lo: inset 6px 6px 12px color-mix(in srgb, #000000 60%, transparent);
+
+  --clay-cta: linear-gradient(145deg,
+      color-mix(in srgb, var(--accent) 92%, #ffffff),
+      color-mix(in srgb, var(--accent) 60%, #000000));
+  --clay-cta-drop: 0 22px 38px -20px color-mix(in srgb, #000000 85%, transparent);
+
+  --glass-bg: color-mix(in srgb, var(--surface) 52%, transparent);
+  --glass-bg-strong: color-mix(in srgb, var(--surface) 86%, transparent);
+  --glass-line: color-mix(in srgb, #ffffff 16%, transparent);
+  --glass-hi: inset 0 1px 0 color-mix(in srgb, #ffffff 12%, transparent);
+  --glass-drop: 0 20px 48px -24px rgba(0, 0, 0, .95), 0 8px 18px -12px rgba(0, 0, 0, .8);
+
+  --neo-face: linear-gradient(145deg,
+      color-mix(in srgb, var(--surface) 82%, #000000),
+      color-mix(in srgb, var(--surface) 100%, #ffffff 4%));
+  --neo-in: inset 5px 5px 12px color-mix(in srgb, #000000 62%, transparent),
+            inset -5px -5px 12px color-mix(in srgb, #ffffff 6%, transparent);
+  --neo-edge: color-mix(in srgb, var(--border-2) 86%, #ffffff);
+
+  --paper-tooth: radial-gradient(color-mix(in srgb, #ffffff 4%, transparent) .5px, transparent .6px);
+  --paper-bg: color-mix(in srgb, var(--surface) 96%, #000000);
+}
+
+[data-theme="sepia"] {
+  --clay-face: linear-gradient(145deg, #faf3e2, #e9dcbd);
+  --clay-hi: inset 6px 6px 12px rgba(255, 255, 255, .9);
+  --clay-lo: inset -7px -7px 14px rgba(120, 96, 60, .16);
+  --clay-drop: 0 22px 40px -22px rgba(120, 96, 60, .5), 0 8px 16px -12px rgba(120, 96, 60, .3);
+  --glass-bg: color-mix(in srgb, var(--surface) 66%, transparent);
+  --glass-line: rgba(255, 255, 255, .7);
+  --paper-bg: #f6ecd7;
+}
+
+/* ======================================================================
+   1 · AURORA — the background
+   ====================================================================== */
+
+body::before {
+  background:
+    radial-gradient(60vw 46vw at 12% -10%, color-mix(in srgb, var(--sage) 38%, transparent), transparent 66%),
+    radial-gradient(52vw 40vw at 100% 4%, color-mix(in srgb, var(--copper) 20%, transparent), transparent 62%),
+    radial-gradient(70vw 50vw at 50% 112%, color-mix(in srgb, var(--forest) 12%, transparent), transparent 70%);
+  filter: blur(10px);
+  animation: auroraDrift 48s var(--ease-out) infinite alternate;
+}
+@keyframes auroraDrift {
+  0%   { transform: translate3d(0, 0, 0) scale(1); }
+  100% { transform: translate3d(1.6%, -1.4%, 0) scale(1.05); }
+}
+body::after { opacity: 0; }   /* the old grid belongs to the glass era */
+.grain { opacity: .14; }
+[data-theme="dark"] .grain { opacity: .08; }
+
+::selection { background: color-mix(in srgb, var(--copper) 32%, transparent); color: var(--text); }
+
+* { scrollbar-width: thin; scrollbar-color: color-mix(in srgb, var(--copper) 45%, var(--border-2)) transparent; }
+::-webkit-scrollbar { width: 12px; height: 12px; }
+::-webkit-scrollbar-thumb {
+  background: color-mix(in srgb, var(--copper) 38%, var(--border-2));
+  border: 3px solid transparent; border-radius: 999px; background-clip: padding-box;
+}
+
+/* ======================================================================
+   2 · LIQUID GLASS — the navigation layer
+   ======================================================================
+   Glass is used only for chrome that floats above content. Everything is
+   translucent, blurred and slightly over-saturated, with a single bright
+   hairline on the top edge — the tell that makes it read as a sheet of
+   material rather than a grey box. */
+
+.topbar { background: transparent; border-bottom: 0; box-shadow: none; padding-top: 12px; }
+
+.topbar-inner {
+  background: var(--glass-bg);
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-sat));
+  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-sat));
+  border: 1px solid var(--glass-line);
+  border-radius: var(--clay-r-pill);
+  box-shadow: var(--glass-hi), var(--glass-drop);
+  padding: 9px 14px;
+}
+
+.app-side {
+  background: var(--glass-bg);
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-sat));
+  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-sat));
+  border: 1px solid var(--glass-line);
+  border-radius: var(--clay-r-lg);
+  box-shadow: var(--glass-hi), var(--glass-drop);
+}
+
+.bottom-nav, .bottom-nav.glass {
+  background: var(--glass-bg-strong);
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-sat));
+  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-sat));
+  border: 1px solid var(--glass-line);
+  box-shadow: var(--glass-hi), 0 -10px 34px -20px color-mix(in srgb, var(--forest) 55%, transparent), var(--glass-drop);
+}
+
+.suggest, .lang-menu, .toast {
+  background: var(--glass-bg-strong);
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-sat));
+  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-sat));
+  border: 1px solid var(--glass-line);
+  border-radius: var(--clay-r);
+  box-shadow: var(--glass-hi), var(--glass-drop);
+}
+.suggest-item:hover, .suggest-item.active, .lang-menu-item:hover { background: color-mix(in srgb, var(--surface) 70%, transparent); }
+.lang-menu-item.is-active { background: var(--clay-cta); color: #fff; }
+[data-theme="dark"] .lang-menu-item.is-active { background: var(--clay-cta); color: var(--on-primary); }
+.lang-menu-item.is-active::after { color: inherit; }
+
+/* The nav links themselves stay flat and legible — glass is the sheet,
+   not every word on it. */
+.topnav a { border-radius: var(--clay-r-pill); transition: background-color .2s var(--ease-out), color .2s var(--ease-out), box-shadow .2s var(--ease-out); }
+.topnav a:hover { background: color-mix(in srgb, var(--surface) 62%, transparent); }
+.topnav a[aria-current="page"] {
+  color: var(--text);
+  background: color-mix(in srgb, var(--surface) 72%, transparent);
+  box-shadow: inset 0 0 0 1px var(--glass-line);
+}
+.side-link { border-radius: 14px; transition: background-color .2s var(--ease-out), box-shadow .2s var(--ease-out), color .2s var(--ease-out); }
+.side-link:hover { background: color-mix(in srgb, var(--surface) 58%, transparent); }
+.side-link[aria-current="page"] {
+  background: color-mix(in srgb, var(--surface) 74%, transparent);
+  color: var(--text);
+  box-shadow: inset 0 0 0 1px var(--glass-line);
+}
+.side-heading { color: var(--copper-ink); }
+.bottom-nav a[aria-current="page"] { color: var(--copper-ink); }
+
+/* A browser without backdrop-filter gets an opaque sheet, not a mess. */
+@supports not ((backdrop-filter: blur(2px)) or (-webkit-backdrop-filter: blur(2px))) {
+  .topbar-inner, .app-side, .bottom-nav, .suggest, .lang-menu, .toast {
+    background: var(--surface);
+  }
+}
+
+/* ======================================================================
+   3 · CLAYMORPHISM — the content layer
+   ====================================================================== */
+
+.panel, .answer-card, .sec:has(> .sec-head), .source-card, .page,
+.src-group, .topic-block, .factbox, .toc, .toc-jump, .rail-card,
+.howstep, .ask-note, .method-note, .langbar, .aotd, .evidence,
+.scope-note, .saved-item, .state, .error-box, .md-raw, .rail-actions,
+.article-grid .panel {
+  background: var(--clay-face);
+  border: 0;
+  border-radius: var(--clay-r-lg);
+  box-shadow: var(--clay-hi), var(--clay-lo), var(--clay-drop);
+}
+
+.panel::before, .answer-card::before, .sec:has(> .sec-head)::before,
+.src-group::before, .topic-block::before, .page::before {
+  content: ""; position: absolute; inset: 0 0 auto; height: 6px; border-radius: var(--clay-r-lg) var(--clay-r-lg) 0 0;
+  background: linear-gradient(90deg, var(--forest), var(--accent-2) 45%, var(--copper));
+  opacity: .9;
+}
+
+.card, .q-card, .cat-card, .dash-action, .topic-card, .howstep {
+  background: var(--clay-face);
+  border: 0;
+  border-radius: var(--clay-r);
+  box-shadow: var(--clay-hi), var(--clay-lo), var(--clay-drop);
+  transition: transform .3s var(--ease-out), box-shadow .3s var(--ease-out);
+}
+.card:hover, .q-card:hover, .cat-card:hover, .dash-action:hover,
+.topic-card:hover, .howstep:hover {
+  transform: translateY(-5px);
+  box-shadow: var(--clay-hi), var(--clay-lo),
+              0 30px 52px -24px color-mix(in srgb, var(--forest) 55%, transparent),
+              0 12px 22px -14px color-mix(in srgb, var(--copper) 45%, transparent);
+}
+.card-thumb, .q-thumb { background: color-mix(in srgb, var(--surface-2) 92%, var(--sand)); }
+.card-thumb.placeholder { box-shadow: var(--neo-in); border-radius: 0; }
+
+.cat-card .ic, .dash-action .ic, .topic-card .ic, .feature .ic,
+.site-intro .intro-card .ic {
+  background: var(--clay-face);
+  border-radius: 14px;
+  box-shadow: inset 3px 3px 6px color-mix(in srgb, #ffffff 85%, transparent),
+              inset -4px -4px 8px color-mix(in srgb, var(--forest) 12%, transparent),
+              0 8px 14px -10px color-mix(in srgb, var(--forest) 45%, transparent);
+  color: var(--copper-ink);
+}
+[data-theme="dark"] .cat-card .ic, [data-theme="dark"] .dash-action .ic,
+[data-theme="dark"] .topic-card .ic, [data-theme="dark"] .feature .ic {
+  box-shadow: inset 3px 3px 6px color-mix(in srgb, #ffffff 6%, transparent),
+              inset -4px -4px 8px color-mix(in srgb, #000000 55%, transparent),
+              0 8px 14px -10px rgba(0, 0, 0, .8);
+}
+
+/* ======================================================================
+   4 · CONTROLS — clay when raised, neumorphic when pressed
+   ====================================================================== */
+
+.btn {
+  border: 1px solid color-mix(in srgb, var(--border-2) 55%, transparent);
+  border-radius: var(--clay-r-pill);
+  background: var(--clay-face);
+  color: var(--text);
+  box-shadow: var(--clay-hi), var(--clay-lo), var(--clay-drop);
+  transition: transform .18s var(--ease-out), box-shadow .18s var(--ease-out), background-color .18s var(--ease-out);
+}
+.btn:hover { transform: translateY(-2px); }
+.btn:active {
+  transform: translateY(1px) scale(.97);
+  box-shadow: var(--clay-press-hi), var(--clay-press-lo), 0 6px 12px -10px color-mix(in srgb, var(--forest) 50%, transparent);
+}
+
+/* The primary action is the one deeply-tinted piece of clay, with a
+   specular sweep on hover so it reads as the loudest thing on the page. */
+.btn-primary, .btn-primary:hover {
+  background-image: var(--clay-cta),
+    linear-gradient(115deg, transparent 38%, color-mix(in srgb, #ffffff 34%, transparent) 50%, transparent 62%);
+  background-size: 100% 100%, 240% 100%;
+  background-position: 0 0, 130% 0;
+  border-color: transparent;
+  color: #fff;
+  box-shadow: var(--clay-cta-hi), var(--clay-cta-lo), var(--clay-cta-drop);
+  transition: background-position .7s var(--ease-out), filter .18s var(--ease-out),
+              transform .18s var(--ease-out), box-shadow .18s var(--ease-out);
+}
+.btn-primary:hover { background-position: 0 0, -30% 0; filter: brightness(1.04); }
+[data-theme="dark"] .btn-primary, [data-theme="dark"] .btn-primary:hover {
+  background-image: var(--clay-cta),
+    linear-gradient(115deg, transparent 38%, color-mix(in srgb, #ffffff 30%, transparent) 50%, transparent 62%);
+  background-size: 100% 100%, 240% 100%;
+  color: var(--on-primary);
+  box-shadow: var(--clay-cta-hi), var(--clay-cta-lo), var(--clay-cta-drop);
+}
+.btn-primary:active { box-shadow: var(--clay-press-hi), var(--clay-press-lo), var(--clay-cta-drop); }
+.btn-ghost { background: var(--clay-face); }
+.btn-icon { border-radius: 50%; }
+
+/* Small clay blobs: chips, pills, badges. Each keeps a border so its edge
+   clears the contrast a control needs. */
+.chip, .pill, .depth-btn, .chip-btn, .example-prompts button, .sc-kind,
+.badge, .saved-del, .btn-sm {
+  border: 1px solid color-mix(in srgb, var(--border-2) 62%, transparent);
+  background: var(--clay-face);
+  border-radius: var(--clay-r-pill);
+  box-shadow: inset 3px 3px 7px color-mix(in srgb, #ffffff 80%, transparent),
+              inset -4px -4px 8px color-mix(in srgb, var(--forest) 11%, transparent),
+              0 8px 15px -12px color-mix(in srgb, var(--forest) 45%, transparent);
+  transition: transform .18s var(--ease-out), box-shadow .18s var(--ease-out), border-color .18s var(--ease-out);
+}
+[data-theme="dark"] .chip, [data-theme="dark"] .pill, [data-theme="dark"] .depth-btn,
+[data-theme="dark"] .chip-btn, [data-theme="dark"] .example-prompts button,
+[data-theme="dark"] .badge {
+  box-shadow: inset 3px 3px 7px color-mix(in srgb, #ffffff 6%, transparent),
+              inset -4px -4px 8px color-mix(in srgb, #000000 55%, transparent),
+              0 8px 15px -12px rgba(0, 0, 0, .8);
+}
+.chip:hover, .pill:hover, .depth-btn:hover, .chip-btn:hover, .example-prompts button:hover { transform: translateY(-2px); border-color: var(--glass-line); }
+.chip:active, .pill:active, .depth-btn:active, .chip-btn:active, .example-prompts button:active { transform: translateY(1px) scale(.97); }
+
+/* An active control is pressed *into* the surface — neumorphism's one job. */
+.depth-btn.is-active, .chip-btn.is-active, .chip.is-active,
+.dash-hero .depth-btn[aria-pressed="true"], .dash-hero .chip-btn.is-active,
+.mode-btn.is-active, .tab[aria-selected="true"], .tab.is-active,
+.toc a.active {
+  background: var(--clay-cta);
+  color: #fff;
+  border-color: transparent;
+  box-shadow: inset 4px 4px 9px color-mix(in srgb, #000000 24%, transparent),
+              inset -4px -4px 9px color-mix(in srgb, #ffffff 22%, transparent);
+}
+[data-theme="dark"] .depth-btn.is-active, [data-theme="dark"] .chip-btn.is-active,
+[data-theme="dark"] .mode-btn.is-active, [data-theme="dark"] .dash-hero .depth-btn[aria-pressed="true"],
+[data-theme="dark"] .toc a.active { background: var(--clay-cta); color: var(--on-primary); }
+.badge { color: var(--copper-ink); }
+.badge.accent, .badge.accent:hover { background: var(--clay-cta); color: #fff; border-color: transparent; box-shadow: var(--clay-cta-hi), var(--clay-cta-lo), var(--clay-cta-drop); }
+[data-theme="dark"] .badge { color: var(--sage); }
+
+/* Fields are pressed in, not raised, and keep a visible edge. */
+.searchbar, .composer .searchbar, .select, .langbar select,
+form.panel .searchbar, form.panel .select, .feedback .fb-note textarea,
+.langbar-inner input#langSelect {
+  background: var(--neo-face);
+  border: 1px solid var(--neo-edge);
+  border-radius: var(--clay-r);
+  box-shadow: var(--neo-in);
+  transition: box-shadow .24s var(--ease-out), border-color .24s var(--ease-out);
+}
+.searchbar:focus-within, .composer .searchbar:focus-within,
+.select:focus, .langbar select:focus,
+form.panel .searchbar:focus-within, .feedback .fb-note textarea:focus {
+  border-color: var(--copper);
+  box-shadow: var(--neo-in), 0 0 0 3px color-mix(in srgb, var(--copper) 30%, transparent);
+}
+
+/* Segmented controls: a pressed track with a raised thumb. */
+.mode, .tabs { background: var(--neo-face); border: 1px solid var(--neo-edge); box-shadow: var(--neo-in); border-radius: var(--clay-r-pill); }
+.tabs { padding: 5px; }
+.mode { padding: 4px; }
+.mode-btn { border-radius: var(--clay-r-pill); }
+.tab { border-radius: var(--clay-r-pill); }
+
+/* ======================================================================
+   5 · HERO — clay card, aurora pebbles, gradient headline
+   ====================================================================== */
+
+.dash-hero {
+  position: relative;
+  background: var(--clay-face);
+  border: 0;
+  border-radius: var(--clay-r-lg);
+  box-shadow: var(--clay-hi), var(--clay-lo), var(--clay-drop);
+}
+.dash-hero::after { display: none; }
+.dash-hero .searchbar, .dash-hero-ask .searchbar {
+  background: var(--neo-face);
+  border: 1px solid var(--neo-edge);
+  box-shadow: var(--neo-in);
+}
+.dash-hero .depth-btn, .dash-hero .chip-btn, .dash-hero .chips .chip,
+.dash-hero .example-prompts button {
+  background: var(--clay-face);
+  border: 1px solid color-mix(in srgb, var(--border-2) 62%, transparent);
+  color: var(--text);
+  box-shadow: inset 3px 3px 7px color-mix(in srgb, #ffffff 80%, transparent),
+              inset -4px -4px 8px color-mix(in srgb, var(--forest) 11%, transparent);
+}
+[data-theme="dark"] .dash-hero .depth-btn, [data-theme="dark"] .dash-hero .chip-btn,
+[data-theme="dark"] .dash-hero .chips .chip, [data-theme="dark"] .dash-hero .example-prompts button {
+  box-shadow: inset 3px 3px 7px color-mix(in srgb, #ffffff 6%, transparent),
+              inset -4px -4px 8px color-mix(in srgb, #000000 55%, transparent);
+}
+.dash-hero .depth-btn:hover, .dash-hero .chip-btn:hover, .dash-hero .chips .chip:hover,
+.dash-hero .example-prompts button:hover { background: var(--clay-face); color: var(--copper-ink); border-color: var(--glass-line); }
+.dash-hero .depth-btn[aria-pressed="true"], .dash-hero .depth-btn.is-active,
+.dash-hero .chip-btn.is-active, .dash-hero .mode-btn.is-active {
+  background: var(--clay-cta); border-color: transparent; color: #fff;
+  box-shadow: inset 4px 4px 9px color-mix(in srgb, #000000 22%, transparent),
+              inset -4px -4px 9px color-mix(in srgb, #ffffff 22%, transparent);
+}
+.dash-hero .mode { background: var(--neo-face); box-shadow: var(--neo-in); border: 1px solid var(--neo-edge); }
+.dash-hero .trust-strip li::before { color: var(--copper-ink); }
+
+/* Two small clay pebbles, low-contrast, tucked into the corners. */
+.dash-hero::before {
+  content: ""; position: absolute; z-index: -1; border-radius: 50%; pointer-events: none;
+  width: 132px; height: 132px; top: -46px; left: -58px;
+  filter: blur(1.5px); opacity: .55;
+  background: radial-gradient(circle at 32% 28%, color-mix(in srgb, var(--sage) 96%, #fff), color-mix(in srgb, var(--sage) 68%, var(--forest)));
+  box-shadow: inset 8px 8px 18px color-mix(in srgb, #ffffff 40%, transparent),
+              inset -10px -10px 22px color-mix(in srgb, #000000 16%, transparent),
+              0 26px 44px -30px color-mix(in srgb, var(--forest) 55%, transparent);
+}
+[data-theme="dark"] .dash-hero::before { opacity: .3; }
+
+.dash-hero-badge {
+  background: var(--clay-face);
+  border: 1px solid color-mix(in srgb, var(--border-2) 50%, transparent);
+  box-shadow: inset 3px 3px 7px color-mix(in srgb, #ffffff 80%, transparent),
+              inset -4px -4px 8px color-mix(in srgb, var(--forest) 11%, transparent);
+}
+[data-theme="dark"] .dash-hero-badge { box-shadow: inset 3px 3px 7px color-mix(in srgb, #ffffff 6%, transparent), inset -4px -4px 8px color-mix(in srgb, #000000 55%, transparent); }
+
+.dash-hero h1 .dash-grad {
+  background: linear-gradient(120deg, var(--forest) 0%, var(--accent-2) 44%, var(--copper) 100%);
+  -webkit-background-clip: text; background-clip: text;
+  -webkit-text-fill-color: transparent; color: transparent;
+}
+[data-theme="dark"] .dash-hero h1 .dash-grad {
+  background: linear-gradient(120deg, var(--sage) 0%, var(--accent-2) 46%, var(--accent) 100%);
+  -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+}
+.hero-clock {
+  background: var(--clay-face);
+  border: 1px solid color-mix(in srgb, var(--border-2) 45%, transparent);
+  box-shadow: inset 3px 3px 7px color-mix(in srgb, #ffffff 80%, transparent),
+              inset -4px -4px 8px color-mix(in srgb, var(--forest) 11%, transparent);
+}
+[data-theme="dark"] .hero-clock { box-shadow: inset 3px 3px 7px color-mix(in srgb, #ffffff 6%, transparent), inset -4px -4px 8px color-mix(in srgb, #000000 55%, transparent); }
+
+.kicker {
+  background: var(--clay-face);
+  border: 1px solid color-mix(in srgb, var(--border-2) 50%, transparent);
+  box-shadow: inset 3px 3px 7px color-mix(in srgb, #ffffff 78%, transparent),
+              inset -4px -4px 8px color-mix(in srgb, var(--forest) 11%, transparent);
+}
+.kicker::before { background: var(--clay-cta); }
+
+/* ======================================================================
+   6 · BENTO — the dashboard and category bands
+   ====================================================================== */
+
+.dash { gap: 26px; }
+@media (min-width: 900px) {
+  .dash-actions { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .dash-actions > :first-child { grid-column: span 2; }
+  .cat-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .cat-grid > :nth-child(4n + 1) { grid-column: span 2; }
+}
+@media (min-width: 1200px) {
+  .dash-actions { grid-template-columns: repeat(6, minmax(0, 1fr)); }
+  .dash-actions > :nth-child(2) { grid-column: span 2; }
+}
+
+/* ======================================================================
+   7 · SKELETON PAPER — the reading surfaces
+   ====================================================================== */
+
+.prose, .md, .page, .answer-card .core {
+  background-image: var(--paper-tooth);
+  background-size: 4px 4px;
+}
+.prose, .md { border-radius: var(--clay-r-sm); }
+.page { background-color: var(--paper-bg); }
+.panel .prose, .answer-card .core { background-image: none; }
+
+/* ======================================================================
+   8 · SECTION HEADS, ARTICLE BITS, FOOTER
+   ====================================================================== */
+
+.sec-head { border-bottom: 0; padding-bottom: 10px; position: relative; }
+.sec-head::after {
+  content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 4px; border-radius: 4px;
+  background: linear-gradient(90deg, color-mix(in srgb, var(--copper) 45%, transparent), transparent 78%);
+}
+.sec-head h2 { letter-spacing: -.02em; }
+
+.article-title, .qa-question, .page h1 { letter-spacing: -.025em; }
+.prose h2 { border-bottom: 0; position: relative; }
+.prose h2::after {
+  content: ""; display: block; width: 64px; height: 5px; border-radius: 5px; margin-top: 8px;
+  background: linear-gradient(90deg, var(--forest), var(--copper));
+}
+.prose h3 { letter-spacing: -.01em; }
+.prose .thumb, .gallery img, .topic-figure img, .art-body img, .aotd-media img {
+  border-radius: var(--clay-r);
+  box-shadow: var(--clay-hi), var(--clay-lo), var(--clay-drop);
+}
+.points-list > li {
+  background: var(--clay-face); border: 0; border-radius: var(--clay-r-sm);
+  box-shadow: inset 4px 4px 9px color-mix(in srgb, #ffffff 78%, transparent),
+              inset -5px -5px 10px color-mix(in srgb, var(--forest) 11%, transparent),
+              0 12px 22px -18px color-mix(in srgb, var(--forest) 45%, transparent);
+}
+[data-theme="dark"] .points-list > li {
+  box-shadow: inset 4px 4px 9px color-mix(in srgb, #ffffff 5%, transparent),
+              inset -5px -5px 10px color-mix(in srgb, #000000 55%, transparent),
+              0 12px 22px -18px rgba(0, 0, 0, .8);
+}
+.points-list > li::before {
+  background: var(--clay-face);
+  box-shadow: inset 2px 2px 4px color-mix(in srgb, #ffffff 80%, transparent), inset -3px -3px 6px color-mix(in srgb, var(--forest) 14%, transparent);
+  color: var(--copper-ink);
+}
+.factbox h3, .panel-head { color: var(--copper-ink); }
+
+.site-foot {
+  background: var(--clay-face);
+  -webkit-backdrop-filter: none; backdrop-filter: none;
+  border-top: 0;
+  box-shadow: inset 0 6px 14px color-mix(in srgb, var(--forest) 8%, transparent);
+}
+.foot-col strong { color: var(--copper-ink); }
+
+/* ======================================================================
+   9 · STATIC INTRO BLOCK (the crawlable home page)
+   ====================================================================== */
+
+.site-intro { padding: 46px 0 10px; }
+.site-intro .kicker { margin-bottom: 20px; }
+.site-intro h1 {
+  font-family: var(--font-display);
+  font-size: clamp(34px, 6.4vw, 60px);
+  line-height: 1.06; letter-spacing: -.025em; margin: 0 0 16px;
+}
+.site-intro h1 .grad {
+  background: linear-gradient(120deg, var(--forest) 0%, var(--accent-2) 44%, var(--copper) 100%);
+  -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; color: transparent;
+}
+[data-theme="dark"] .site-intro h1 .grad {
+  background: linear-gradient(120deg, var(--sage), var(--accent-2) 46%, var(--accent));
+  -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+}
+.site-intro .lead { font-size: clamp(16px, 2vw, 19px); color: var(--muted); max-width: 62ch; margin: 0 0 26px; }
+.site-intro .intro-grid { display: grid; gap: 16px; grid-template-columns: 1fr; margin: 0 0 28px; }
+@media (min-width: 620px) { .site-intro .intro-grid { grid-template-columns: 1fr 1fr; } }
+.site-intro .intro-card {
+  display: flex; gap: 14px; align-items: flex-start;
+  padding: 20px 22px; border-radius: var(--clay-r);
+  background: var(--clay-face); border: 0;
+  box-shadow: var(--clay-hi), var(--clay-lo), var(--clay-drop);
+}
+.site-intro .intro-card h2 { font-size: 16px; margin: 0 0 4px; font-family: var(--font-body); font-weight: 650; }
+.site-intro .intro-card p { margin: 0; color: var(--muted); font-size: 14px; }
+.site-intro .intro-card .ic { width: 38px; height: 38px; flex: 0 0 auto; display: grid; place-items: center; }
+.site-intro .intro-card .ic svg { width: 18px; height: 18px; fill: currentColor; }
+.site-intro .intro-links { display: flex; flex-wrap: wrap; gap: 12px; }
+.site-intro .intro-links a {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 12px 20px; border-radius: var(--clay-r-pill); font-weight: 550; font-size: 14.5px;
+  color: var(--text); background: var(--clay-face);
+  border: 1px solid color-mix(in srgb, var(--border-2) 55%, transparent);
+  box-shadow: var(--clay-hi), var(--clay-lo), var(--clay-drop); text-decoration: none;
+  transition: transform .2s var(--ease-out), box-shadow .2s var(--ease-out);
+}
+.site-intro .intro-links a:hover { transform: translateY(-2px); text-decoration: none; }
+.site-intro .intro-links a:active { transform: translateY(1px) scale(.97); box-shadow: var(--clay-press-hi), var(--clay-press-lo); }
+.site-intro .intro-links a::after { content: "→"; opacity: .6; }
+
+/* ======================================================================
+   10 · MISC
+   ====================================================================== */
+
+.evidence, .scope-note {
+  box-shadow: inset 9px 0 0 -5px var(--copper), var(--clay-hi), var(--clay-lo), var(--clay-drop);
+}
+.evidence.is-ok { box-shadow: inset 9px 0 0 -5px var(--ok), var(--clay-hi), var(--clay-lo), var(--clay-drop); }
+.evidence.is-warn { box-shadow: inset 9px 0 0 -5px var(--warn), var(--clay-hi), var(--clay-lo), var(--clay-drop); }
+
+.saved-main img, .saved-ph { border-radius: 14px; }
+.saved-ph { background: var(--neo-face); box-shadow: var(--neo-in); }
+.src-mark {
+  background: var(--clay-face); border-radius: 10px;
+  box-shadow: inset 2px 2px 5px color-mix(in srgb, #ffffff 80%, transparent), inset -3px -3px 6px color-mix(in srgb, var(--forest) 12%, transparent);
+}
+.sk-line { background: color-mix(in srgb, var(--border-2) 60%, transparent); }
+.read-progress span { background: linear-gradient(90deg, var(--forest), var(--accent-2), var(--copper)); }
+[data-theme="dark"] .read-progress span { background: linear-gradient(90deg, var(--sage), var(--accent-2), var(--accent)); }
+
+/* The contents button is hidden by the app on views that have no contents
+   rail; make sure `hidden` wins over the header's flex rules. */
+#tocBtn[hidden] { display: none !important; }
+
+/* ======================================================================
+   11 · THE FLOOR — motion, transparency, contrast, comfort, print
+   ====================================================================== */
+
+@media (prefers-reduced-motion: reduce) {
+  body::before { animation: none; }
+  .card:hover, .q-card:hover, .cat-card:hover, .dash-action:hover,
+  .topic-card:hover, .howstep:hover, .btn:hover, .chip:hover, .pill:hover { transform: none; }
+  .btn:active, .chip:active, .pill:active { transform: none; }
+  .btn-primary:hover { background-position: 0 0, 130% 0; }
+}
+
+/* Readers who ask the system to reduce transparency get solid chrome. */
+@media (prefers-reduced-transparency: reduce) {
+  .topbar-inner, .app-side, .bottom-nav, .suggest, .lang-menu, .toast {
+    background: var(--surface) !important;
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
+  }
+}
+
+/* Increased contrast: firm up every control edge and every hairline. */
+@media (prefers-contrast: more) {
+  .btn, .chip, .pill, .depth-btn, .chip-btn, .badge, .example-prompts button,
+  .searchbar, .composer .searchbar, .select, .mode, .tabs {
+    border-color: var(--text) !important;
+  }
+  .topbar-inner, .app-side, .bottom-nav { border-color: var(--text) !important; }
+}
+
+/* The in-app reading-comfort switch (data-comfort="opaque"): flatten the
+   translucency and the clay gradient, keep the shapes. */
+[data-comfort="opaque"] .topbar-inner,
+[data-comfort="opaque"] .app-side,
+[data-comfort="opaque"] .bottom-nav,
+[data-comfort="opaque"] .suggest,
+[data-comfort="opaque"] .lang-menu,
+[data-comfort="opaque"] .toast,
+[data-comfort="opaque"] .composer .searchbar {
+  background: var(--surface) !important;
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+  border: 1px solid var(--border-2) !important;
+  box-shadow: none !important;
+}
+[data-comfort="opaque"] body::before { display: none !important; }
+
+@media print {
+  .topbar-inner, .app-side, .bottom-nav, .site-intro { box-shadow: none !important; }
+  .panel, .page, .answer-card, .card { background: #fff !important; box-shadow: none !important; }
+  .prose, .md, .page { background-image: none !important; }
+}
+
+/* ======================================================================
+   12 · THE ARTICLE'S LEAD PICTURE
+   ======================================================================
+   Sits at the top of the reading panel, where a reader looks for it. */
+
+.lead-figure { max-width: 620px; margin: 4px auto 18px; }
+.lead-figure img {
+  margin: 0 auto; max-height: 360px; border: 0;
+  background: color-mix(in srgb, var(--surface-2) 92%, var(--sand));
+  box-shadow: var(--clay-hi), var(--clay-lo), var(--clay-drop);
+}
+.lead-figure figcaption { text-align: center; color: var(--faint); }
+
+/* ======================================================================
+   13 · LAYOUT REPAIR
+   ======================================================================
+   The reading view had drifted into a full-bleed panel with a narrow
+   column lost inside it, blocks with no space between them, and a header
+   that wrapped to 142px on a phone. This section puts the page back into
+   one column with a real rhythm, and keeps pictures inside it. */
+
+/* --- one centred reading column, for the header and the body alike --- */
+[data-view="article"] .wrap {
+  max-width: 1160px;
+  margin-inline: auto;
+  padding: 18px 20px 72px;
+}
+[data-view="article"] .article-head,
+[data-view="article"] .article-actions,
+[data-view="article"] .langbar,
+[data-view="article"] .tabs { max-width: 100%; margin-inline: 0; }
+
+.panel.panel-wide {
+  max-width: 100%;
+  margin-inline: auto;
+  padding: 30px 36px 36px;
+}
+/* Every block in the article shares one measure, so the headline, the
+   facts, the pictures and the prose all line up. */
+.panel.panel-wide > * { max-width: 74ch; margin-inline: auto; }
+
+/* --- vertical rhythm: nothing sticks to anything --- */
+.lead-figure { margin: 0 auto 28px; }
+.panel-wide .factbox { margin: 0 auto 30px; }
+.panel-wide .art-section { margin: 0 auto 30px; }
+.panel-wide .art-section:last-of-type { margin-bottom: 34px; }
+.panel-wide .art-section-head { margin-bottom: 14px; }
+.panel-wide .art-body > * + * { margin-top: 12px; }
+.panel-wide .art-body > .line-list { margin-top: 0; }
+
+/* --- pictures: contained, centred, never stretched or cropped --- */
+.prose img:not([width]), .art-body img { aspect-ratio: auto !important; }
+.art-body img,
+.art-body .thumb img,
+.art-body figure img {
+  max-width: 100% !important;
+  height: auto !important;
+  object-fit: contain;
+  border-radius: var(--clay-r-sm);
+}
+.art-body figure,
+.art-body .thumb,
+.art-body .thumbinner {
+  max-width: 100% !important;
+  margin: 20px auto !important;
+  float: none !important;
+  width: auto !important;
+}
+.art-body figcaption,
+.art-body .thumbcaption {
+  text-align: center;
+  color: var(--faint);
+  font-size: 12.5px;
+  line-height: 1.5;
+  margin-top: 6px;
+}
+.lead-figure img { max-width: 100%; max-height: 340px; object-fit: contain; }
+
+/* Tables scroll inside the column instead of pushing it wide. */
+.panel-wide .table-scroll { max-width: 100%; }
+
+/* --- the header stops wrapping on a phone --- */
+@media (max-width: 860px) {
+  /* The four text links live in the bottom dock on small screens; keeping
+     them in the header as well is what pushed it to three rows. */
+  .topnav a { display: none; }
+}
+@media (max-width: 700px) {
+  .topbar { padding-top: 8px; }
+  .topbar-inner {
+    padding: 6px 10px;
+    gap: 6px;
+    flex-wrap: nowrap;
+    border-radius: 999px;
+  }
+  .topnav { flex-wrap: nowrap; gap: 3px; margin-left: auto; }
+  .btn-icon { width: 32px; height: 32px; min-height: 32px; padding: 6px; }
+  .brand-mark { width: 30px; height: 30px; }
+  .brand-text strong { font-size: 15.5px; }
+  .nav-sep { display: none; }
+
+  [data-view="article"] .wrap { padding: 12px 12px 64px; }
+  .panel.panel-wide { padding: 18px 16px 22px; }
+  .panel.panel-wide > * { max-width: 100%; }
+  .lead-figure { margin-bottom: 20px; }
+  .panel-wide .factbox { margin-bottom: 22px; }
+  .panel-wide .art-section { margin-bottom: 22px; }
+  .lead-figure img { max-height: 260px; }
+}
+@media (max-width: 400px) {
+  /* (the two low-value header buttons this block used to hide are gone) */
+}
+
+/* ======================================================================
+   14 · HEADER, FACT NOTE AND LEAD PICTURE — the last of the collisions
+   ======================================================================
+   The floating pill left the page visible in the gutters either side of
+   it, so text slid out from behind its edges while scrolling. The header
+   is a full-width glass bar again: same material, no gaps for content to
+   leak through. */
+
+.topbar {
+  padding-top: 0;
+  background: color-mix(in srgb, var(--bg) 82%, transparent);
+  -webkit-backdrop-filter: blur(18px) saturate(1.4);
+  backdrop-filter: blur(18px) saturate(1.4);
+  border-bottom: 1px solid color-mix(in srgb, var(--border-2) 58%, transparent);
+  box-shadow: 0 10px 30px -24px color-mix(in srgb, var(--forest) 60%, transparent);
+}
+.topbar-inner {
+  background: transparent;
+  border: 0;
+  box-shadow: none;
+  border-radius: 0;
+  padding: 10px 16px;
+}
+[data-theme="dark"] .topbar { background: color-mix(in srgb, var(--bg) 78%, transparent); }
+
+/* Anchor jumps land below the sticky header, not under it. */
+html { scroll-padding-top: 84px; }
+
+/* The fact box note sat in the rounded corner and lost its first letters. */
+.factbox .src-credit { margin: 0; padding: 10px 15px 14px; }
+
+/* A lead picture is a picture, not a billboard. */
+.lead-figure { max-width: min(100%, 560px); }
+.lead-figure img { max-height: 300px; }
+
+/* ======================================================================
+   15 · THE ACTION AND CATEGORY BANDS
+   ======================================================================
+   The earlier bento spans assumed a column count that the real content
+   never fills, so five action cards left the fifth one stranded alone on
+   a second row with a hole beside it. These bands simply flow: every
+   tile the same height, wrapping evenly at any width. */
+
+.dash-actions { grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 14px; }
+.dash-actions > * { grid-column: auto !important; }
+.dash-actions .dash-action { min-height: 108px; }
+
+.cat-grid { grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; }
+.cat-grid > * { grid-column: auto !important; }
+
+@media (min-width: 1200px) {
+  .dash-actions { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+}
+
+/* The trending spark line was drawn past the card edge. */
+.trend-row { overflow: hidden; }
+.trend-spark { flex: 0 0 auto; width: 46px; max-width: 46px; overflow: visible; }
+
+/* ======================================================================
+   17 · AURA — the new look
+   ======================================================================
+   The reference is a dark glass workspace with colour blooming behind it:
+   deep charcoal, violet and pink and cyan light, panels that float, and
+   one loud gradient on the thing you are meant to press. This layer
+   repaints the whole site in that language — the tokens first, then the
+   surfaces, the controls and the chrome. Light mode is the same idea in
+   daylight: soft paper, the same colour, less weight. */
+
+:root :root {
+  /* Colour comes from styles.css. These three only exist so the gradient
+     washes below have somewhere to point; they are the site's own hues. */
+  --aura-1: var(--copper);
+  --aura-2: var(--forest);
+  --aura-3: var(--sage);
+}
+
+[data-theme="dark"] {
+
+  /* glass, recut for the dark room */
+  --glass-bg: color-mix(in srgb, #ffffff 7%, transparent);
+  --glass-bg-strong: color-mix(in srgb, #0d1018 82%, transparent);
+  --glass-line: color-mix(in srgb, #ffffff 14%, transparent);
+  --glass-hi: inset 0 1px 0 color-mix(in srgb, #ffffff 12%, transparent);
+  --glass-drop: 0 30px 60px -30px rgba(0, 0, 0, .85), 0 8px 22px -14px rgba(0, 0, 0, .7);
+
+  --clay-face: linear-gradient(160deg, color-mix(in srgb, #ffffff 6%, transparent), color-mix(in srgb, #ffffff 2%, transparent));
+  --clay-hi: inset 0 1px 0 color-mix(in srgb, #ffffff 12%, transparent);
+  --clay-lo: inset 0 -1px 0 color-mix(in srgb, #000000 40%, transparent);
+  --clay-drop: 0 26px 50px -28px rgba(0, 0, 0, .85);
+  /* the same three, in their dark-theme values */
+  --aura-1: var(--accent);
+  --aura-2: var(--accent-2);
+  --aura-3: var(--sage);
+}
+
+/* The colour field: violet top-left, pink right, cyan bottom. */
+body::before {
+  background:
+    radial-gradient(46vw 38vw at 6% -8%, color-mix(in srgb, var(--aura-2) 62%, transparent), transparent 64%),
+    radial-gradient(40vw 34vw at 98% 4%, color-mix(in srgb, var(--aura-1) 52%, transparent), transparent 62%),
+    radial-gradient(54vw 42vw at 74% 104%, color-mix(in srgb, var(--aura-3) 42%, transparent), transparent 66%),
+    radial-gradient(40vw 30vw at 16% 92%, color-mix(in srgb, var(--aura-2) 34%, transparent), transparent 66%);
+  filter: blur(18px) saturate(1.2);
+}
+[data-theme="dark"] body::before { opacity: .78; }
+
+/* Surfaces: one glass sheet for every panel and card. */
+.panel, .answer-card, .sec:has(> .sec-head), .source-card, .page,
+.src-group, .topic-block, .factbox, .toc, .toc-jump, .rail-card,
+.howstep, .ask-note, .method-note, .langbar, .aotd, .evidence,
+.scope-note, .saved-item, .state, .error-box, .md-raw, .rail-actions,
+.card, .q-card, .cat-card, .dash-action, .topic-card, .dash-hero {
+  background: var(--glass-bg);
+  -webkit-backdrop-filter: blur(20px) saturate(1.5);
+  backdrop-filter: blur(20px) saturate(1.5);
+  border: 1px solid var(--glass-line);
+  box-shadow: var(--glass-hi), var(--glass-drop);
+}
+.panel::before, .answer-card::before, .sec:has(> .sec-head)::before,
+.src-group::before, .topic-block::before, .page::before {
+  background: linear-gradient(90deg, var(--aura-2), var(--aura-1) 52%, var(--aura-3));
+  opacity: .95;
+}
+.card:hover, .q-card:hover, .cat-card:hover, .dash-action:hover, .topic-card:hover {
+  border-color: color-mix(in srgb, var(--aura-1) 55%, transparent);
+  box-shadow: var(--glass-hi), 0 34px 60px -28px color-mix(in srgb, var(--aura-2) 60%, transparent);
+}
+
+/* Controls: the loud gradient belongs to the primary action only. */
+.btn {
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-line);
+  box-shadow: var(--glass-hi);
+}
+.btn-primary, .btn-primary:hover, [data-theme="dark"] .btn-primary, [data-theme="dark"] .btn-primary:hover {
+  background-image: linear-gradient(135deg, var(--aura-1), var(--aura-2) 78%),
+    linear-gradient(115deg, transparent 38%, color-mix(in srgb, #ffffff 30%, transparent) 50%, transparent 62%);
+  color: #fff;
+  border-color: transparent;
+  box-shadow: 0 22px 40px -22px color-mix(in srgb, var(--aura-1) 80%, transparent);
+}
+.chip, .pill, .depth-btn, .chip-btn, .example-prompts button, .badge, .saved-del, .btn-sm {
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-line);
+  box-shadow: var(--glass-hi);
+}
+.depth-btn.is-active, .chip-btn.is-active, .chip.is-active,
+.mode-btn.is-active, .tab[aria-selected="true"], .tab.is-active, .toc a.active,
+.dash-hero .depth-btn[aria-pressed="true"], .dash-hero .chip-btn.is-active {
+  background: linear-gradient(135deg, var(--aura-1), var(--aura-2));
+  color: #fff; border-color: transparent;
+  box-shadow: 0 14px 26px -16px color-mix(in srgb, var(--aura-1) 80%, transparent);
+}
+
+/* Fields are wells, not slabs. */
+.searchbar, .composer .searchbar, .select, .langbar select,
+form.panel .searchbar, form.panel .select, .feedback .fb-note textarea,
+.langbar-inner input#langSelect, .mode, .tabs {
+  background: color-mix(in srgb, #000000 18%, transparent);
+  border: 1px solid var(--glass-line);
+  box-shadow: inset 0 1px 0 color-mix(in srgb, #ffffff 6%, transparent);
+}
+[data-theme="light"] .searchbar, [data-theme="light"] .composer .searchbar,
+[data-theme="light"] .select, [data-theme="light"] .mode, [data-theme="light"] .tabs {
+  background: color-mix(in srgb, var(--surface) 92%, transparent);
+}
+.searchbar:focus-within, .composer .searchbar:focus-within,
+.select:focus, form.panel .searchbar:focus-within {
+  border-color: color-mix(in srgb, var(--aura-2) 70%, transparent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--aura-2) 26%, transparent);
+}
+
+/* Chrome. */
+.topbar {
+  background: color-mix(in srgb, var(--bg) 72%, transparent);
+  -webkit-backdrop-filter: blur(22px) saturate(1.6);
+  backdrop-filter: blur(22px) saturate(1.6);
+  border-bottom: 1px solid var(--glass-line);
+  box-shadow: 0 14px 40px -30px rgba(0, 0, 0, .9);
+}
+.app-side { background: var(--glass-bg); border: 1px solid var(--glass-line); box-shadow: var(--glass-hi), var(--glass-drop); }
+.side-link[aria-current="page"], .topnav a[aria-current="page"] {
+  background: linear-gradient(135deg, color-mix(in srgb, var(--aura-1) 26%, transparent), color-mix(in srgb, var(--aura-2) 30%, transparent));
+  color: var(--text);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, #ffffff 14%, transparent);
+}
+.bottom-nav, .bottom-nav.glass {
+  background: color-mix(in srgb, var(--bg) 84%, transparent);
+  border: 1px solid var(--glass-line);
+  box-shadow: 0 -10px 40px -24px rgba(0,0,0,.9);
+}
+.site-foot { background: color-mix(in srgb, var(--bg) 70%, transparent); border-top: 1px solid var(--glass-line); box-shadow: none; }
+
+/* Headline accent. */
+.dash-hero h1 .dash-grad, .site-intro h1 .grad,
+[data-theme="dark"] .dash-hero h1 .dash-grad, [data-theme="dark"] .site-intro h1 .grad {
+  background: linear-gradient(120deg, var(--aura-3), var(--aura-2) 45%, var(--aura-1));
+  -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; color: transparent;
+}
+.dash-hero::before { background: radial-gradient(circle at 32% 28%, var(--aura-2), color-mix(in srgb, var(--aura-2) 40%, #000)); }
+.hero-clock, .kicker, .dash-hero-badge { background: var(--glass-bg); border: 1px solid var(--glass-line); box-shadow: var(--glass-hi); }
+
+/* Icon tiles: the glyph inherited the card's text colour, which left it
+   nearly invisible on the clay surface. Give it its own contrast. */
+.cat-card .ic, .dash-action .ic, .topic-card .ic, .feature .ic, .site-intro .intro-card .ic {
+  color: var(--copper-ink);
+}
+[data-theme="dark"] .cat-card .ic, [data-theme="dark"] .dash-action .ic,
+[data-theme="dark"] .topic-card .ic, [data-theme="dark"] .feature .ic,
+[data-theme="dark"] .site-intro .intro-card .ic {
+  color: var(--accent);
+}
+
+/* Brand: one word, one mark. The old two-line lockup read as a heading with
+   a subtitle, which made the header heavy on a phone. */
+.brand-text { display: none; }
+.brand-word {
+  font-family: var(--font-head, 'Iowan Old Style', 'Palatino Linotype', Palatino, Georgia, 'Tiro Devanagari Hindi', serif);
+  font-size: 19px;
+  font-weight: 600;
+  letter-spacing: -0.015em;
+  color: var(--text, #242824);
+  line-height: 1;
+}
+.brand-mark svg { width: 32px; height: 32px; display: block; }
+.brand { gap: 10px; }
+
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
+
+/* ── the Translate tab ──────────────────────────────────────────────────
+   The tab opens on the languages themselves, in their own scripts, with a
+   filter for the reader who knows what they are looking for. Choosing one
+   replaces the list with the translated article — one press, no second step.
+   The translated copy is a clone of the reading layout, so it inherits every
+   rule below; only its text differs. */
+.tr-panel { margin: 4px 0 26px; }
+
+.tr-choose {
+  padding: 20px 20px 18px;
+  border: 1px solid var(--border-2); border-radius: var(--radius-lg);
+  background: var(--surface);
+}
+.tr-title {
+  margin: 0 0 6px;
+  font-family: var(--font-head);
+  font-size: clamp(19px, 2.3vw, 23px);
+  line-height: 1.25;
+}
+.tr-sub { margin: 0 0 16px; max-width: 68ch; font-size: 13.5px; line-height: 1.6; color: var(--muted); }
+
+.tr-tools { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin: 0 0 16px; }
+.tr-filter {
+  flex: 1 1 240px; min-width: 0; min-height: 40px;
+  padding: 8px 12px;
+  border: 1px solid var(--border-2); border-radius: 999px;
+  background: var(--surface-2, var(--surface)); color: var(--text);
+  font: inherit; font-size: 13.5px;
+}
+.tr-filter:focus { outline: 2px solid var(--accent); outline-offset: 1px; }
+.tr-edition { display: inline-flex; align-items: center; gap: 8px; min-width: 0; }
+.tr-edition > span { font-size: 12.5px; color: var(--muted); white-space: nowrap; }
+
+.tr-group {
+  margin: 16px 0 8px;
+  font-size: 10.5px; font-weight: 700; letter-spacing: 0.12em;
+  text-transform: uppercase; color: var(--faint);
+}
+.tr-group:first-child { margin-top: 0; }
+.tr-group-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 8px;
+}
+.tr-lang {
+  display: flex; flex-direction: column; align-items: flex-start; gap: 1px;
+  padding: 10px 12px;
+  border: 1px solid var(--border-2); border-radius: var(--radius-xs);
+  background: var(--surface-2, var(--surface)); color: var(--text);
+  font: inherit; text-align: left; cursor: pointer;
+  transition: border-color .14s ease, background-color .14s ease, transform .14s ease;
+}
+.tr-lang:hover { border-color: var(--accent); transform: translateY(-1px); }
+.tr-lang[hidden] { display: none; }
+.tr-lang b { font-size: 15px; font-weight: 600; line-height: 1.3; }
+.tr-lang span { font-size: 11.5px; color: var(--muted); }
+.tr-lang .tr-tier { font-size: 10px; font-style: normal; color: var(--faint); }
+.tr-lang.is-suggested { border-color: color-mix(in srgb, var(--accent) 55%, var(--border-2)); }
+.tr-empty { margin: 14px 0 0; font-size: 13px; color: var(--muted); }
+.tr-empty[hidden] { display: none; }
+
+/* The reading state: what is on screen, and the way out of it. */
+.tr-readbar {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 8px;
+  padding: 12px 14px;
+  border: 1px solid var(--border-2); border-radius: var(--radius);
+  background: var(--surface);
+}
+.tr-current { margin: 0; font-size: 14px; font-weight: 600; }
+.tr-grow { flex: 1 1 auto; }
+
+.tr-select {
+  flex: 0 1 auto; min-width: 0; max-width: 320px;
+  min-height: 36px; padding: 6px 10px;
+  border: 1px solid var(--border-2); border-radius: 10px;
+  background: var(--surface-2, var(--surface)); color: var(--text);
+  font: inherit; font-size: 13px;
+}
+.tr-select:disabled { opacity: .6; }
+.tr-status { margin: 10px 2px 0; font-size: 12.5px; color: var(--muted); }
+.tr-track {
+  height: 3px; margin: 10px 2px 0; overflow: hidden;
+  border-radius: 999px; background: color-mix(in srgb, var(--text) 10%, transparent);
+}
+.tr-track span {
+  display: block; height: 100%; width: 0;
+  border-radius: inherit; background: var(--accent);
+  transition: width .25s var(--ease-out, ease);
+}
+.tr-track[hidden] { display: none; }
+.tr-body:not(:empty) { margin-top: 18px; }
+.tr-note {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 10px;
+  margin: 0 0 18px; padding: 12px 14px;
+  border: 1px solid var(--border-2); border-left: 3px solid var(--accent);
+  border-radius: var(--radius); background: var(--surface);
+}
+.tr-note p { margin: 0; flex: 1 1 320px; font-size: 13px; color: var(--text); }
+.tr-note .tr-partial { flex-basis: 100%; color: var(--muted); font-size: 12.5px; }
+.tr-note .tr-hint { flex-basis: 100%; color: var(--muted); font-size: 12px; }
+
+/* Said before anything leaves the browser, so it is readable rather than fine
+   print, but quiet enough not to compete with the article. */
+.tr-disclosure {
+  margin: 14px 2px 0; padding: 9px 11px;
+  border: 1px solid var(--border-2); border-radius: 10px;
+  background: color-mix(in srgb, var(--accent) 6%, transparent);
+  font-size: 12px; line-height: 1.5; color: var(--muted);
+}
+
+/* A passage the provider could not translate keeps its original words; this
+   marks it so a reader can see which parts are still in the source language
+   instead of assuming the whole page was translated. */
+[data-untranslated="true"] {
+  border-left: 2px solid color-mix(in srgb, var(--accent-2, var(--accent)) 70%, transparent);
+  padding-left: 10px;
+}
+.tr-body[dir="rtl"] { text-align: right; }
+@media (max-width: 640px) {
+  .tr-choose { padding: 16px 14px; }
+  .tr-group-grid { grid-template-columns: repeat(auto-fill, minmax(128px, 1fr)); }
+  .tr-edition { flex-basis: 100%; }
+  .tr-select { max-width: none; flex: 1 1 auto; }
+}
+
+/* Fuller translation offer */
+.translate-offer {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 12px;
+  margin: 0 0 20px; padding: 14px 16px;
+  border: 1px solid var(--border-2); border-left: 3px solid var(--accent);
+  border-radius: var(--radius); background: var(--surface);
+}
+.translate-offer p { margin: 0; flex: 1 1 320px; font-size: 14px; color: var(--text); }
+.translate-offer .translate-status { font-size: 12px; color: var(--muted); }
+.translated-article {
+  margin: 26px 0; padding: 22px;
+  border: 1px solid var(--border-2); border-radius: var(--radius-lg);
+  background: var(--surface);
+}
+.translated-article h2 { margin: 0 0 6px; font-size: 20px; }
+.translated-article p { margin: 0 0 14px; line-height: 1.7; color: var(--text); }
+@media (max-width: 640px) {
+  .translate-offer { padding: 12px; }
+  .translated-article { padding: 16px; }
+}
+
+/* ======================================================================
+   · THE QUESTION BOX, SIMPLIFIED
+   ----------------------------------------------------------------------
+   Two fixes from reading the page as a reader rather than as a stylesheet.
+
+   1. The Search / Ask switch. It used to be a neumorphic pill with a hairline
+      border and an inset shadow, which on a dark screen reads as a thin line
+      drawn through the question box — the one thing in the whole composer
+      that looked like a mistake. It is now a flat segmented control, the way
+      Google's own AI mode does it: no border, no inset, a quiet track and a
+      solid fill under the active word. The state is legible at a glance and
+      nothing is drawn that is not information.
+
+   2. The left column. `.app-side` was glass — a 52%-opaque surface with an
+      18px blur behind it. Over a dark page that produced a smeared grey
+      rectangle whose text sat on top of blurred text, which is exactly the
+      "dark and foggy" the reader described. Navigation is not decoration, so
+      it is now opaque: the sheet is the surface, and the blur stays for the
+      floating things (menus, the header pill) where it belongs.
+   ====================================================================== */
+
+.mode,
+.tabs {
+  background: color-mix(in srgb, var(--text) 6%, transparent);
+  border: 0;
+  box-shadow: none;
+  padding: 3px;
+  gap: 2px;
+  border-radius: 999px;
+}
+[data-theme="dark"] .mode,
+[data-theme="dark"] .tabs { background: color-mix(in srgb, #ffffff 8%, transparent); }
+
+.mode-btn,
+.tab {
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+  border-radius: 999px;
+  color: var(--muted);
+  font-weight: 550;
+  transition: background-color .16s var(--ease-out), color .16s var(--ease-out);
+}
+.mode-btn:hover,
+.tab:hover { color: var(--text); background: color-mix(in srgb, var(--text) 5%, transparent); }
+
+.mode-btn.is-active,
+.tab.is-active,
+.tab[aria-selected="true"] {
+  background: var(--surface);
+  color: var(--text);
+  box-shadow: 0 1px 2px color-mix(in srgb, var(--text) 14%, transparent);
+}
+[data-theme="dark"] .mode-btn.is-active,
+[data-theme="dark"] .tab.is-active,
+[data-theme="dark"] .tab[aria-selected="true"] {
+  background: color-mix(in srgb, #ffffff 14%, transparent);
+  color: #fff;
+  box-shadow: none;
+}
+/* The hero on the home page carries its own tint; keep the same flat rule. */
+.dash-hero .mode { background: color-mix(in srgb, var(--text) 6%, transparent); border: 0; box-shadow: none; }
+.dash-hero .mode-btn.is-active { background: var(--surface); color: var(--text); box-shadow: 0 1px 2px color-mix(in srgb, var(--text) 14%, transparent); }
+[data-theme="dark"] .dash-hero .mode { background: color-mix(in srgb, #ffffff 8%, transparent); }
+[data-theme="dark"] .dash-hero .mode-btn.is-active { background: color-mix(in srgb, #ffffff 14%, transparent); color: #fff; box-shadow: none; }
+
+/* Navigation is opaque: text over blurred text is not a design. */
+.app-side,
+[data-theme="dark"] .app-side,
+[data-theme="light"] .app-side {
+  background: var(--surface);
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+  border: 1px solid var(--border-2);
+  box-shadow: 0 1px 2px color-mix(in srgb, var(--text) 6%, transparent);
+}
+[data-theme="dark"] .app-side { border-color: var(--border-2); }
+.app-side .side-link:hover { background: color-mix(in srgb, var(--text) 6%, transparent); }
+.app-side .side-link[aria-current="page"] {
+  background: color-mix(in srgb, var(--accent) 14%, transparent);
+  box-shadow: none;
+}
+
+/* ======================================================================
+   · THE ARTICLE PAGE, SQUARED UP
+   ----------------------------------------------------------------------
+   Three things in the reader looked loose rather than designed:
+
+   1. The tab strip. It was a centred flex row inside a padded column, so
+      when the two labels were wider than the space the row overflowed and
+      the first pill was cut off at the left edge — "Full article" appeared
+      to start outside the page. It now starts where the text starts, wraps
+      instead of overflowing, and never clips.
+   2. The language bar. Its pills ran past the right edge of the card. The
+      inner row wraps now, and the bar keeps its own padding.
+   3. The action row. Five buttons of different widths wrapped into two
+      ragged lines. They share one height and one gap, and the row wraps as
+      a block rather than as a pile.
+   ====================================================================== */
+
+[data-view="article"] .tabs {
+  justify-content: flex-start;
+  width: fit-content;
+  max-width: 100%;
+  flex-wrap: wrap;
+  overflow: visible;
+  margin-bottom: 18px;
+}
+.tabs { padding: 4px; }
+.tab {
+  min-height: 34px;
+  padding: 0 16px;
+  font-size: 13px;
+  white-space: nowrap;
+}
+
+.langbar {
+  overflow: visible;
+  padding: 10px 14px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.langbar-inner {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  min-width: 0;
+}
+.langbar-inner > span:first-child {
+  font-size: 12px;
+  color: var(--muted);
+  white-space: nowrap;
+}
+.langbar .pill-row { display: flex; flex-wrap: wrap; gap: 6px; }
+.langbar .pill { white-space: nowrap; }
+
+.art-actions {
+  gap: 8px;
+  align-items: stretch;
+  margin-bottom: 14px;
+}
+.art-actions > .btn,
+.art-actions > .md-disclosure > .btn {
+  height: 38px;
+  min-height: 38px;
+  padding: 0 13px;
+  font-size: 13px;
+  white-space: nowrap;
+}
+
+/* The facts table is read, not scanned: give the label column a fixed share
+   and let the value column breathe, instead of two ragged columns. */
+.factbox dl { display: grid; grid-template-columns: minmax(120px, 30%) minmax(0, 1fr); }
+.factbox .row { display: contents; }
+/* Two factbox shapes exist in the pages: rows wrapped in .row, and bare
+   dt/dd pairs. Both are laid out the same way here. */
+.factbox dl > dt,
+.factbox .row dt {
+  padding: 9px 12px 9px 0;
+  border-bottom: 1px solid var(--border-2);
+  font-size: 12.5px;
+  color: var(--muted);
+  align-self: stretch;
+}
+.factbox dl > dd,
+.factbox .row dd {
+  margin: 0;
+  padding: 9px 0 9px 12px;
+  border-bottom: 1px solid var(--border-2);
+  border-left: 1px solid var(--border-2);
+  font-size: 13px;
+  line-height: 1.55;
+}
+.factbox dl > .row:last-child dt,
+.factbox dl > .row:last-child dd,
+.factbox dl > dt:last-of-type,
+.factbox dl > dd:last-of-type { border-bottom: 0; }
+
+/* A loading state is a sentence with a wheel, not a card the height of a
+   paragraph with nothing in it. */
+.state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 34px 20px;
+  min-height: 0;
+}
+.state .spinner { margin: 0; }
+.state p { margin: 0; font-size: 13.5px; }
+@media (max-width: 640px) {
+  .factbox dl { grid-template-columns: minmax(96px, 38%) minmax(0, 1fr); }
+  .factbox .row dt, .factbox .row dd { font-size: 12.5px; padding-top: 8px; padding-bottom: 8px; }
+  .art-actions > .btn span { display: inline; }
+}
+
+/* ======================================================================
+   Search results — a result is a row, not a thin card
+   ======================================================================
+   The results used to be the same four-column card grid the dashboard uses
+   for browsing. In a grid each card is only a thumb wide, so the title broke
+   over three lines and the snippet was cut to a hundred characters: eighteen
+   matches read as eighteen thin strips. A row gives the title a full line,
+   the snippet a readable measure and the picture a fixed square, so the list
+   scans top to bottom the way a search page should. */
+
+.sresults { max-width: 980px; }
+[data-view="search"] .sresults { max-width: 980px; }
+
+.sresults .sbar { margin: 0 0 20px; }
+.sresults .composer { margin: 0; }
+/* A taller field on the results page: the query is long here, and a one-line
+   strip of text in the middle of the page was the complaint. */
+.sresults .searchbar:has(> .composer-tools) > textarea { min-height: 56px; padding: 10px 4px; font-size: 16px; }
+
+.sres-head { margin: 0 0 14px; }
+.sres-head h1 {
+  margin: 0;
+  font-family: var(--font-head);
+  font-size: clamp(22px, 2.8vw, 30px);
+  line-height: 1.2;
+  overflow-wrap: anywhere;
+}
+.sres-sub { margin: 6px 0 0; color: var(--muted); font-size: 13px; }
+.sres-sub .mono { font-family: var(--mono); font-size: 12.5px; }
+
+.sres-count {
+  margin: 18px 0 6px;
+  font-size: 11.5px; font-weight: 600; letter-spacing: 0.09em;
+  text-transform: uppercase; color: var(--faint);
+}
+
+.sres-list { display: flex; flex-direction: column; gap: 2px; }
+.sres-row {
+  display: flex; align-items: flex-start; gap: 18px;
+  padding: 16px 16px 16px 14px;
+  border: 1px solid transparent;
+  border-radius: var(--radius);
+  color: inherit;
+  transition: background-color .14s ease, border-color .14s ease;
+}
+.sres-row:hover, .sres-row:focus-visible {
+  background: var(--surface);
+  border-color: var(--border);
+  text-decoration: none;
+}
+.sres-row.is-skeleton { pointer-events: none; }
+
+.sres-thumb {
+  flex: 0 0 auto;
+  width: 84px; height: 84px;
+  display: grid; place-items: center;
+  border-radius: 14px;
+  overflow: hidden;
+  background: var(--surface-2);
+  box-shadow: var(--shadow-sm);
+}
+.sres-thumb img { display: block; width: 100%; height: 100%; object-fit: cover; }
+.sres-thumb.placeholder svg { width: 100%; height: 100%; display: block; opacity: .55; }
+
+.sres-text { display: flex; flex-direction: column; gap: 4px; min-width: 0; flex: 1 1 auto; }
+.sres-src {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-size: 11.5px; letter-spacing: 0.03em; text-transform: uppercase;
+  color: var(--faint);
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.sres-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--accent); flex: none; }
+.sres-title {
+  font-family: var(--font-head);
+  font-size: 18.5px; font-weight: 600; line-height: 1.32;
+  color: var(--text);
+  overflow-wrap: anywhere;
+}
+.sres-row:hover .sres-title { color: var(--accent); }
+.sres-snippet {
+  font-size: 14px; line-height: 1.62; color: var(--muted);
+  max-width: 74ch;
+}
+
+/* The one offer above the list: the same query, answered. */
+.sres-ask {
+  display: flex; align-items: center; gap: 14px;
+  padding: 15px 16px;
+  margin: 0 0 8px;
+  border: 1px solid color-mix(in srgb, var(--accent) 34%, var(--border));
+  border-radius: var(--radius);
+  background: color-mix(in srgb, var(--accent) 7%, var(--surface));
+  color: inherit;
+  transition: border-color .14s ease, background-color .14s ease;
+}
+.sres-ask:hover { border-color: var(--accent); text-decoration: none; }
+.sres-ask-ic {
+  flex: 0 0 auto; width: 38px; height: 38px;
+  display: grid; place-items: center;
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--accent) 16%, transparent);
+  color: var(--copper-ink);
+}
+.sres-ask-ic svg { width: 19px; height: 19px; }
+.sres-ask-text { display: flex; flex-direction: column; gap: 2px; min-width: 0; flex: 1 1 auto; }
+.sres-ask-text strong { font-size: 14.5px; }
+.sres-ask-text span { font-size: 13px; color: var(--muted); line-height: 1.5; }
+.sres-ask-go { flex: 0 0 auto; font-size: 13px; font-weight: 600; color: var(--copper-ink); white-space: nowrap; }
+
+@media (max-width: 640px) {
+  .sres-row { gap: 12px; padding: 12px 6px; }
+  .sres-thumb { width: 62px; height: 62px; border-radius: 11px; }
+  .sres-title { font-size: 16px; }
+  .sres-snippet { font-size: 13px; }
+  .sres-ask { flex-wrap: wrap; gap: 10px; }
+  .sres-ask-go { width: 100%; }
+}
+
+/* The search skeleton uses a shorter first line than the card grid does. */
+.sres-row .sk-40 { width: 40%; }
+
+/* ======================================================================
+   20 · THE COMPOSER, SIZED LIKE A SEARCH BOX AND NOT A FORM
+   ======================================================================
+   The composer had grown into a four-row panel: an uppercase label, the
+   field, a control row, then a line of help text. On the home page and on
+   the results page that read as a card bigger than the content under it,
+   and the text a reader typed sat in a thin strip in the middle of it —
+   nothing like the one-line box an AI search page puts in front of you.
+
+   So: one rounded box, the field is the box, and the controls sit inside
+   its lower edge at their natural size. The label stays in the document
+   for screen readers (it is the field's only visible name) but it no
+   longer takes a row of its own. */
+
+.searchbar:has(> .composer-tools) {
+  grid-template-columns: minmax(0, 1fr);
+  gap: 2px;
+  padding: 8px 10px 8px 14px;
+  border-radius: 26px;
+}
+
+/* The label is still there for assistive technology; it is not a heading
+   a sighted reader needs to see above a search box. */
+.searchbar:has(> .composer-tools) > .composer-label {
+  position: absolute;
+  width: 1px; height: 1px;
+  margin: -1px; padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.searchbar:has(> .composer-tools) > textarea,
+.sresults .searchbar:has(> .composer-tools) > textarea {
+  min-height: 46px;
+  padding: 11px 2px 6px;
+  font-size: 16.5px;
+  line-height: 1.5;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+  resize: none;
+}
+.searchbar:has(> .composer-tools) > textarea:focus { outline: none; }
+
+/* The controls sit on the box's own baseline, small and out of the way. */
+.searchbar:has(> .composer-tools) > .composer-tools {
+  gap: 6px;
+  padding: 0 0 2px;
+  align-items: center;
+}
+.searchbar:has(> .composer-tools) > .composer-tools > .btn-icon {
+  width: 34px; height: 34px; min-height: 34px; padding: 7px;
+}
+.searchbar:has(> .composer-tools) > .composer-tools > .mode {
+  margin-left: 0;
+  padding: 2px;
+}
+.searchbar:has(> .composer-tools) > .composer-tools > .mode .mode-btn {
+  min-height: 30px;
+  padding: 0 12px;
+  font-size: 13px;
+}
+.searchbar:has(> .composer-tools) > .composer-tools > button[type="submit"] {
+  margin-left: auto;
+  min-height: 36px;
+  padding: 0 18px;
+  border-radius: 999px;
+  font-size: 14px;
+}
+
+/* The help line was a third row of prose under a search box. It stays
+   available to a screen reader through aria-describedby, and is shown
+   only when the field is focused, where it explains the two modes. */
+.searchbar:has(> .composer-tools) > .mode-help {
+  grid-column: 1 / -1;
+  margin: 0;
+  max-height: 0;
+  overflow: hidden;
+  opacity: 0;
+  font-size: 12px;
+  transition: max-height .18s ease, opacity .18s ease;
+}
+.searchbar:has(> .composer-tools):focus-within > .mode-help {
+  max-height: 40px;
+  opacity: 1;
+  padding: 2px 2px 4px;
+}
+
+@media (max-width: 700px) {
+  .searchbar:has(> .composer-tools) { padding: 6px 8px 6px 12px; border-radius: 22px; }
+  .searchbar:has(> .composer-tools) > textarea { min-height: 42px; font-size: 16px; padding: 10px 2px 4px; }
+  .searchbar:has(> .composer-tools) > .composer-tools > .mode .mode-btn { padding: 0 10px; }
+  .searchbar:has(> .composer-tools) > .composer-tools > button[type="submit"] { padding: 0 14px; }
+}
+
+/* The "ask this instead" card was a second panel above the results; it is
+   now one compact line that does not compete with the list. */
+.sres-ask {
+  gap: 10px;
+  padding: 10px 14px;
+  border-radius: 14px;
+}
+.sres-ask-ic { width: 30px; height: 30px; border-radius: 9px; }
+.sres-ask-ic svg { width: 16px; height: 16px; }
+.sres-ask-text { flex-direction: row; align-items: baseline; gap: 8px; flex-wrap: wrap; }
+.sres-ask-text strong { font-size: 14px; }
+.sres-ask-text span { font-size: 12.5px; }
+
+/* Nothing in the reading view may push the page sideways: long chemical
+   names, URLs and wide tables stay inside the column. */
+[data-view="article"] .art-body,
+[data-view="article"] .panel-wide { overflow-wrap: anywhere; }
+[data-view="article"] .art-body table { max-width: 100%; }
+[data-view="article"] .table-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+
+@media (max-width: 700px) {
+  [data-view="article"] .wrap { padding: 10px 12px 72px; max-width: 100%; }
+  .panel.panel-wide { padding: 16px 14px 22px; }
+  .panel.panel-wide > * { max-width: 100%; }
+  .art-body > ul > li,
+  .topic-block .line-list > li,
+  .point-block .line-list > li { max-width: 100%; }
+}
+
+/* A last guard against a sideways scrollbar anywhere in the shell. */
+html, body { max-width: 100%; overflow-x: hidden; }
+.app-main, #main { min-width: 0; max-width: 100%; }
+
+/* ======================================================================
+   22 · THE HOME BANDS — five tiles on one row, and the depth pair together
+   ====================================================================== */
+
+/* The action band used `auto-fit` with a 180px minimum, which fits four
+   tiles in a 760px window and leaves the fifth — Sources — stranded alone on
+   a second row with a hole beside it. Five tiles are five tiles: they get
+   five columns as soon as there is room for five, two on a phone, and the
+   odd one out takes the whole row so it reads as a deliberate last card
+   rather than a leftover. */
+.dash-actions {
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 12px;
+}
+
+.dash-actions .dash-action {
+  min-height: 0;
+  padding: 16px 15px;
+}
+.dash-actions .dash-action h2,
+.dash-actions .dash-action h3 { font-size: 14.5px; }
+.dash-actions .dash-action p { font-size: 12.5px; line-height: 1.5; margin: 4px 0 0; }
+
+@media (min-width: 720px) {
+  .dash-actions { grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 14px; }
+  .dash-actions .dash-action { padding: 18px 16px; }
+}
+@media (max-width: 560px) {
+  .dash-actions { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  /* five cards in two columns: the fifth spans the row instead of leaving a gap */
+  .dash-actions > :last-child:nth-child(odd) { grid-column: 1 / -1 !important; }
+}
+
+/* The depth control and the meaning switch were pushed to opposite ends of a
+   full-width row, which left a hand's width of nothing between them. They are
+   one decision — how deep, and whether to rank by meaning — so they sit
+   together, centred, with a normal gap. */
+.dash-depth {
+  justify-content: center;
+  gap: 10px;
+  row-gap: 10px;
+}
+.depth { flex: 0 1 auto; }
+
+@media (max-width: 700px) {
+  .dash-depth { justify-content: center; gap: 8px; }
+}
+
+/* ======================================================================
+   23 · THE ARTICLE OF THE DAY IS A CARD, NOT A CARD IN A CARD
+   ======================================================================
+   The picture sat in a tinted panel with a hard border down its right edge,
+   inside a bordered, shadowed card — so the eye read two frames and a boxed
+   photograph. The picture now sits in the card's own surface with no inner
+   panel and no divider; the card keeps the only border. */
+
+.aotd {
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  background: var(--surface);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+}
+.aotd-media {
+  margin: 0;
+  background: transparent;
+  border: 0;
+  border-right: 0;
+  display: block;
+  overflow: hidden;
+}
+.aotd-media img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  max-height: 420px;
+  object-fit: cover;
+  object-position: center;
+  border-radius: 0;
+}
+@media (max-width: 860px) {
+  /* one column: the picture is the top of the card, so it keeps the card's
+     own corners and needs no divider under it either */
+  .aotd-media { border-right: 0; border-bottom: 0; }
+  .aotd-media img { max-height: 260px; border-radius: 0; }
+}
+
+/* On a phone the depth row broke into three lines — the label, then two
+   buttons, then "Deep dive" alone. The label goes, the three choices stay
+   together, and the meaning switch takes the next line as a unit. */
+@media (max-width: 700px) {
+  .dash-depth { flex-direction: column; align-items: center; gap: 8px; }
+  .dash-depth .depth-label { display: none; }
+  .depth { flex-wrap: nowrap; }
+  .depth .depth-btn { padding: 0 10px; font-size: 12.5px; }
+}
+
+/* ---------------------------------------------------------------- credits */
+
+/* One page that says who made the site and what it stands on. It reuses the
+   clay surfaces the rest of the site already speaks, and adds only the shapes
+   that are particular to it: the maker card, the timeline and the contributor
+   rows. Nothing here is a new colour or a new radius. */
+
+.credit-maker {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 18px 22px;
+  align-items: center;
+  margin: 6px 0 22px;
+  padding: 22px;
+  background: var(--clay-face, var(--surface));
+  border-radius: var(--clay-r-lg, var(--radius-lg));
+  box-shadow: var(--clay-hi, var(--shadow-sm)), var(--clay-lo, none), var(--clay-drop, var(--shadow));
+}
+
+.credit-avatar {
+  position: relative;
+  width: 96px;
+  height: 96px;
+  border-radius: 50%;
+  overflow: hidden;
+  display: grid;
+  place-items: center;
+  background: linear-gradient(135deg, var(--forest), var(--copper));
+  color: var(--ivory);
+  flex: 0 0 auto;
+}
+
+.credit-avatar img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.credit-initials { font-family: var(--font-head); font-size: 30px; letter-spacing: .02em; }
+.credit-avatar img + .credit-initials { opacity: 0; }
+
+.credit-who .kicker { display: block; margin-bottom: 4px; }
+.credit-name { font-family: var(--font-head); font-size: 27px; line-height: 1.15; margin: 0 0 6px; }
+.credit-who p { margin: 0 0 8px; color: var(--muted); font-size: 14.5px; line-height: 1.55; max-width: 60ch; }
+.credit-links { font-size: 13.5px; color: var(--muted); }
+
+.credit-facts {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: 10px;
+  margin: 0 0 26px;
+  padding: 0;
+}
+
+.credit-facts > div {
+  padding: 12px 14px;
+  background: var(--surface);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-sm);
+}
+
+.credit-facts dt { font-size: 12px; text-transform: uppercase; letter-spacing: .06em; color: var(--faint); margin-bottom: 4px; }
+.credit-facts dd { margin: 0; font-size: 14.5px; font-weight: 600; color: var(--text); }
+
+.credit-timeline { list-style: none; margin: 0; padding: 0 0 0 18px; border-left: 2px solid var(--border-2); }
+.credit-timeline li { position: relative; padding: 0 0 18px 14px; }
+.credit-timeline li::before {
+  content: "";
+  position: absolute;
+  left: -25px;
+  top: 6px;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 0 3px var(--bg);
+}
+.credit-timeline .credit-when { display: block; font-size: 12.5px; color: var(--faint); letter-spacing: .04em; text-transform: uppercase; margin-bottom: 2px; }
+.credit-timeline strong { display: block; font-size: 15.5px; margin-bottom: 3px; }
+.credit-timeline p { margin: 0; color: var(--muted); font-size: 14px; line-height: 1.55; max-width: 62ch; }
+
+.credit-licence { margin: 6px 0 0; font-size: 12.5px; color: var(--faint); }
+
+.credit-people { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+.credit-people li {
+  display: grid;
+  grid-template-columns: minmax(140px, 1.1fr) minmax(0, 2fr) auto;
+  gap: 4px 16px;
+  align-items: baseline;
+  padding: 11px 14px;
+  background: var(--surface);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-sm);
+}
+.credit-person-name { font-weight: 600; font-size: 14.5px; }
+.credit-person-role { color: var(--muted); font-size: 13.5px; line-height: 1.45; }
+.credit-person-count { font-size: 12.5px; color: var(--faint); font-variant-numeric: tabular-nums; white-space: nowrap; }
+
+@media (max-width: 620px) {
+  .credit-maker { grid-template-columns: 1fr; justify-items: start; padding: 18px; }
+  .credit-avatar { width: 76px; height: 76px; }
+  .credit-name { font-size: 23px; }
+  .credit-people li { grid-template-columns: 1fr auto; }
+  .credit-person-role { grid-column: 1 / -1; }
+}
+/* ------------------------------------------------------------------------
+   Credits & contributions — brand-led editorial redesign (v2)
+   Keeps third-party marks inside neutral logo wells and gives every entry
+   one clear role, description and destination. All colours follow the global
+   theme tokens; no third-party mark is recoloured or shadowed.
+   ------------------------------------------------------------------------ */
+.credits-page { max-width: 1040px; }
+.credits-page > .article-head { margin-bottom: 20px; }
+.credit-identity {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 20px;
+  padding: clamp(20px, 3.4vw, 32px);
+  margin: 4px 0 18px;
+  overflow: hidden;
+  border: 1px solid color-mix(in srgb, var(--accent) 18%, var(--border));
+  border-radius: 28px;
+  background:
+    radial-gradient(circle at 92% 0%, color-mix(in srgb, var(--copper) 16%, transparent), transparent 34%),
+    linear-gradient(135deg, color-mix(in srgb, var(--accent) 8%, var(--surface)), var(--surface));
+  box-shadow: var(--im-clay-shadow, var(--shadow-sm));
+}
+.credit-identity-brand { display: flex; align-items: center; gap: 18px; min-width: 0; flex: 1 1 440px; }
+.credit-identity-mark { width: 76px; height: 76px; flex: 0 0 auto; border-radius: 23px; box-shadow: 0 7px 20px rgba(20, 48, 35, .13); }
+.credit-identity-copy { min-width: 0; }
+.credit-identity-copy .kicker { display: block; margin-bottom: 5px; font-size: 10.5px; letter-spacing: .13em; }
+.credit-identity-copy h2 { margin: 0 0 5px; font-family: var(--font-head); font-size: clamp(25px, 4vw, 34px); line-height: 1.05; color: var(--text); }
+.credit-identity-copy p { margin: 0; max-width: 56ch; color: var(--muted); font-size: 14px; line-height: 1.6; }
+.credit-identity-tags { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.credit-origin-chip, .credit-identity-chip {
+  display: inline-flex; align-items: center; gap: 6px; min-height: 32px; padding: 6px 11px;
+  border: 1px solid var(--border); border-radius: 999px; background: var(--surface); color: var(--text);
+  font-size: 11.5px; font-weight: 650; white-space: nowrap;
+}
+.credit-origin-chip { border-color: color-mix(in srgb, #16834a 28%, var(--border)); background: color-mix(in srgb, #16834a 8%, var(--surface)); }
+.credit-maker-v2 { grid-template-columns: auto minmax(0, 1fr); align-items: center; gap: 18px 22px; padding: 20px 22px; }
+.credit-maker-v2 .credit-avatar { width: 84px; height: 84px; }
+.credit-maker-v2 .credit-who .kicker { font-size: 10.5px; letter-spacing: .13em; }
+.credit-maker-v2 .credit-name { font-size: clamp(22px, 3vw, 28px); }
+.credit-maker-v2 .credit-links { margin: 8px 0 0; }
+.credit-facts-v2 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.credit-facts-v2 > div { min-height: 78px; display: flex; flex-direction: column; justify-content: center; border: 1px solid var(--border); box-shadow: none; }
+.credit-section { margin-top: 34px; }
+.credit-section-intro { max-width: 72ch; margin: -4px 0 18px; color: var(--muted); font-size: 14px; line-height: 1.65; }
+.credit-stack-group { margin: 22px 0 26px; }
+.credit-stack-group-heading { display: flex; align-items: baseline; justify-content: space-between; flex-wrap: wrap; gap: 5px 18px; margin-bottom: 12px; }
+.credit-stack-group-heading h3 { margin: 0; color: var(--text); font-size: 16px; font-weight: 750; }
+.credit-stack-group-heading p { margin: 0; max-width: 62ch; color: var(--muted); font-size: 12.5px; line-height: 1.5; }
+.credit-stack-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(228px, 1fr)); gap: 12px; }
+.credit-stack-card {
+  display: flex; flex-direction: column; min-width: 0; min-height: 220px; padding: 16px;
+  border: 1px solid var(--border); border-radius: 19px; background: var(--surface); color: var(--text);
+  text-decoration: none; box-shadow: var(--shadow-sm);
+  transition: transform .2s var(--im-motion), border-color .2s, box-shadow .2s;
+}
+.credit-stack-card:hover { transform: translateY(-3px); border-color: color-mix(in srgb, var(--accent) 38%, var(--border)); box-shadow: var(--shadow); text-decoration: none; }
+.credit-stack-card:focus-visible, .credit-person-card:focus-visible, .credit-sarvam-logo:focus-visible { outline: 3px solid var(--focus); outline-offset: 3px; }
+.credit-stack-card-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 12px; }
+.credit-logo-frame {
+  position: relative; display: grid; place-items: center; flex: 0 0 auto; width: 54px; height: 54px; overflow: hidden;
+  border: 1px solid rgba(20, 42, 30, .08); border-radius: 15px; background: #fff; color: #26342c;
+}
+.credit-logo-fallback { display: grid; place-items: center; width: 100%; height: 100%; font-size: 12px; font-weight: 800; letter-spacing: .02em; }
+.credit-logo-image { position: absolute; inset: 0; width: 100%; height: 100%; padding: 6px; object-fit: contain; background: #fff; }
+.credit-role-chip { display: inline-flex; align-items: center; max-width: 65%; padding: 5px 8px; border-radius: 999px; background: var(--surface-2); color: var(--muted); font-size: 10px; font-weight: 700; line-height: 1.25; text-align: right; }
+.credit-stack-name { margin: 0 0 6px; font-size: 15.5px; line-height: 1.3; font-weight: 750; }
+.credit-stack-description { flex: 1; margin: 0 0 12px; color: var(--muted); font-size: 12.8px; line-height: 1.58; }
+.credit-stack-licence { display: block; padding-top: 9px; border-top: 1px solid var(--border); color: var(--faint); font-size: 11px; line-height: 1.45; }
+.credit-stack-open { margin-top: 7px; color: var(--accent); font-size: 11px; font-weight: 700; }
+.credit-sarvam-card {
+  display: grid; grid-template-columns: minmax(150px, 190px) minmax(0, 1fr); align-items: center; gap: 22px;
+  padding: clamp(16px, 2.5vw, 24px); border: 1px solid var(--border); border-radius: 22px; background: var(--surface); box-shadow: var(--shadow-sm);
+}
+.credit-sarvam-logo {
+  position: relative; display: grid; place-items: center; width: 100%; aspect-ratio: 16 / 9; overflow: hidden;
+  border: 1px solid rgba(20, 42, 30, .08); border-radius: 15px; background: #fff; color: #171717; text-decoration: none;
+}
+.credit-sarvam-logo img { display: block; width: 100%; height: 100%; object-fit: contain; background: #fff; }
+.credit-sarvam-fallback { display: none; font-size: 23px; font-weight: 780; letter-spacing: -.04em; }
+.credit-sarvam-logo:not(.has-image) .credit-sarvam-fallback { display: block; }
+.credit-sarvam-copy { min-width: 0; }
+.credit-role-chip-featured { max-width: none; margin-bottom: 8px; color: var(--accent); background: color-mix(in srgb, var(--accent) 10%, var(--surface-2)); }
+.credit-sarvam-copy h3 { margin: 0 0 7px; font-size: 21px; }
+.credit-sarvam-copy p { margin: 0 0 10px; max-width: 67ch; color: var(--muted); font-size: 13.5px; line-height: 1.65; }
+.credit-official-link { color: var(--accent); font-size: 12.5px; font-weight: 700; text-decoration: none; }
+.credit-official-link:hover { text-decoration: underline; }
+.credit-disclosure-note { margin: 12px 0 0; padding: 11px 13px; border-left: 3px solid var(--accent); border-radius: 0 10px 10px 0; background: var(--surface-2); color: var(--muted); font-size: 12px; line-height: 1.6; }
+.credit-people-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; }
+.credit-person-card {
+  display: grid; grid-template-columns: 54px minmax(0, 1fr); grid-template-rows: auto auto 1fr auto; align-items: start; gap: 2px 12px;
+  min-width: 0; min-height: 168px; padding: 15px; border: 1px solid var(--border); border-radius: 18px;
+  background: var(--surface); color: var(--text); text-decoration: none; box-shadow: var(--shadow-sm);
+  transition: transform .2s var(--im-motion), border-color .2s, box-shadow .2s;
+}
+.credit-person-card:hover { transform: translateY(-2px); border-color: color-mix(in srgb, var(--accent) 35%, var(--border)); box-shadow: var(--shadow); text-decoration: none; }
+.credit-person-avatar-v2 { grid-column: 1; grid-row: 1 / span 3; position: relative; width: 54px; height: 54px; border-radius: 16px; background: var(--surface-2); color: var(--text); }
+.credit-person-avatar-v2 img { position: absolute; z-index: 1; inset: 0; width: 100%; height: 100%; padding: 4px; border-radius: inherit; object-fit: contain; background: var(--surface); }
+.credit-person-avatar-v2:has(img[src*="galeoindus"]) img { object-fit: cover; padding: 0; }
+.credit-person-kind { grid-column: 2; align-self: center; color: var(--accent); font-size: 10px; font-weight: 750; letter-spacing: .04em; text-transform: uppercase; }
+.credit-person-card .credit-person-name { grid-column: 2; margin: 2px 0 4px; font-size: 14px; line-height: 1.35; }
+.credit-person-card .credit-person-role { grid-column: 2; margin: 0; color: var(--muted); font-size: 12px; line-height: 1.55; }
+.credit-person-open { grid-column: 2; margin-top: 8px; color: var(--accent); font-size: 11px; font-weight: 700; }
+.credits-page .line-list { display: grid; gap: 8px; }
+.credits-page .line-list > li { font-size: 13px; line-height: 1.6; }
+
+@media (max-width: 700px) {
+  .credit-identity { align-items: flex-start; }
+  .credit-identity-brand { flex-basis: 100%; gap: 13px; }
+  .credit-identity-mark { width: 62px; height: 62px; border-radius: 18px; }
+  .credit-identity-tags { width: 100%; }
+  .credit-facts-v2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .credit-sarvam-card { grid-template-columns: minmax(0, 1fr); gap: 16px; }
+  .credit-sarvam-logo { max-width: 190px; }
+}
+@media (max-width: 480px) {
+  .credit-maker-v2 { grid-template-columns: 1fr; }
+  .credit-maker-v2 .credit-avatar { width: 72px; height: 72px; }
+  .credit-stack-grid, .credit-people-grid { grid-template-columns: 1fr; }
+  .credit-stack-card { min-height: 0; }
+  .credit-person-card { min-height: 0; }
+  .credit-identity-copy p { font-size: 13px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .credit-stack-card, .credit-person-card { transition: none; }
+  .credit-stack-card:hover, .credit-person-card:hover { transform: none; }
+}

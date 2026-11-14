@@ -1,77 +1,172 @@
 <!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Research desk — Veridell</title>
-<meta name="description" content="A research-shaped view: ask, and read the answer as topics with the source sentences kept intact.">
+  <meta name="veridell-build" content="6.0.0-44559e1">
+  <meta name="veridell-version" content="6.0.0">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#f7f8fc">
+  <meta name="description" content="Veridell Research Desk — ask a question and get the answer taken straight from the article, broken into its topics, with every source openable.">
+  <meta name="robots" content="index, follow, max-image-preview:large">
+  <title>Research Desk — Veridell</title>
+  <link rel="preconnect" href="https://en.wikipedia.org">
 <link rel="canonical" href="https://veridell.pages.dev/research/">
-<meta name="robots" content="index, follow, max-image-preview:large">
-<meta name="theme-color" content="#f7f3ea" media="(prefers-color-scheme: light)">
-<meta name="theme-color" content="#0e1512" media="(prefers-color-scheme: dark)">
-<meta name="color-scheme" content="light dark">
-<meta property="og:type" content="article">
-<meta property="og:site_name" content="Veridell">
-<meta property="og:title" content="Research desk — Veridell">
-<meta property="og:description" content="A research-shaped view: ask, and read the answer as topics with the source sentences kept intact.">
-<meta property="og:url" content="https://veridell.pages.dev/research/">
-<meta name="twitter:card" content="summary">
-<link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
-<link rel="manifest" href="../manifest.webmanifest">
-<script src="../src/theme-boot.js"></script>
-<link rel="stylesheet" href="../styles/site.css">
-
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Research Desk — Veridell">
+  <meta property="og:description" content="Veridell Research Desk — ask a question and get the answer taken straight from the article, broken into its topics, with every source openable.">
+  <meta property="og:site_name" content="Veridell">
+  <meta property="og:url" content="https://veridell.pages.dev/research/">
+  <meta property="og:locale" content="en_IN">
+  <meta property="og:image" content="https://veridell.pages.dev/assets/img/brand/og-card.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Research Desk — Veridell">
+  <meta name="twitter:description" content="Veridell Research Desk — ask a question and get the answer taken straight from the article, broken into its topics, with every source openable.">
+  <meta name="twitter:image" content="https://veridell.pages.dev/assets/img/brand/og-card.png">
+  <link rel="stylesheet" href="/assets/css/bundle-6d96518b5d.css?v=6.0.0-44559e1">
+  <script type="module" src="/assets/js/research-desk.js?v=6.0.0-44559e1"></script>
+<!-- VERIDELL-RESEARCH-CHAT:START -->
+<!-- VERIDELL-RESEARCH-CHAT:END -->
+  <script src="/assets/js/image-fallback.js?v=6.0.0-44559e1"></script>
+  <script src="/assets/js/global-theme.js?v=6.0.0-44559e1"></script>
+  <link rel="icon" href="/favicon.ico" sizes="48x48">
+  <link rel="icon" href="/assets/img/brand/facet.svg" type="image/svg+xml">
+  <link rel="icon" href="/assets/img/brand/facet-48.png" sizes="48x48" type="image/png">
+  <link rel="icon" href="/assets/img/brand/facet-192.png" sizes="192x192" type="image/png">
+  <link rel="apple-touch-icon" href="/assets/img/brand/facet-180.png">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebPage",
+    "name": "Research Desk — Veridell",
+    "url": "https://veridell.pages.dev/research/",
+    "isPartOf": {
+      "@type": "WebSite",
+      "url": "https://veridell.pages.dev/",
+      "name": "Veridell"
+    },
+    "inLanguage": "en"
+  }
+  </script>
 </head>
-<body data-page="static">
-<a class="em-skip" href="#content">Skip to the content</a>
-<header class="em-bar"><div class="em-bar-in">
-  <a class="em-brand" href="/" aria-label="Veridell home"><span class="em-brand-mark" aria-hidden="true"><svg viewBox="0 0 96 96" role="img" aria-hidden="true" focusable="false">
-  <defs>
-    <linearGradient id="emMarkG" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0" stop-color="#1f7d63"/><stop offset="1" stop-color="#08302a"/>
-    </linearGradient>
-  </defs>
-  <rect width="96" height="96" rx="26" fill="url(#emMarkG)"/>
-  <path d="M28 31 L48 66 L68 31" fill="none" stroke="#f7f3ea" stroke-width="9.5" stroke-linecap="round" stroke-linejoin="round"/>
-  <circle cx="48" cy="24.5" r="5.2" fill="#e0a06a"/>
-</svg></span><span class="em-brand-word">Veridell</span></a>
-  <nav class="em-nav" aria-label="Primary">
-  <a href="/">Home</a><a href="/articles/">Articles</a><a href="/topics/">Topics</a>
-  <a href="/questions/">Questions</a><a href="/help/">Help</a><a href="/chat/">Amigo</a>
-</nav>
-</div></header>
-<main class="em-main" id="content">
-<div class="em-page em-column">
-      <h1>Research desk</h1>
-      <p class="em-sub">For a question that deserves more than a paragraph: the answer broken into topics, every sentence traceable.</p>
-      <form class="em-ask" role="search" onsubmit="event.preventDefault(); location.href='/#/ask?q=' + encodeURIComponent(this.q.value)">
-        <label class="em-sr" for="research-q">Research question</label>
-        <input id="research-q" name="q" type="search" placeholder="e.g. What did the Chandrayaan missions actually establish?" autocomplete="off">
-        <button class="em-ask-go" type="submit" aria-label="Research">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m19.5 19.5-4.3-4.3"/></svg>
-        </button>
-      </form>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+  <div class="app-shell" id="research-app" data-theme="light">
+    <header class="topbar">
+      <div class="brand-lockup">
+        <div class="brand-mark" aria-hidden="true"><span></span><span></span><span></span><span></span></div>
+        <div class="brand-copy"><strong>Veridell<span>.</span></strong><small>RESEARCH DESK</small></div>
+      </div>
+      <div class="topbar-center"><span class="status-dot"></span><span>Every answer opens the article it came from</span></div>
+      <div class="topbar-actions">
+        <button class="icon-button" data-action="shortcuts" type="button" aria-label="Keyboard shortcuts" title="Keyboard shortcuts (?)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2.9" y="6.4" width="18.2" height="11.2" rx="2.6"/><path d="M6.4 10h.01M9.6 10h.01M12.8 10h.01M16 10h.01M6.4 13.4h.01M9.6 13.4h.01M12.8 13.4h.01M16 13.4h.01M8.6 16.2h6.8"/></svg></button>
+        <button class="icon-button" data-action="theme" type="button" aria-label="Switch theme" title="Toggle light/dark mode"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.3 14.1A8.5 8.5 0 0 1 9.9 3.7 8.5 8.5 0 1 0 20.3 14.1Z"/></svg></button>
+        <a class="site-link" href="/">Main site <span>↗</span></a>
+      </div>
+    </header>
 
-      <h2>What the desk gives you</h2>
-      <ul>
-        <li>A direct answer, then the key sentences that carry it.</li>
-        <li>Numbered topics, each one a section of the source article.</li>
-        <li>The source, with the licence it is used under.</li>
-        <li>Markdown export, so the notes can leave the browser.</li>
-      </ul>
+    <div class="workspace" id="workspace">
+      <aside class="left-rail" aria-label="Research navigation">
+        <button class="primary-new" type="button" data-action="new-search"><span class="plus-mark">+</span><span>New search</span><kbd>⌘ K</kbd></button>
+        <div class="rail-nav" role="navigation" aria-label="Views">
+          <button class="rail-link is-active" data-view="search" type="button"><span class="rail-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="10.9" cy="10.9" r="6.9"/><path d="m19.6 19.6-4.2-4.2"/></svg></span><span>Search desk</span><span class="nav-pill">⌕</span></button>
+          <button class="rail-link" data-view="saved" type="button"><span class="rail-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6.7 4.3h10.6v15.4L12 15.5l-5.3 4.2z"/></svg></span><span>Reading list</span><span class="count-pill" data-saved-count>0</span></button>
+          <button class="rail-link" data-view="history" type="button"><span class="rail-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.7 12a8.3 8.3 0 1 0 2.5-5.9"/><path d="M3.3 4.4v4.3h4.3"/><path d="M12 7.9V12l3.1 1.8"/></svg></span><span>Recent searches</span></button>
+        </div>
+        <div class="rail-divider"></div>
+        <div class="rail-section-title"><span data-left-list-title>RECENT TOPICS</span><button class="text-icon-button" data-action="clear-history" type="button" title="Clear search history" aria-label="Clear search history">···</button></div>
+        <div class="rail-topic-list" data-left-list><div class="rail-empty">Your searches will appear here.</div></div>
+        <div class="rail-spacer"></div>
+        <div class="privacy-mini"><span class="privacy-lock"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4.4" y="10.2" width="15.2" height="10.4" rx="2.6"/><path d="M8 10.2V7.4a4 4 0 0 1 8 0v2.8"/></svg></span><div><strong>Private by default</strong><small>History stays in this browser.</small></div></div>
+        <div class="rail-footer"><span class="footer-orb"></span><span>Knowledge, with receipts.</span></div>
+      </aside>
 
-      <h2>Where it reads from</h2>
-      <p>Wikipedia in twelve languages, with Wikidata for structured facts and Wikimedia Commons for images and their licences.</p>
+      <main class="main-column" id="main" tabindex="-1">
+        <div class="mobile-heading"><button class="icon-button mobile-menu-button" data-action="mobile-menu" type="button" aria-label="Open navigation"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4.2 6.4h15.6M4.2 12h15.6M4.2 17.6h9.6"/></svg></button><span>Research desk</span><button class="icon-button" data-action="mobile-saved" type="button" aria-label="Open reading list"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6.7 4.3h10.6v15.4L12 15.5l-5.3 4.2z"/></svg></button></div>
+        <div class="main-scroll" data-main-scroll>
+          <section class="welcome-block" data-welcome>
+            <div class="welcome-kicker"><span class="kicker-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3.3l1.7 4.6 4.6 1.7-4.6 1.7-1.7 4.6-1.7-4.6L5.7 9.6l4.6-1.7z"/><path d="M17.9 15.2l.8 2.1 2.1.8-2.1.8-.8 2.1-.8-2.1-2.1-.8 2.1-.8z"/></svg></span> Evidence-first knowledge discovery</div>
+            <h1>Good questions deserve<br><span>great sources.</span></h1>
+            <p class="welcome-subtitle">Ask a question and get the answer out of the article itself — the lead, the key points and the topics it covers — with every source one click away. No account, no key.</p>
+            <form class="search-box" data-search-form role="search">
+              <span class="search-box-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="10.9" cy="10.9" r="6.9"/><path d="m19.6 19.6-4.2-4.2"/></svg></span>
+              <input type="search" data-query-input autocomplete="off" spellcheck="false" maxlength="300" aria-label="Search public knowledge articles" placeholder="Search a topic, person, place, or question…">
+              <button class="clear-query" data-action="clear-query" type="button" aria-label="Clear search" hidden>×</button>
+              <button class="search-submit" type="submit"><span>Search</span><span class="submit-arrow">↗</span></button>
+            </form>
+            <div class="search-options-inline" aria-label="Search options for small screens">
+              <label>Language <select data-language-mobile><option value="en">English</option><option value="hi">हिन्दी</option><option value="bn">বাংলা</option><option value="ta">தமிழ்</option><option value="te">తెలుగు</option><option value="mr">मराठी</option><option value="gu">ગુજરાતી</option><option value="kn">ಕನ್ನಡ</option><option value="ml">മലയാളം</option><option value="pa">ਪੰਜਾਬੀ</option><option value="ur">اردو</option><option value="sa">संस्कृतम्</option></select></label>
+              <label>Sources <select data-limit-mobile><option value="3">3 sources</option><option value="5">5 sources</option><option value="10">10 sources</option></select></label>
+            </div>
+            <div class="search-footnote"><span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3.4 19 6.2v5c0 4.6-3 8-7 10-4-2-7-5.4-7-10v-5z"/><path d="m9.2 11.9 2 2 3.6-3.6"/></svg> Direct from public sources</span><span class="footnote-dot">·</span><span>Queries go to Wikipedia</span><span class="footnote-dot">·</span><span>Nothing written for you</span></div>
+            <div class="suggestion-block"><div class="suggestion-label">TRY A SEARCH</div><div class="suggestion-grid">
+              <button class="suggestion-card" type="button" data-query="Chandrayaan-3"><span class="suggestion-icon icon-violet"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.4" y="4.6" width="17.2" height="14.8" rx="2.8"/><circle cx="8.9" cy="9.7" r="1.5"/><path d="m4.4 17.4 4.9-4.6 3.6 3.3 3-2.6 4.7 4.1"/></svg></span><span><strong>Space & science</strong><small>Chandrayaan-3</small></span><span class="suggestion-arrow">↗</span></button>
+              <button class="suggestion-card" type="button" data-query="Indian independence movement"><span class="suggestion-icon icon-saffron"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="5.4" r="2.4"/><circle cx="5.4" cy="18" r="2.4"/><circle cx="18.6" cy="18" r="2.4"/><path d="M10.6 7.6 6.8 15.8M13.4 7.6l3.8 8.2M7.8 18h8.4"/></svg></span><span><strong>History & culture</strong><small>Indian independence</small></span><span class="suggestion-arrow">↗</span></button>
+              <button class="suggestion-card" type="button" data-query="Quantum computing"><span class="suggestion-icon icon-cyan"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="6.8"/><path d="M4.2 15.6c2.4 1.6 8.6-3.8 15.6-1.2"/></svg></span><span><strong>Concepts & ideas</strong><small>Quantum computing</small></span><span class="suggestion-arrow">↗</span></button>
+              <button class="suggestion-card" type="button" data-query="Patna"><span class="suggestion-icon icon-green"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20.6s6.4-5.9 6.4-10.6a6.4 6.4 0 1 0-12.8 0C5.6 14.7 12 20.6 12 20.6Z"/><circle cx="12" cy="9.8" r="2.4"/></svg></span><span><strong>Places & people</strong><small>Patna</small></span><span class="suggestion-arrow">↗</span></button>
+            </div></div>
+            <div class="honesty-note"><span class="note-mark">i</span><p><strong>Built for finding evidence, not inventing answers.</strong> Search results and excerpts are fetched from Wikipedia in your browser. Read the original article before relying on a claim.</p></div>
+          </section>
+
+          <section class="results-view" data-results-view hidden>
+            <div class="results-title-row"><div><div class="eyebrow">SOURCE EXPLORER</div><h2 data-results-heading>Search results</h2><p data-results-subtitle>Public articles matching your query.</p></div><button class="outline-button" type="button" data-action="new-search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4.6v14.8M4.6 12h14.8"/></svg> New search</button></div>
+            <div class="query-summary"><span class="query-symbol"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="10.9" cy="10.9" r="6.9"/><path d="m19.6 19.6-4.2-4.2"/></svg></span><strong data-current-query></strong><span class="summary-separator">·</span><span data-results-count>0 sources</span><span class="source-verified"><span></span> Public source</span></div>
+            <div class="results-mobile-controls" aria-label="Change search options"><label>Article language <select data-language-results><option value="en">English</option><option value="hi">हिन्दी</option><option value="bn">বাংলা</option><option value="ta">தமிழ்</option><option value="te">తెలుగు</option><option value="mr">मराठी</option><option value="gu">ગુજરાતી</option><option value="kn">ಕನ್ನಡ</option><option value="ml">മലയാളം</option><option value="pa">ਪੰਜਾਬੀ</option><option value="ur">اردو</option><option value="sa">संस्कृतम्</option></select></label><label>Results <select data-limit-results><option value="3">3 sources</option><option value="5">5 sources</option><option value="10">10 sources</option></select></label></div>
+            <div class="result-toolbar"><div class="view-switcher"><button class="view-switch is-active" data-result-view="cards" type="button">Cards</button><button class="view-switch" data-result-view="compact" type="button">Compact</button></div><div class="toolbar-right"><label class="sort-label">Sort <select data-sort><option value="relevance">Relevance</option><option value="title">Title A–Z</option><option value="longest">Longest article</option><option value="recent">Recently updated</option></select></label></div></div>
+            <div class="selection-toolbar" data-selection-toolbar hidden><span><strong data-selected-count>0</strong> selected</span><div><button type="button" data-action="compare">Compare excerpts</button><button type="button" data-action="export-selected">Export selected</button><button type="button" data-action="clear-selection">Clear</button></div></div>
+            <div class="answer-slot" data-answer-slot hidden></div>
+            <div class="results-list" data-results-list aria-live="polite"></div>
+            <div class="results-bottom-note"><span class="note-mark small">i</span><span>Snippets are excerpts from source pages, not a generated summary. Search relevance is from Wikipedia; other sort options are applied locally.</span></div>
+          </section>
+
+          <section class="library-view" data-library-view hidden>
+            <div class="results-title-row"><div><div class="eyebrow" data-library-kicker>YOUR REFERENCE LIBRARY</div><h2 data-library-heading>Reading list</h2><p data-library-description>Sources saved in this browser for later.</p></div><button class="outline-button" type="button" data-action="new-search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4.6v14.8M4.6 12h14.8"/></svg> New search</button></div>
+            <div class="library-tools"><label class="library-filter"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="10.9" cy="10.9" r="6.9"/><path d="m19.6 19.6-4.2-4.2"/></svg><input data-library-filter type="search" placeholder="Filter saved sources…" aria-label="Filter saved sources"></label><button class="outline-button" data-action="export-library" type="button">Export library ↗</button></div>
+            <div class="results-list" data-library-list></div>
+          </section>
+
+          <section class="history-view" data-history-view hidden>
+            <div class="results-title-row"><div><div class="eyebrow">ON THIS DEVICE</div><h2>Recent searches</h2><p>Your last searches, stored locally in this browser.</p></div><button class="outline-button" type="button" data-action="clear-history">Clear history</button></div>
+            <div class="history-full-list" data-history-full></div>
+          </section>
+        </div>
+        <footer class="main-footer"><span>Veridell Research Desk <span class="footer-dot">•</span> client-side only</span><span><a href="https://www.mediawiki.org/wiki/API:REST_API/Get_started" target="_blank" rel="noopener noreferrer">API documentation ↗</a><span class="footer-dot">•</span><a href="https://en.wikipedia.org/wiki/Wikipedia:Copyrights" target="_blank" rel="noopener noreferrer">Content attribution ↗</a></span></footer>
+      </main>
+
+      <aside class="right-rail" aria-label="Search controls and selected sources">
+        <div class="right-rail-head"><div><div class="eyebrow">SEARCH SETTINGS</div><h2>Fine-tune</h2></div><span class="settings-orb"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4.4 7.4h8.2M16.6 7.4h3M4.4 16.6h3M11.4 16.6h8.2"/><circle cx="14.6" cy="7.4" r="2.2"/><circle cx="9.4" cy="16.6" r="2.2"/></svg></span></div>
+        <div class="control-section"><label class="control-label" for="search-language">Article language</label><div class="select-wrap"><select id="search-language" data-language><option value="en">English</option><option value="hi">हिन्दी</option><option value="bn">বাংলা</option><option value="ta">தமிழ்</option><option value="te">తెలుగు</option><option value="mr">मराठी</option><option value="gu">ગુજરાતી</option><option value="kn">ಕನ್ನಡ</option><option value="ml">മലയാളം</option><option value="pa">ਪੰਜਾਬੀ</option><option value="ur">اردو</option><option value="sa">संस्कृतम्</option></select><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6.6 9.4 5.4 5.4 5.4-5.4"/></svg></div><p class="control-help">Searches that language's Wikipedia. It does not translate results.</p></div>
+        <div class="control-section"><div class="control-label">Number of results</div><div class="segmented-options" role="group" aria-label="Number of results"><button type="button" data-limit="3">3</button><button type="button" class="is-active" data-limit="5">5</button><button type="button" data-limit="10">10</button></div><p class="control-help">More results can help with broad topics.</p></div>
+        <div class="control-section"><div class="control-label">Result content</div><div class="content-option"><span class="option-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6.2 3.6h7.2l4.4 4.4v12.4H6.2z"/><path d="M13.2 3.8v4.4h4.4M9.2 12h5.6M9.2 15.6h5.6"/></svg></span><span><strong>Article excerpt</strong><small>Search snippet and lead text</small></span><span class="option-check">✓</span></div><p class="control-help">Text is shown from its source; nothing is rewritten by AI.</p></div>
+        <div class="rail-divider"></div>
+        <div class="right-rail-head selected-head"><div><div class="eyebrow">WORKSPACE</div><h2>Selected sources <span data-selected-panel-count>0</span></h2></div></div>
+        <p class="panel-description">Select two or more results to compare the excerpts side by side. Selection stays temporary for this session.</p>
+        <div class="selected-source-list" data-selected-list><div class="selected-empty"><span class="selected-empty-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6.7 4.3h10.6v15.4L12 15.5l-5.3 4.2z"/></svg></span><strong>No sources selected</strong><small>Use the checkbox on a result to add it here.</small></div></div>
+        <div class="compare-bottom"><button class="compare-button" data-action="compare" type="button" disabled><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.4" y="4.6" width="7.4" height="14.8" rx="2"/><rect x="13.2" y="4.6" width="7.4" height="14.8" rx="2"/></svg><span>Compare excerpts</span><span class="button-arrow">↗</span></button><button class="clear-selected-button" data-action="clear-selection" type="button" hidden>Clear selection</button></div>
+        <div class="right-info-card"><span class="info-card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="8.4"/><path d="M12 11.2v5M12 8.3h.01"/></svg></span><div><strong>Transparent by design</strong><p>This tool searches public articles only. It does not call a generative AI service or create answers. Always verify important details in the original source.</p></div></div>
+      </aside>
     </div>
-</main>
-<footer class="em-foot">
-  <div class="em-foot-in">
-    <div class="em-foot-col"><strong>Read</strong><a href="/articles/">Articles</a><a href="/topics/">Topics</a><a href="/#/library">Library</a><a href="/#/today">On this day</a></div>
-    <div class="em-foot-col"><strong>About</strong><a href="/how-it-works/">How it works</a><a href="/help/">Help</a><a href="/#/sources">Sources</a><a href="/#/credits">Credits</a><a href="https://github.com/galeoindus/veridell" target="_blank" rel="noopener noreferrer">GitHub</a></div>
-    <div class="em-foot-col"><strong>Talk</strong><a href="/chat/">Amigo chat</a><a href="/questions/">Questions</a><a href="/research/">Research desk</a></div>
+
+    <div class="toast" data-toast role="status" aria-live="polite" hidden></div>
+    <div class="scrim" data-scrim hidden></div>
+    <div class="modal-backdrop" data-modal-backdrop hidden>
+      <section class="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title" data-modal>
+        <div class="modal-head"><div><div class="eyebrow" data-modal-kicker>SELECTED SOURCES</div><h2 id="modal-title" data-modal-title>Compare excerpts</h2></div><button class="icon-button" type="button" data-action="close-modal" aria-label="Close dialog"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6.2 6.2l11.6 11.6M17.8 6.2 6.2 17.8"/></svg></button></div>
+        <div class="modal-body" data-modal-body></div>
+        <div class="modal-foot"><span data-modal-footnote>Source excerpts are quoted, not synthesized.</span><button class="search-submit" type="button" data-action="close-modal">Done <span class="submit-arrow">✓</span></button></div>
+      </section>
+    </div>
   </div>
-  <div class="em-foot-in"><p>Wikipedia text is available under CC BY-SA 4.0 and Wikidata under CC0 1.0. Veridell is an independent reader, not affiliated with or endorsed by the Wikimedia Foundation.</p></div>
-</footer>
-<script type="module" src="../src/static.js"></script>
+<!-- VERIDELL-RESEARCH-CHAT:START -->
+<script src="/assets/js/research-chat-enhance.js?v=6.0.0-44559e1"></script>
+<!-- VERIDELL-RESEARCH-CHAT:END -->
+  <script type="module" src="/assets/js/build-watch.js?v=6.0.0-44559e1"></script>
+  <script src="/assets/js/chat-launcher.js?v=6.0.0-44559e1" defer></script>
+  <nav class="bottom-nav" aria-label="Primary (phone)">
+    <a href="/#/ask"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4.2 11.6a7.8 7.8 0 0 1 15.6 0c0 4.3-3.5 7.8-7.8 7.8-1 0-2-.2-2.9-.6l-3.9 1.5 1.2-3.4a7.8 7.8 0 0 1-2.2-5.3Z"/></svg><span>Ask</span></a>
+    <a href="/#/explore"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="8.6"/><path d="m15.3 8.7-1.9 4.7-4.7 1.9 1.9-4.7z"/></svg><span>Explore</span></a>
+    <a href="/topics/"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m12 3.7 8.4 4.4-8.4 4.4-8.4-4.4z"/><path d="m3.6 12.1 8.4 4.4 8.4-4.4"/><path d="m3.6 16.2 8.4 4.4 8.4-4.4"/></svg><span>Topics</span></a>
+    <a href="/#/library"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4.6 5.4a1.6 1.6 0 0 1 1.6-1.6h4.2v16.4H6.2a1.6 1.6 0 0 1-1.6-1.6z"/><path d="M10.4 3.8h3.4a1.6 1.6 0 0 1 1.6 1.6v12.8a1.6 1.6 0 0 1-1.6 1.6h-3.4"/><path d="m15.4 6.4 2.9.8a1.6 1.6 0 0 1 1.1 2l-3.1 10.8"/></svg><span>Library</span></a>
+    <a href="/#/bookmarks"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6.7 4.3h10.6v15.4L12 15.5l-5.3 4.2z"/></svg><span>Saved</span></a>
+  </nav>
 </body>
 </html>

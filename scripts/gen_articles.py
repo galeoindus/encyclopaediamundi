@@ -1,0 +1,889 @@
+#!/usr/bin/env python3
+"""Generate static, indexable article pages for Veridell's curated topics.
+
+Each page is real HTML: lead, quick facts, a numbered table of contents,
+numbered sections with inline citations, a reference list, related topics and
+a link into the interactive app. They use the site's own stylesheets, so they
+look like the site, and they carry the attribution and modification notice the
+licence requires.
+
+Run:  python3 scripts/gen_articles.py   (needs beautifulsoup4 and lxml)
+"""
+
+import html
+import json
+import os
+import re
+import time
+import urllib.parse
+import urllib.request
+from bs4 import BeautifulSoup, NavigableString
+
+# The repository root, so the script can be run from anywhere.
+ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+# The release number, read from package.json. It used to be referenced as a bare
+# VERSION name that nothing defined, so every run of this script died with a
+# NameError before it wrote a single page.
+with open(os.path.join(ROOT, "package.json"), encoding="utf-8") as _pkg:
+    VERSION = json.load(_pkg)["version"]
+
+# The article body reads the way the breakdown reads: one point per sentence.
+# Kept inline so each generated page stays standalone.
+POINTS_STYLE = '''
+    .points-prose { margin: 0 0 18px; padding-left: 22px; display: grid; gap: 8px; }
+    .points-prose > li { line-height: 1.62; max-width: 72ch; }
+    .points-prose > li::marker { color: var(--copper, #b46a45); }
+'''
+
+# The sentence-splitting used to be an inline <script>, which the site's
+# Content-Security-Policy blocks (script-src 'self'). It now lives in
+# assets/js/article-points.js and is loaded as a module like every other
+# script on the site.
+# The version comes from package.json (read above), never a hardcoded number:
+# a stale ?v= here meant the generated pages requested an asset address that no
+# release ever served, so the script was fetched from a cold cache every time.
+POINTS_SCRIPT = f'\n<script type="module" src="/assets/js/article-points.js?v={VERSION}" defer></script>'
+
+ORIGIN = "https://veridell.pages.dev"
+LANG = "en"
+UA = "Veridell/3.0 (static article generator; contact bholasee8816@gmail.com)"
+
+TOPICS = [
+    "Chandrayaan-3", "Unified Payments Interface", "Indian independence movement",
+    "Artificial intelligence", "Vedas", "Black hole", "Ayurveda", "Chess",
+    "Ashoka", "Chandrayaan-2", "ISRO", "Photosynthesis", "World Wide Web",
+]
+
+DROP = [
+    "script", "style", "link", "meta", "noscript",
+    ".mw-editsection", ".mw-empty-elt", ".navbox", ".vertical-navbox",
+    ".metadata", ".ambox", ".mbox", ".sistersitebox", ".side-box", ".sidebar",
+    ".hatnote", ".rellink", ".dablink", ".seealso", ".shortdescription",
+    "#toc", ".toc", ".mw-jump-link", ".noprint", ".mw-indicators",
+    ".mw-references-wrap", ".reflist", ".references", ".catlinks", "#catlinks",
+    ".mw-authority-control", ".authority-control",
+    ".mbox-image", ".ombox", ".tmbox", ".cmbox", ".fmbox",
+    "math", "annotation", ".mwe-math-mathml-inline", ".mwe-math-mathml-display",
+    ".navigation-not-searchable", ".mw-cite-backlink", ".mw-kartographer-maplink",
+    ".quotebox", ".infobox", "table.infobox",
+]
+
+KEEP_ATTRS = {"href", "src", "srcset", "alt", "title", "class", "id", "colspan",
+              "rowspan", "scope", "width", "height", "lang", "dir", "loading", "decoding"}
+KEEP_TAGS = {"p", "div", "span", "b", "strong", "i", "em", "u", "s", "sub", "sup", "br", "hr",
+             "h2", "h3", "h4", "h5", "h6", "ul", "ol", "li", "dl", "dt", "dd",
+             "table", "thead", "tbody", "tfoot", "tr", "td", "th", "caption",
+             "figure", "figcaption", "img", "a", "blockquote", "q", "cite", "code", "pre",
+             "abbr", "time", "mark", "small", "ruby", "rt", "rp", "bdi", "bdo", "dfn", "kbd", "samp", "var"}
+
+# Every reference that a citation points at must be rendered, or the marker is a
+# link to nothing. The cap used to be 100 while the citation numbering ran to
+# the full reference count, so on twelve of the thirteen pages the later
+# citations (#ref-101 onwards) landed on an anchor that was never written. The
+# list is now complete; MAX_REFS is only a safety valve far above any article.
+MAX_REFS = 600
+SKIP_SECTIONS = re.compile(r"^(references|notes|external links|see also|further reading|"
+                           r"bibliography|sources|citations|footnotes|works cited)$", re.I)
+
+
+def fetch(url):
+    req = urllib.request.Request(url, headers={"User-Agent": UA})
+    with urllib.request.urlopen(req, timeout=30) as r:
+        return json.load(r)
+
+
+def api(params):
+    params = dict(params, format="json", formatversion="2", origin="*")
+    url = f"https://{LANG}.wikipedia.org/w/api.php?" + urllib.parse.urlencode(params)
+    return fetch(url)
+
+
+def slug(title):
+    return title.strip().replace(" ", "_")
+
+
+# Words a sentence should not end on when it is cut short: a snippet closing
+# with "…missions developed by" tells the reader nothing and looks unfinished.
+DANGLING_WORDS = {
+    "a", "an", "the", "and", "or", "but", "of", "in", "on", "at", "by", "for",
+    "from", "to", "with", "as", "into", "onto", "over", "under", "about",
+    "after", "before", "between", "during", "through", "that", "which", "who",
+    "is", "are", "was", "were", "be", "been", "its", "their", "his", "her",
+}
+
+
+def strip_citation_marks(text):
+    """Drop reference markers that were flattened into plain text."""
+    text = re.sub(r"\[\s*\d{1,3}\s*\]", " ", text)
+    text = re.sub(r"\[\s*(?:citation needed|note \d+|nb \d+|sic|clarify|update)\s*\]", " ", text, flags=re.I)
+    text = re.sub(r"\s+([,;:.])", r"\1", text)
+    return re.sub(r"\s{2,}", " ", text).strip()
+
+
+def clip(text, limit, ellipsis="…"):
+    """Trim to `limit` characters on a word boundary, never mid-word.
+
+    The meta description used to be a hard slice, so pages ended in
+    "…missions developed by I" and "…human intellig". A snippet that stops in the
+    middle of a word reads as a bug, and it is what a search engine shows.
+    """
+    text = re.sub(r"\s+", " ", str(text or "")).strip()
+    if len(text) <= limit:
+        return text
+    cut = text[: limit - len(ellipsis) + 1]
+    space = cut.rfind(" ")
+    if space > limit * 0.6:
+        cut = cut[:space]
+    cut = cut.rstrip(" ,;:.–-")
+    # A snippet that stops on "…developed by" or "…headquartered in" reads as
+    # broken English. Drop trailing function words so it ends on a real word.
+    words = cut.split(" ")
+    while len(words) > 1 and words[-1].lower() in DANGLING_WORDS:
+        words.pop()
+    cut = " ".join(words).rstrip(" ,;:.–-")
+    return cut + ellipsis
+
+
+def lead_summary(text, limit):
+    """A lead that ends on a sentence, not in the middle of one.
+
+    The article sub-heading was a hard slice of the lead at 320 characters, so
+    a reader met "Chandrayaan-3 was launched on" and nothing after it. Whole
+    sentences are kept while they fit; a single overlong sentence is clipped on
+    a word boundary instead.
+    """
+    clean = strip_noise(text or "")
+    if len(clean) <= limit:
+        return clean
+    sentences = re.findall(r"[^.!?]+[.!?]+(?:\s|$)", clean)
+    out = ""
+    for sentence in sentences:
+        if len(out) + len(sentence) > limit:
+            break
+        out += sentence
+    if out.strip():
+        return out.strip()
+    return clip(clean, limit)
+
+
+def strip_noise(text):
+    """Drop pronunciation asides and collapse whitespace."""
+    ipa = re.compile(r"[\u0250-\u02af\u02c8\u02cc\u02b0-\u02ff\u1d00-\u1d7f]")
+    def repl(m):
+        return " " if ipa.search(m.group(0)) else m.group(0)
+    text = re.sub(r"\([^()]*\)", repl, text)
+    text = re.sub(r"\[[^\[\]]*\]", repl, text)
+    # Removing a pronunciation aside leaves its punctuation behind: the
+    # Chandrayaan-2 lead became `Chandrayaan-2 (; from Sanskrit: …)`, which then
+    # went straight into the page's search snippet. Empty or punctuation-only
+    # brackets are dropped, and a stray `;`/`:` is tidied at the seam.
+    # `Chandrayaan-2 (/ˌtʃʌndrəˈjɑːn/; from Sanskrit: …)` loses the IPA and
+    # leaves `(;` at the seam, so an opening bracket followed by punctuation is
+    # repaired before the empty-bracket sweep runs.
+    text = re.sub(r"\(\s*;\s*", "(", text)
+    text = re.sub(r"\(\s*[;:,.]*\s*\)", " ", text)
+    text = re.sub(r"\[\s*[;:,.]*\s*\]", " ", text)
+    text = re.sub(r"\(\s*\)", " ", text)
+    text = re.sub(r"\s+([;:,])", r"\1", text)
+    text = re.sub(r"([;:])\s*([;:])", r"\1", text)
+    return re.sub(r"\s+", " ", text).strip()
+
+
+def clean_document(html_text):
+    soup = BeautifulSoup(html_text, "lxml")
+    for wrapper in soup.select(".mw-parser-output"):
+        wrapper.unwrap()
+    # Modern MediaWiki wraps every heading in a <div class="mw-heading">; left
+    # in place, the headings never look like top-level blocks.
+    for wrapper in soup.select(".mw-heading"):
+        wrapper.unwrap()
+
+    # Maths: keep the rendered image, drop the LaTeX annotation.
+    for node in soup.select(".mwe-math-element"):
+        img = node.find("img")
+        if img:
+            node.replace_with(img)
+        else:
+            node.decompose()
+
+    # Read the reference texts while the list is still in the document.
+    texts = {}
+    for li in soup.select("li[id^=cite_note], ol.references > li, .references > li"):
+        if not li.get("id") or li["id"] in texts:
+            continue
+        t = strip_noise(li.get_text(" ", strip=True))
+        if t:
+            texts[li["id"]] = t
+
+    for sel in DROP:
+        for node in soup.select(sel):
+            node.decompose()
+
+    # Number the citations the way a reader meets them: 1, 2, 3 in the order
+    # they appear in the text — after the junk is gone, so a marker inside a
+    # navbox cannot take a number.
+    def target_of(sup):
+        link = sup.find("a", href=re.compile(r"^#cite_(note|ref)"))
+        return urllib.parse.unquote(link["href"][1:]) if link and link.get("href") else ""
+
+    sups = soup.select("sup.reference")
+    sequence = []
+    for sup in sups:
+        t = target_of(sup)
+        if t and t not in sequence:
+            sequence.append(t)
+
+    refs, number = [], {}
+    for target in sequence:
+        if target in texts:
+            refs.append(texts[target])
+            number[target] = len(refs)
+    for lid, t in texts.items():
+        if lid not in number:
+            refs.append(t)
+            number[lid] = len(refs)
+
+    # A citation whose target had no readable reference text used to be handed a
+    # number past the end of the list, so the reader could click [118] on a page
+    # that only listed 117 references and land nowhere. There is nothing to show
+    # for such a marker, so it is removed rather than made into a dead link.
+    dropped = 0
+    for sup in sups:
+        target = target_of(sup)
+        n = number.get(target)
+        if not n:
+            dropped += 1
+            sup.decompose()
+            continue
+        new = soup.new_tag("sup", **{"class": "cite"})
+        a = soup.new_tag("a", href=f"#ref-{n}")
+        a.string = f"[{n}]"
+        new.append(a)
+        sup.replace_with(new)
+
+    # Strip everything not on the allow-list.
+    for node in soup.find_all(True):
+        if node.name not in KEEP_TAGS:
+            node.unwrap()
+            continue
+        for attr in list(node.attrs):
+            if attr.lower() not in KEEP_ATTRS:
+                del node.attrs[attr]
+        if node.name == "img":
+            src = node.get("src", "")
+            if src.startswith("//"):
+                node["src"] = "https:" + src
+            node["loading"] = "lazy"
+            node["decoding"] = "async"
+        if node.name == "a":
+            href = node.get("href", "")
+            node.attrs.pop("class", None)
+            if href.startswith("/wiki/"):
+                title = urllib.parse.unquote(href[len("/wiki/"):]).replace("_", " ")
+                if re.match(r"^(File|Special|Help|Category|Portal|Wikipedia|Template|Talk|Draft):", title):
+                    node.unwrap()
+                    continue
+                node["href"] = f"/#/article/{urllib.parse.quote(slug(title))}"
+            elif href.startswith("#cite"):
+                continue
+            elif href.startswith("/"):
+                node.unwrap()
+                continue
+            elif href.startswith("http"):
+                node["target"] = "_blank"
+                node["rel"] = "noopener noreferrer"
+            elif href.startswith("#"):
+                pass
+            else:
+                node.unwrap()
+
+    # Tables scroll on their own instead of breaking the column.
+    for table in soup.find_all("table"):
+        wrapper = soup.new_tag("div", **{"class": "table-scroll"})
+        table.wrap(wrapper)
+
+    return soup, refs
+
+
+def build(title):
+    parsed = api({"action": "parse", "page": title, "redirects": 1,
+                  "prop": "text|sections|displaytitle|revid|langlinks",
+                  "disableeditsection": 1, "disabletoc": 1})
+    if "parse" not in parsed:
+        return None
+    p = parsed["parse"]
+    summary = api({"action": "query", "titles": p["title"], "prop": "extracts|pageimages|description|info",
+                   "exintro": 1, "explaintext": 1, "exchars": 500, "piprop": "thumbnail",
+                   "pithumbsize": 800, "inprop": "url"})
+    page = (summary.get("query", {}).get("pages") or [{}])[0]
+
+    soup, refs = clean_document(p["text"])
+
+    # Sections: level-2 and level-3 headings, with Wikipedia's own numbers.
+    sections = [s for s in p.get("sections", []) if s.get("level") in ("2", "3") and not SKIP_SECTIONS.match(s.get("line", ""))]
+
+    blocks = list(soup.children)
+
+    def heading_of(node):
+        if getattr(node, "name", None) in ("h2", "h3", "h4"):
+            return node
+        return None
+
+    lead_html = []
+    first = next((i for i, b in enumerate(blocks) if heading_of(b)), len(blocks))
+    for b in blocks[:first]:
+        lead_html.append(str(b))
+
+    section_html = []
+    i = 0
+    while i < len(blocks):
+        h = heading_of(blocks[i])
+        if not h:
+            i += 1
+            continue
+        level = int(h.name[1])
+        heading = strip_noise(h.get_text(" ", strip=True))
+        content = []
+        j = i + 1
+        while j < len(blocks):
+            nxt = heading_of(blocks[j])
+            if nxt and int(nxt.name[1]) <= level:
+                break
+            content.append(blocks[j])
+            j += 1
+        body = "".join(str(x) for x in content)
+        # Wikipedia's own trailing sections (and its duplicate reference list)
+        # are not ours to republish; empty sections are not worth a heading.
+        text_only = re.sub(r"<[^>]+>", " ", body)
+        if not SKIP_SECTIONS.match(heading) and len(re.sub(r"\s+", " ", text_only).strip()) > 60:
+            section_html.append({
+                "id": h.get("id", ""),
+                "heading": heading,
+                "level": level,
+                "html": body,
+            })
+        i = j
+
+    # Give each heading its number from the API where we can match it.
+    numbers = {s["anchor"]: s.get("number", "") for s in p.get("sections", [])}
+    for sec in section_html:
+        sec["number"] = numbers.get(sec["id"], "")
+
+    infobox = None
+    raw_infobox = BeautifulSoup(p["text"], "lxml").select_one("table.infobox")
+    if raw_infobox:
+        facts = []
+        for tr in raw_infobox.select("tr"):
+            th, td = tr.find("th"), tr.find("td")
+            if not th or not td:
+                continue
+            label = strip_noise(th.get_text(" ", strip=True))
+            value = strip_noise(td.get_text(" ", strip=True))
+            # An infobox cell carries citation markers, and flattening the cell
+            # to text spaced them out: "c. 1475 to present [ 1 ]". A facts panel
+            # cannot link a reference, so the marker is removed rather than left
+            # looking like a broken citation.
+            label = strip_citation_marks(label)
+            value = strip_citation_marks(value)
+            if not label or not value or len(label) > 60 or len(value) > 300:
+                continue
+            facts.append((label, value))
+            if len(facts) >= 12:
+                break
+        if facts:
+            infobox = facts
+
+    thumb = (page.get("thumbnail") or {}).get("source", "")
+    lead_text = strip_noise(page.get("extract") or "")
+
+    return {
+        "title": p["title"],
+        "display": BeautifulSoup(p.get("displaytitle", p["title"]), "lxml").get_text() or p["title"],
+        "revid": p.get("revid"),
+        "description": page.get("description", ""),
+        "leadText": lead_text,
+        "thumb": thumb,
+        "infobox": infobox,
+        "sections": section_html,
+        "leadHtml": "".join(lead_html),
+        "refs": refs,
+        "langlinks": [l for l in (p.get("langlinks") or []) if l.get("lang") in
+                      ("hi", "bn", "ta", "te", "mr", "gu", "kn", "ml", "pa", "ur")][:8],
+        "wikiUrl": f"https://{LANG}.wikipedia.org/wiki/{urllib.parse.quote(slug(p['title']))}",
+    }
+
+
+NAV = """      <nav class="topnav" aria-label="Primary">
+        <a href="/#/">Ask</a>
+        <a href="/#/library">Library</a>
+        <a href="/topics/">Topics</a>
+        <a href="/questions/">Questions</a>
+        <a href="/how-it-works/">How it works</a>
+      </nav>"""
+
+HEAD = """<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{title} — Veridell</title>
+  <meta name="description" content="{description}">
+  <link rel="canonical" href="{canonical}">
+  <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1">
+  <meta name="theme-color" content="#101713">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="{title} — Veridell">
+  <meta property="og:description" content="{description}">
+  <meta property="og:url" content="{canonical}">
+  <meta property="og:site_name" content="Veridell">
+  <meta property="og:image" content="{imageUrl}">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:image" content="{imageUrl}">
+  <link rel="icon" href="/favicon.ico" sizes="48x48">
+  <link rel="icon" href="/assets/img/brand/facet.svg" type="image/svg+xml">
+  <link rel="icon" href="/assets/img/brand/facet-48.png" sizes="48x48" type="image/png">
+  <link rel="icon" href="/assets/img/brand/facet-192.png" sizes="192x192" type="image/png">
+  <link rel="apple-touch-icon" href="/assets/img/brand/facet-180.png">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=Lora:ital,wght@0,500;0,600&amp;family=Space+Grotesk:wght@500;600;700&amp;display=swap">
+  <link rel="stylesheet" href="/assets/css/styles.css?v={version}">
+  <link rel="stylesheet" href="/assets/css/app.css?v={version}">
+  <link rel="stylesheet" href="/assets/css/responsive.css?v={version}">
+  <script type="application/ld+json">{jsonld}</script>
+</head>
+<body>
+  <div class="grain" aria-hidden="true"></div>
+  <a class="skip-link" href="#main">Skip to content</a>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a class="brand" href="/#/">
+        <span class="brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 40 40"><defs><linearGradient id="bm" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#173b32"></stop><stop offset="1" stop-color="#b46a45"></stop></linearGradient></defs><rect width="40" height="40" rx="12" fill="url(#bm)"></rect><g fill="none" stroke="#f5f0e6" stroke-width="2.7" stroke-linecap="round"><path d="M10.2 16.5c2.85-3.5 5.7-3.5 8.55 0s5.7 3.5 8.55 0"></path><path d="M12.4 23.5c2.85-3.5 5.7-3.5 8.55 0s5.7 3.5 8.55 0"></path></g></svg>
+        </span>
+        <span class="brand-text"><strong>Veridell</strong><small>Wikipedia, understood</small></span>
+      </a>
+{nav}
+    </div>
+  </header>
+
+  <main id="main" class="wrap" tabindex="-1">
+    <nav class="crumbs" aria-label="Breadcrumb">
+      <ol>
+        <li><a href="/#/">Home</a></li>
+        <li><a href="/topics/">Topics</a></li>
+        <li><span aria-current="page">{title}</span></li>
+      </ol>
+    </nav>
+
+    <div class="article-head">
+      <span class="kicker">Wikipedia · {lang}.wikipedia.org</span>
+      <h1 class="article-title">{title}</h1>
+      <p class="article-sub">{lead}</p>
+    </div>
+
+    <div class="article-actions">
+      <a class="btn btn-primary" href="/#/article/{slug_enc}">Open in Veridell</a>
+      <a class="btn btn-ghost" href="/#/ask?q={title_enc}">Ask about it</a>
+      <a class="btn btn-ghost" href="/chat/?q={title_enc}">Chat about it</a>
+      <a class="btn btn-ghost" href="{wikiUrl}" target="_blank" rel="noopener noreferrer">Read on Wikipedia ↗</a>
+    </div>
+"""
+
+FOOT = """  </main>
+
+  <footer class="site-foot">
+    <div class="foot-inner">
+      <div class="foot-col">
+        <div class="foot-brand"><strong>Veridell</strong></div>
+        <p>A Wikipedia-based knowledge explorer. It turns free knowledge into a core answer, a topic-wise breakdown and Markdown you can keep.</p>
+      </div>
+      <div class="foot-col">
+        <strong>Project</strong>
+        <ul>
+          <li><a href="/topics/">Topics</a></li>
+          <li><a href="/questions/">Questions</a></li>
+          <li><a href="/#/library">Library</a></li>
+          <li><a href="/how-it-works/">How it works</a></li>
+          <li><a href="/help/">Help</a></li>
+          <li><a href="/#/sources">Sources &amp; attribution</a></li>
+        </ul>
+      </div>
+      <div class="foot-col">
+        <strong>Legal</strong>
+        <ul>
+          <li><a href="/#/privacy">Privacy</a></li>
+          <li><a href="/#/terms">Terms</a></li>
+          <li><a href="/#/accessibility">Accessibility</a></li>
+          <li><a href="https://foundation.wikimedia.org/wiki/Policy:Terms_of_Use" target="_blank" rel="noopener">Wikimedia Terms of Use</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="foot-legal">
+      <p>Wikipedia article text is available under the Creative Commons Attribution-ShareAlike Licence (CC BY-SA 4.0). Wikidata data is released under CC0 1.0. Files on Wikimedia Commons carry their own licence, shown with each image. Veridell is an independent reader and is not affiliated with or endorsed by the Wikimedia Foundation.</p>
+      <p>Veridell reformats, condenses and reorders this text for reading. The original, with its full edit history, is at <a href="{wikiUrl}" target="_blank" rel="noopener noreferrer">{lang}.wikipedia.org</a>.</p>
+      <p class="foot-version">Veridell v{version}</p>
+    </div>
+  </footer>
+{points}</body>
+</html>
+"""
+
+
+def page_html(art, related, article_map=None):
+    canonical = f"{ORIGIN}/articles/{slug(art['title'])}/"
+    # A one-line Wikidata description is too thin to be a search snippet — a
+    # 35-character "Mauryan emperor from 269 to 232 BCE" tells a search engine
+    # almost nothing. Anything under ~70 characters gets the lead sentence
+    # appended, so the snippet reads as a sentence and still says what the page
+    # is. The description is written to the meta tag, og:description and the
+    # Article JSON-LD, so all three always agree.
+    description = (art["description"] or "").strip()
+    if len(description) < 70:
+        lead_text = re.sub(r"\s+", " ", strip_noise(art["leadText"] or "")).strip()
+        description = (f"{description.rstrip('.')}. {lead_text}" if description else lead_text)
+    description = clip(description, 155)
+    jsonld = json.dumps({
+        "@context": "https://schema.org",
+        "@type": "Article",
+        "headline": art["title"],
+        "description": description,
+        "url": canonical,
+        "inLanguage": LANG,
+        "isBasedOn": art["wikiUrl"],
+        "license": "https://creativecommons.org/licenses/by-sa/4.0/",
+        "publisher": {"@type": "Organization", "name": "Veridell", "url": ORIGIN + "/"},
+        "isAccessibleForFree": True,
+    }, ensure_ascii=False)
+
+    lead = html.escape(lead_summary(art["leadText"], 320))
+    out = [HEAD.format(
+        title=html.escape(art["title"]),
+        description=html.escape(description),
+        canonical=canonical,
+        nav=NAV,
+        lang=LANG,
+        lead=lead,
+        slug_enc=urllib.parse.quote(slug(art["title"])),
+        title_enc=urllib.parse.quote(art["title"]),
+        wikiUrl=art["wikiUrl"],
+        jsonld=jsonld,
+        imageUrl=html.escape(art["thumb"], quote=True) if art["thumb"] else f"{ORIGIN}/assets/img/brand/og-card.png",
+        version=VERSION,
+    )]
+
+    if art["thumb"]:
+        out.append(f'    <figure class="art-figure" style="justify-items:start">\n'
+                   f'      <img src="{html.escape(art["thumb"])}" alt="{html.escape(art["title"])}" width="800" height="450" loading="eager" decoding="async">\n'
+                   f'    </figure>\n')
+
+    out.append('    <div class="article-grid rail-open">\n')
+    out.append('      <div class="panel">\n')
+
+    if art["infobox"]:
+        rows = "\n".join(
+            f'          <div class="row"><dt>{html.escape(k)}</dt><dd>{html.escape(v)}</dd></div>'
+            for k, v in art["infobox"])
+        out.append(f'        <div class="factbox" style="margin-bottom:22px">\n'
+                   f'          <h2>Quick facts<span class="factbox-src">{html.escape(art["title"])}</span></h2>\n'
+                   f'          <dl>\n{rows}\n          </dl>\n        </div>\n')
+
+    out.append(f'        <div class="prose">\n{art["leadHtml"]}\n')
+
+    for sec in art["sections"]:
+        num = f'{sec["number"]} ' if sec["number"] else ""
+        out.append(f'<h2 id="{html.escape(sec["id"])}">{html.escape(num + sec["heading"])}</h2>\n')
+        out.append(sec["html"] + "\n")
+
+    out.append('        </div>\n')
+
+    if art["refs"]:
+        shown = art["refs"][:MAX_REFS]
+        lis = "\n".join(f'          <li id="ref-{i+1}">{html.escape(r)}</li>' for i, r in enumerate(shown))
+        more = ""
+        if len(art["refs"]) > MAX_REFS:
+            more = (f'          <p class="src-credit">Showing the first {MAX_REFS} of {len(art["refs"])} references. '
+                    f'The complete list is at <a href="{art["wikiUrl"]}" target="_blank" rel="noopener noreferrer">{LANG}.wikipedia.org</a>.</p>\n')
+        out.append(f'        <section class="sec" id="references">\n'
+                   f'          <div class="sec-head"><h2>References</h2><span class="more">{len(art["refs"])}</span></div>\n'
+                   f'          <ol class="reference-list">\n{lis}\n          </ol>\n{more}        </section>\n')
+
+    out.append('      </div>\n')
+
+    toc = ['      <aside class="toc-rail">\n        <div class="toc">\n          <h3>Sections</h3>\n']
+    for sec in art["sections"]:
+        cls = ' class="lvl3"' if sec["level"] == 3 else ""
+        num = f'{sec["number"]} ' if sec["number"] else ""
+        toc.append(f'          <a href="#{html.escape(sec["id"])}"{cls}>{html.escape(num + sec["heading"])}</a>\n')
+    toc.append('        </div>\n      </aside>\n')
+    out.append("".join(toc))
+    out.append('    </div>\n')
+
+    if related:
+        cards = "".join(
+            f'        <a class="card" href="/articles/{urllib.parse.quote(slug(r))}/">'
+            + (f'<div class="card-thumb"><img src="{html.escape(article_map[r]["thumb"], quote=True)}"'
+               ' alt="" width="640" height="360" loading="lazy" decoding="async"></div>'
+               if article_map and article_map.get(r, {}).get("thumb")
+               else '<div class="card-thumb placeholder" aria-hidden="true"></div>')
+            + f'<div class="card-body"><h3>{html.escape(r)}</h3>'
+            f'<p>Read the full breakdown of {html.escape(r)}.</p></div></a>\n'
+            for r in related)
+        out.append(f'    <section class="sec">\n'
+                   f'      <div class="sec-head"><h2>Related topics</h2></div>\n'
+                   f'      <div class="grid">\n{cards}      </div>\n    </section>\n')
+
+    if art["langlinks"]:
+        pills = "".join(
+            f'<a class="pill" href="/#/article/{urllib.parse.quote(slug(l.get("title", "")))}?lang={l["lang"]}">{l["lang"].upper()}</a>'
+            for l in art["langlinks"])
+        out.append(f'    <div class="langbar"><div class="langbar-inner"><span>Also available in:</span>'
+                   f'<div class="pill-row">{pills}</div></div></div>\n')
+
+    out.append(FOOT.format(wikiUrl=art["wikiUrl"], lang=LANG, version=VERSION, points=POINTS_SCRIPT))
+    return ensure_image_alt("".join(out), art["title"])
+
+
+# ── every picture says what it shows ──────────────────────────────────────
+# Wikipedia's parsed HTML leaves alt off most figures; the caption beside the
+# picture is what describes it. Each <img> without alt takes the caption of its
+# own block, and a diagram that only redraws a table is marked decorative.
+
+_CAPTION = re.compile(r'<div[^>]*class="[^"]*thumbcaption[^"]*"[^>]*>(.*?)</div>'
+                      r'|<figcaption[^>]*>(.*?)</figcaption>', re.S | re.I)
+_IMG_TAG = re.compile(r'<img\b[^>]*>', re.I)
+
+
+def _plain(markup):
+    return re.sub(r"\s+", " ", html.unescape(re.sub(r"<[^>]+>", " ", markup))).strip()
+
+
+def _shorten(text, limit=110):
+    if len(text) <= limit:
+        return text
+    cut = text[:limit]
+    return (cut[:cut.rfind(" ")] if " " in cut else cut).rstrip(" ,.;:—-") + "…"
+
+
+def ensure_image_alt(markup, title):
+    captions = [(m.start(), m.end(), _plain(m.group(1) or m.group(2) or "")) for m in _CAPTION.finditer(markup)]
+    captions = [c for c in captions if c[2]]
+    if not captions:
+        return markup
+
+    def fix(m):
+        tag = m.group(0)
+        if re.search(r"\salt\s*=", tag, re.I):
+            return tag
+        after = [c for c in captions if c[0] >= m.end()]
+        before = [c for c in captions if c[1] <= m.start()]
+        caption = ""
+        if after and after[0][0] - m.end() < 1500:
+            caption = after[0][2]
+        elif before and m.start() - before[-1][1] < 400 and "</figure>" not in markup[before[-1][1]:m.start()]:
+            caption = before[-1][2]
+        if not caption:
+            context = markup[max(0, m.start() - 900):m.start()]
+            caption = "" if ("chess-pieces" in context[-600:] or "<table" in context) else title
+        closing = " />" if tag.endswith("/>") else ">"
+        body = tag[:-2].rstrip() if tag.endswith("/>") else tag[:-1].rstrip()
+        return f'{body} alt="{html.escape(_shorten(caption), quote=True)}"{closing}'
+
+    return _IMG_TAG.sub(fix, markup)
+
+
+# ── one picture, one place ────────────────────────────────────────────────
+# Wikipedia's galleries and thumbs can repeat the same file, and a repeated
+# picture is the thing a reader notices first. Every generated page is
+# deduped by file name before it is written: the first occurrence stays
+# where Wikipedia put it, the later copies (and their empty gallery cells)
+# are dropped. Small repeated icons — chess pieces, map pins — are left
+# alone, because there they are the diagram.
+
+_IMG_FILE = re.compile(r"/thumb/[0-9a-f]/[0-9a-f]{2}/([^/]+)/", re.I)
+_ICONISH = re.compile(r"(chess_|chessboard|red_pog|blue_pog|symbol|_icon|flag_|commons-logo|edit-ltr)", re.I)
+
+
+def _file_key(src):
+    src = (src or "").split("?")[0]
+    m = _IMG_FILE.search(src)
+    return (m.group(1) if m else src.split("/")[-1]).lower()
+
+
+# BeautifulSoup's html.parser lowercases every attribute name it reads, and SVG
+# is case-sensitive: `viewBox` and `linearGradient` are not `viewbox` and
+# `lineargradient`. A page round-tripped through it lost the brand mark's
+# gradient and its scaling. These names are put back after serialisation.
+SVG_CASE = {
+    "viewbox": "viewBox",
+    "lineargradient": "linearGradient",
+    "radialgradient": "radialGradient",
+    "clippath": "clipPath",
+    "preserveaspectratio": "preserveAspectRatio",
+    "gradientunits": "gradientUnits",
+    "gradienttransform": "gradientTransform",
+    "patternunits": "patternUnits",
+    "patterncontentunits": "patternContentUnits",
+    "patterntransform": "patternTransform",
+    "clippathunits": "clipPathUnits",
+    "textlength": "textLength",
+    "markerwidth": "markerWidth",
+    "markerheight": "markerHeight",
+    "markerunits": "markerUnits",
+    "refx": "refX",
+    "refy": "refY",
+    "attributename": "attributeName",
+    "attributetype": "attributeType",
+    "basefrequency": "baseFrequency",
+    "stddeviation": "stdDeviation",
+    "spreadmethod": "spreadMethod",
+    "startoffset": "startOffset",
+    "pathlength": "pathLength",
+}
+
+# A tag or attribute name sits after `<`, `/` or a space and before `=`, a
+# space, `/` or `>`. Only names in SVG_CASE are rewritten, so ordinary HTML
+# attributes pass through untouched.
+_SVG_NAME = re.compile(r"(?<=[</\s])([A-Za-z][A-Za-z0-9]*)(?==|[\s/>])")
+
+
+def restore_svg_case(markup):
+    """Put the camel case back into SVG tag and attribute names."""
+    return _SVG_NAME.sub(lambda m: SVG_CASE.get(m.group(1).lower(), m.group(1)), markup)
+
+
+def dedupe_images(html_text):
+    soup = BeautifulSoup(html_text, "html.parser")
+    seen = set()
+    for img in list(soup.find_all("img")):
+        if img.attrs is None or img.parent is None:
+            continue
+        key = _file_key(img.get("src"))
+        if not key or _ICONISH.search(key):
+            continue
+        if key in seen:
+            block = (img.find_parent("li", class_="gallerybox")
+                     or img.find_parent("figure")
+                     or img.find_parent("div", class_="thumb"))
+            if block is not None:
+                block.decompose()
+            else:
+                img.decompose()
+        else:
+            seen.add(key)
+    # Wikipedia bodies reuse ids (a figure caption called "Caption" on more
+    # than one figure, for example). A document may only carry one of each, so
+    # the first keeps the id and later copies drop it: an in-page link then
+    # lands on the first, which is what the source intends anyway.
+    seen_ids = set()
+    for node in soup.find_all(attrs={"id": True}):
+        value = node.get("id")
+        if value in seen_ids:
+            del node["id"]
+        else:
+            seen_ids.add(value)
+    return restore_svg_case(str(soup))
+
+
+def main():
+    built = {}
+    for i, topic in enumerate(TOPICS):
+        try:
+            art = build(topic)
+        except Exception as exc:  # noqa: BLE001
+            print(f"  ! {topic}: {exc}")
+            continue
+        if not art:
+            print(f"  ! {topic}: no article")
+            continue
+        built[art["title"]] = art
+        print(f"  · {topic}: {len(art['sections'])} sections, {len(art['refs'])} refs, infobox={bool(art['infobox'])}")
+        time.sleep(0.4)
+
+    titles = list(built)
+    for title, art in built.items():
+        related = [t for t in titles if t != title][:3]
+        out_dir = os.path.join(ROOT, "articles", slug(title))
+        os.makedirs(out_dir, exist_ok=True)
+        with open(os.path.join(out_dir, "index.html"), "w", encoding="utf-8") as fh:
+            fh.write(dedupe_images(page_html(art, related, built)))
+    print(f"wrote {len(built)} article pages")
+
+    # A sitemap that includes them.
+    urls = [f"{ORIGIN}/", f"{ORIGIN}/articles/", f"{ORIGIN}/topics/", f"{ORIGIN}/questions/",
+            f"{ORIGIN}/how-it-works/", f"{ORIGIN}/help/"]
+    urls += [f"{ORIGIN}/articles/{slug(t)}/" for t in titles]
+    entries = "\n".join(f"  <url>\n    <loc>{u}</loc>\n    <changefreq>weekly</changefreq>\n"
+                        f"    <priority>{'1.0' if u.endswith('/') and u.count('/') == 3 else '0.7'}</priority>\n  </url>"
+                        for u in urls)
+    with open(os.path.join(ROOT, "sitemap.xml"), "w", encoding="utf-8") as fh:
+        fh.write('<?xml version="1.0" encoding="UTF-8"?>\n'
+                 '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
+                 f"{entries}\n</urlset>\n")
+    print("sitemap.xml updated")
+
+    # A crawlable index of the static articles.
+    cards = "".join(
+        f'      <a class="card" href="/articles/{urllib.parse.quote(slug(t))}/">'
+        + (f'<div class="card-thumb"><img src="{html.escape(built[t]["thumb"], quote=True)}"'
+           ' alt="" width="640" height="360" loading="lazy" decoding="async"></div>'
+           if built[t].get("thumb")
+           else '<div class="card-thumb placeholder" aria-hidden="true"></div>')
+        + f'<div class="card-body"><h2>{html.escape(t)}</h2>'
+        f'<p>{html.escape((built[t]["description"] or built[t]["leadText"])[:150])}</p></div></a>\n'
+        for t in titles)
+    index = f"""<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Articles — Veridell</title>
+  <meta name="description" content="Thirteen curated Veridell article pages with images, quick facts, cited sections and references. Search opens the full live Wikipedia catalogue.">
+  <meta name="robots" content="index, follow, max-image-preview:large">
+  <link rel="canonical" href="{ORIGIN}/articles/">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Articles — Veridell">
+  <meta property="og:description" content="Thirteen curated Veridell article pages with images, quick facts, cited sections and references. Search opens the full live Wikipedia catalogue.">
+  <meta property="og:url" content="{ORIGIN}/articles/">
+  <meta property="og:site_name" content="Veridell">
+  <meta property="og:locale" content="en_IN">
+  <meta property="og:image" content="{ORIGIN}/assets/img/brand/og-card.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Articles — Veridell">
+  <meta name="twitter:description" content="Thirteen curated Veridell article pages with images, quick facts, cited sections and references. Search opens the full live Wikipedia catalogue.">
+  <meta name="twitter:image" content="{ORIGIN}/assets/img/brand/og-card.png">
+  <meta name="theme-color" content="#101713">
+  <link rel="icon" href="/favicon.ico" sizes="48x48">
+  <link rel="icon" href="/assets/img/brand/facet.svg" type="image/svg+xml">
+  <link rel="icon" href="/assets/img/brand/facet-48.png" sizes="48x48" type="image/png">
+  <link rel="icon" href="/assets/img/brand/facet-192.png" sizes="192x192" type="image/png">
+  <link rel="apple-touch-icon" href="/assets/img/brand/facet-180.png">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=Lora:ital,wght@0,500;0,600&amp;family=Space+Grotesk:wght@500;600;700&amp;display=swap">
+  <link rel="stylesheet" href="/assets/css/styles.css?v={VERSION}">
+  <link rel="stylesheet" href="/assets/css/app.css?v={VERSION}">
+  <link rel="stylesheet" href="/assets/css/responsive.css?v={VERSION}">
+</head>
+<body>
+  <div class="grain" aria-hidden="true"></div>
+  <header class="topbar"><div class="topbar-inner">
+    <a class="brand" href="/#/"><span class="brand-text"><strong>Veridell</strong><small>Wikipedia, understood</small></span></a>
+{NAV}
+  </div></header>
+  <main id="main" class="wrap" tabindex="-1">
+    <div class="article-head">
+      <span class="kicker">{len(titles)} full articles</span>
+      <h1 class="article-title">Articles</h1>
+      <p class="article-sub">These thirteen are curated, crawlable examples: each has a lead summary, quick facts, numbered contents, cited sections and a reference list. The live search opens any Wikipedia article in the same reading layout.</p>
+      <p class="article-actions"><a class="btn btn-primary" href="/#/search">Search all Wikipedia articles</a></p>
+    </div>
+    <div class="grid">
+{cards}    </div>
+{FOOT.format(wikiUrl=f"https://{LANG}.wikipedia.org/", lang=LANG, version=VERSION, points=POINTS_SCRIPT)}
+"""
+    os.makedirs(os.path.join(ROOT, "articles"), exist_ok=True)
+    with open(os.path.join(ROOT, "articles", "index.html"), "w", encoding="utf-8") as fh:
+        fh.write(index)
+    print("articles/index.html written")
+
+
+if __name__ == "__main__":
+    main()

@@ -1,30 +1,72 @@
-<!doctype html>
-<html lang="en">
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Not found — Veridell</title>
-<meta name="robots" content="noindex, follow">
-<meta name="theme-color" content="#f7f3ea" media="(prefers-color-scheme: light)">
-<meta name="theme-color" content="#0e1512" media="(prefers-color-scheme: dark)">
-<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
-<script src="src/theme-boot.js"></script>
-  <link rel="stylesheet" href="styles/site.css">
+  <meta name="veridell-build" content="6.0.0-44559e1">
+  <meta name="veridell-version" content="6.0.0">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Not found — Veridell</title>
+  <meta name="robots" content="noindex">
+  <meta name="description" content="The page you asked for is not on Veridell. Every article and answer lives on the home page — search a topic there, or go back to the start.">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Not found — Veridell">
+  <meta property="og:description" content="The page you asked for is not on Veridell. Every article and answer lives on the home page — search a topic there, or go back to the start.">
+  <meta property="og:site_name" content="Veridell">
+  <meta property="og:image" content="https://veridell.pages.dev/assets/img/brand/og-card.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="theme-color" content="#101713">
+<link rel="stylesheet" href="/assets/css/bundle-a03b30fb2c.css?v=6.0.0-44559e1">
+  <script src="/assets/js/image-fallback.js?v=6.0.0-44559e1"></script>
+  <script src="/assets/js/global-theme.js?v=6.0.0-44559e1"></script>
+  <link rel="icon" href="/favicon.ico" sizes="48x48">
+  <link rel="icon" href="/assets/img/brand/facet.svg" type="image/svg+xml">
+  <link rel="icon" href="/assets/img/brand/facet-48.png" sizes="48x48" type="image/png">
+  <link rel="icon" href="/assets/img/brand/facet-192.png" sizes="192x192" type="image/png">
+  <link rel="apple-touch-icon" href="/assets/img/brand/facet-180.png">
 </head>
 <body>
-<main class="em-main">
-  <div class="em-page em-column" style="padding-top:12vh">
-    <h1>That page is not here</h1>
-    <p class="em-sub">The address may have changed, or the page may never have existed. Everything the site knows is one search away.</p>
-    <form class="em-ask" role="search" onsubmit="event.preventDefault(); location.href='/#/ask?q=' + encodeURIComponent(this.q.value)">
-      <label class="em-sr" for="q404">Search</label>
-      <input id="q404" name="q" type="search" placeholder="Search a subject…" autocomplete="off">
-      <button class="em-ask-go" type="submit" aria-label="Search">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m19.5 19.5-4.3-4.3"/></svg>
-      </button>
-    </form>
-    <p style="margin-top:20px"><a href="/">Home</a> · <a href="/articles/">Articles</a> · <a href="/chat/">Amigo chat</a></p>
-  </div>
-</main>
+  <a class="skip-link" href="#main">Skip to content</a>
+  <div class="grain" aria-hidden="true"></div>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a class="brand" href="/#/">
+        <span class="brand-mark" aria-hidden="true"><svg viewBox="0 0 96 96" role="img" aria-hidden="true"><defs><linearGradient id="vdbg1" x1=".06" y1="0" x2=".94" y2="1"><stop offset="0" stop-color="#082A26"/><stop offset=".52" stop-color="#12564C"/><stop offset="1" stop-color="#9E5626"/></linearGradient></defs><rect width="96" height="96" rx="23" fill="url(#vdbg1)"/><path d="M25 27h13.5L48 63.5 57.5 27H71L52.5 72h-9z" fill="#FFF1D9"/><path d="M57.5 27H71L52.5 72h-4.6z" fill="#C6844C"/><path d="M57.5 27H71l-4.2 10.1z" fill="#E0A26A"/><circle cx="48" cy="79.5" r="4.4" fill="#FFF3DA"/></svg>
+        </span>
+        <span class="brand-word">Veridell</span>
+      </a>
+    </div>
+  </header>
+
+  <main id="main" class="wrap-narrow" tabindex="-1">
+    <div class="article-head">
+      <h1 class="article-title">404 — that page is not here</h1>
+    </div>
+    <div class="page">
+      <p>The link may be old, or the article may not exist in the language you asked for. Try one of these instead:</p>
+      <ul>
+        <li><a href="/#/">Search Veridell</a> — ask a question in any language.</li>
+        <li><a href="/topics/">Browse topics</a> — the categories the app is organised around.</li>
+        <li><a href="/questions/">Popular questions</a> — what people ask most.</li>
+        <li><a href="/how-it-works/">How it works</a> — what happens between a question and an answer.</li>
+        <li><a href="/help/">Help</a> — if something is not working.</li>
+      </ul>
+    </div>
+  </main>
+
+  <footer class="site-foot">
+    <div class="foot-legal">
+      <p>Wikipedia article text is available under CC BY-SA 4.0. Wikidata data is released under CC0 1.0. Veridell is an independent reader and is not affiliated with or endorsed by the Wikimedia Foundation.</p>
+      <p class="foot-version"><a href="/#/credits">Credits &amp; contributors</a> · Veridell v6.0.0</p>
+    </div>
+  </footer>
+  <script type="module" src="/assets/js/build-watch.js?v=6.0.0-44559e1"></script>
+  <script src="/assets/js/chat-launcher.js?v=6.0.0-44559e1" defer></script>
+  <nav class="bottom-nav" aria-label="Primary (phone)">
+    <a href="/#/ask"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4.2 11.6a7.8 7.8 0 0 1 15.6 0c0 4.3-3.5 7.8-7.8 7.8-1 0-2-.2-2.9-.6l-3.9 1.5 1.2-3.4a7.8 7.8 0 0 1-2.2-5.3Z"/></svg><span>Ask</span></a>
+    <a href="/#/explore"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="8.6"/><path d="m15.3 8.7-1.9 4.7-4.7 1.9 1.9-4.7z"/></svg><span>Explore</span></a>
+    <a href="/topics/"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m12 3.7 8.4 4.4-8.4 4.4-8.4-4.4z"/><path d="m3.6 12.1 8.4 4.4 8.4-4.4"/><path d="m3.6 16.2 8.4 4.4 8.4-4.4"/></svg><span>Topics</span></a>
+    <a href="/#/library"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4.6 5.4a1.6 1.6 0 0 1 1.6-1.6h4.2v16.4H6.2a1.6 1.6 0 0 1-1.6-1.6z"/><path d="M10.4 3.8h3.4a1.6 1.6 0 0 1 1.6 1.6v12.8a1.6 1.6 0 0 1-1.6 1.6h-3.4"/><path d="m15.4 6.4 2.9.8a1.6 1.6 0 0 1 1.1 2l-3.1 10.8"/></svg><span>Library</span></a>
+    <a href="/#/bookmarks"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6.7 4.3h10.6v15.4L12 15.5l-5.3 4.2z"/></svg><span>Saved</span></a>
+  </nav>
 </body>
 </html>

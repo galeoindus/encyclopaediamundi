@@ -1,0 +1,495 @@
+/* Amigo Atelier — 2026 conversational interface refinement.
+ * A deliberately mixed visual language: aurora ambience, glass chrome,
+ * tactile (neo-skeuomorphic) controls, one clay focal point and quiet,
+ * opaque answer surfaces. Reading comfort always outranks decoration.
+ */
+
+body.amigo-chat {
+  --im-bg: #f5f6ff;
+  --im-surface: #ffffff;
+  --im-surface-2: #edf0fb;
+  --im-text: #1a2038;
+  --im-muted: #56617d;
+  --im-faint: #697591;
+  --im-border: #dce1f1;
+  --im-border-strong: #c8d0e7;
+  --im-accent: #5548c8;
+  --im-accent-soft: #e9e8ff;
+  --im-warm: #a64e2a;
+  --im-teal: #128f8b;
+  --im-shadow-sm: 0 3px 12px rgba(35, 42, 86, .055);
+  --im-shadow: 0 16px 42px -26px rgba(35, 42, 86, .25), 0 3px 10px rgba(35, 42, 86, .045);
+  --im-shadow-lg: 0 28px 70px -34px rgba(32, 38, 80, .30);
+  --im-clay-shadow: 10px 12px 28px rgba(58, 63, 125, .11), -8px -8px 24px rgba(255, 255, 255, .95), inset 0 1px 0 rgba(255,255,255,.9);
+  --im-inset-shadow: inset 3px 3px 8px rgba(47, 56, 103, .075), inset -3px -3px 8px rgba(255,255,255,.9);
+  --im-glass: rgba(249, 250, 255, .78);
+  --im-glass-border: rgba(255, 255, 255, .88);
+  --amigo-accent-gradient: linear-gradient(132deg, #6858e3 0%, #5548c8 58%, #3e77cb 100%);
+  --amigo-aurora-a: rgba(110, 95, 230, .115);
+  --amigo-aurora-b: rgba(52, 174, 183, .085);
+  --amigo-aurora-c: rgba(241, 158, 126, .075);
+  --rail: var(--im-surface);
+  --panel: var(--im-surface);
+  --panel-2: var(--im-surface-2);
+  --line: var(--im-border);
+  --line-2: var(--im-border-strong);
+  --ink: var(--im-text);
+  --ink-2: var(--im-muted);
+  --muted: var(--im-faint);
+  --accent: var(--im-accent);
+  --brass: var(--im-warm);
+  --brass-soft: var(--im-warm);
+  --user: var(--im-accent-soft);
+  background-color: var(--im-bg);
+  background-image:
+    radial-gradient(58rem 38rem at 8% -18%, var(--amigo-aurora-a), transparent 64%),
+    radial-gradient(48rem 34rem at 100% 8%, var(--amigo-aurora-b), transparent 62%),
+    radial-gradient(40rem 28rem at 54% 112%, var(--amigo-aurora-c), transparent 65%);
+  color: var(--im-text);
+}
+
+html[data-theme="dark"] body.amigo-chat {
+  --im-bg: #0c1120;
+  --im-surface: #131b2d;
+  --im-surface-2: #1a2540;
+  --im-text: #f0f2ff;
+  --im-muted: #b8c0d9;
+  --im-faint: #96a2c2;
+  --im-border: #2a3654;
+  --im-border-strong: #3d4a6d;
+  --im-accent: #b3aaff;
+  --im-accent-soft: #28264b;
+  --im-warm: #ffb38f;
+  --im-teal: #71d9d0;
+  --im-shadow-sm: 0 4px 14px rgba(0, 0, 0, .22);
+  --im-shadow: 0 18px 46px -26px rgba(0, 0, 0, .66), 0 3px 12px rgba(0, 0, 0, .20);
+  --im-shadow-lg: 0 30px 76px -34px rgba(0, 0, 0, .76);
+  --im-clay-shadow: 10px 12px 28px rgba(0, 0, 0, .38), -8px -8px 22px rgba(255, 255, 255, .025), inset 0 1px 0 rgba(255,255,255,.06);
+  --im-inset-shadow: inset 3px 3px 9px rgba(0, 0, 0, .34), inset -3px -3px 9px rgba(255,255,255,.025);
+  --im-glass: rgba(13, 19, 35, .78);
+  --im-glass-border: rgba(255, 255, 255, .075);
+  --amigo-accent-gradient: linear-gradient(132deg, #9c91ff 0%, #776ce7 54%, #4e9bc7 100%);
+  --amigo-aurora-a: rgba(120, 105, 255, .16);
+  --amigo-aurora-b: rgba(50, 184, 188, .105);
+  --amigo-aurora-c: rgba(229, 132, 115, .07);
+}
+
+/* The sidebar and header are the glass layer; the conversation never is. */
+body.amigo-chat .rail {
+  position: relative;
+  z-index: 8;
+  background: var(--im-glass);
+  border-right: 1px solid var(--im-border);
+  box-shadow: 10px 0 34px -32px color-mix(in srgb, var(--im-text) 30%, transparent);
+  -webkit-backdrop-filter: blur(24px) saturate(1.35);
+  backdrop-filter: blur(24px) saturate(1.35);
+}
+
+body.amigo-chat .top {
+  position: relative;
+  z-index: 6;
+  min-height: 66px;
+  border-bottom: 1px solid color-mix(in srgb, var(--im-border) 84%, transparent);
+  background: var(--im-glass);
+  -webkit-backdrop-filter: blur(22px) saturate(1.35);
+  backdrop-filter: blur(22px) saturate(1.35);
+}
+
+body.amigo-chat .brand .mark {
+  border: 1px solid color-mix(in srgb, var(--im-accent) 20%, var(--im-border));
+  background: linear-gradient(145deg, var(--im-surface), var(--im-accent-soft));
+  box-shadow: 0 8px 20px -15px color-mix(in srgb, var(--im-accent) 80%, transparent), inset 0 1px 0 rgba(255,255,255,.58);
+}
+
+body.amigo-chat .brand-text b { letter-spacing: -.045em; }
+body.amigo-chat .brand-text em { color: var(--im-muted); }
+
+/* Neo-skeuomorphic primary action: a definite button edge plus a soft lift. */
+body.amigo-chat .rail-new {
+  min-height: 46px;
+  border: 1px solid color-mix(in srgb, var(--im-accent) 46%, transparent);
+  border-radius: 15px;
+  background: var(--amigo-accent-gradient);
+  color: #fff;
+  box-shadow: 0 9px 20px -13px color-mix(in srgb, var(--im-accent) 70%, transparent), inset 0 1px 0 rgba(255,255,255,.24);
+  letter-spacing: -.01em;
+}
+html[data-theme="dark"] body.amigo-chat .rail-new { color: #11152b; }
+body.amigo-chat .rail-new:hover { filter: brightness(1.055); transform: translateY(-1px); }
+body.amigo-chat .rail-new:active { transform: translateY(0) scale(.99); box-shadow: inset 0 2px 5px rgba(0,0,0,.16); }
+body.amigo-chat .rail-new kbd { border-color: rgba(255,255,255,.35); background: rgba(255,255,255,.12); opacity: .88; }
+html[data-theme="dark"] body.amigo-chat .rail-new kbd { border-color: rgba(20,20,40,.25); background: rgba(20,20,40,.10); }
+
+/* Neumorphism stays local: only the search and composer wells get inset depth. */
+body.amigo-chat .rail-search {
+  min-height: 44px;
+  border: 1px solid var(--im-border);
+  background: color-mix(in srgb, var(--im-surface-2) 72%, var(--im-surface));
+  box-shadow: var(--im-inset-shadow);
+}
+body.amigo-chat .rail-search:focus-within {
+  border-color: var(--im-accent);
+  box-shadow: var(--im-inset-shadow), 0 0 0 3px color-mix(in srgb, var(--im-accent) 19%, transparent);
+}
+body.amigo-chat .rail-row { border-radius: 13px; }
+body.amigo-chat .rail-row:hover { background: color-mix(in srgb, var(--im-accent-soft) 64%, transparent); }
+body.amigo-chat .rail-row.is-active { background: var(--im-accent-soft); }
+body.amigo-chat .rail-row.is-active::before { width: 3px; }
+body.amigo-chat .rail-row .rail-item { font-size: 13px; }
+body.amigo-chat .rail-foot {
+  min-height: 42px;
+  border: 1px solid var(--im-border);
+  border-radius: 14px;
+  background: color-mix(in srgb, var(--im-surface) 72%, transparent);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.24);
+}
+
+/* Icon controls: clear boundary on hover/press and a consistent focus ring. */
+body.amigo-chat .ico,
+body.amigo-chat .rail-toggle {
+  width: 42px;
+  height: 42px;
+  min-width: 42px;
+  border: 1px solid transparent;
+  border-radius: 14px;
+  color: var(--im-muted);
+}
+body.amigo-chat .ico:hover,
+body.amigo-chat .rail-toggle:hover {
+  border-color: var(--im-border);
+  background: var(--im-surface-2);
+  color: var(--im-text);
+  box-shadow: var(--im-shadow-sm);
+}
+body.amigo-chat .ico:active,
+body.amigo-chat .rail-toggle:active { box-shadow: var(--im-inset-shadow); }
+
+/* Welcome area: one clay focal object, surrounded by quiet open space. */
+body.amigo-chat .empty-mark {
+  position: relative;
+  width: 82px;
+  height: 82px;
+  margin-bottom: 22px;
+  overflow: visible;
+  border: 1px solid color-mix(in srgb, var(--im-accent) 21%, var(--im-border));
+  border-radius: 28px;
+  background:
+    radial-gradient(circle at 28% 20%, rgba(255,255,255,.72), transparent 48%),
+    linear-gradient(145deg, var(--im-surface), var(--im-accent-soft));
+  box-shadow: var(--im-clay-shadow), 0 18px 38px -28px color-mix(in srgb, var(--im-accent) 60%, transparent);
+}
+body.amigo-chat .empty-mark::after {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  inset: -9px;
+  border: 1px solid color-mix(in srgb, var(--im-accent) 18%, transparent);
+  border-radius: 34px;
+  opacity: .8;
+}
+body.amigo-chat .empty-mark img { filter: drop-shadow(0 5px 8px rgba(35, 36, 82, .13)); }
+body.amigo-chat .welcome-eyebrow {
+  gap: 9px;
+  padding: 7px 13px;
+  border: 1px solid var(--im-border);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--im-surface) 72%, transparent);
+  color: var(--im-muted);
+  box-shadow: var(--im-shadow-sm);
+  letter-spacing: .14em;
+}
+body.amigo-chat .welcome-pulse {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--im-teal);
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--im-teal) 16%, transparent), 0 0 13px color-mix(in srgb, var(--im-teal) 44%, transparent);
+}
+body.amigo-chat .empty-heading {
+  max-width: 720px;
+  margin-top: 16px;
+  font-size: clamp(32px, 4.5vw, 52px);
+  font-weight: 680;
+  letter-spacing: -.055em;
+  line-height: 1.08;
+}
+body.amigo-chat .empty-heading em {
+  color: var(--im-accent);
+  background: linear-gradient(100deg, var(--im-accent), var(--im-teal));
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+body.amigo-chat .empty > p {
+  max-width: 58ch;
+  margin-top: 14px;
+  margin-bottom: 20px;
+  color: var(--im-muted);
+  font-size: 15px;
+  line-height: 1.75;
+}
+body.amigo-chat .welcome-trust { gap: 8px; margin: 0 0 24px; }
+body.amigo-chat .welcome-trust span {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  min-height: 30px;
+  padding: 5px 10px;
+  border: 1px solid var(--im-border);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--im-surface) 70%, transparent);
+  color: var(--im-muted);
+  font-size: 11px;
+}
+body.amigo-chat .welcome-trust svg { width: 15px; height: 15px; stroke: var(--im-teal); fill: none; stroke-width: 1.7; }
+
+/* Bento-inspired idea cards; no artificial tiles inside the answer prose. */
+body.amigo-chat .starters {
+  width: min(100%, 720px);
+  margin-inline: auto;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 11px;
+}
+body.amigo-chat .starters button {
+  min-height: 60px;
+  padding: 14px 16px;
+  border: 1px solid var(--im-border);
+  border-radius: 17px;
+  background: linear-gradient(145deg, var(--im-surface), color-mix(in srgb, var(--im-surface-2) 42%, var(--im-surface)));
+  color: var(--im-text);
+  box-shadow: 0 3px 9px rgba(35, 42, 86, .035), inset 0 1px 0 rgba(255,255,255,.55);
+  line-height: 1.45;
+  transition: border-color .18s ease, background .18s ease, box-shadow .18s ease, transform .18s ease;
+}
+body.amigo-chat .starters button:hover {
+  border-color: color-mix(in srgb, var(--im-accent) 54%, var(--im-border));
+  background: var(--im-accent-soft);
+  box-shadow: var(--im-shadow);
+  transform: translateY(-2px);
+}
+body.amigo-chat .starters button:active { transform: translateY(0); }
+body.amigo-chat .starters span { color: var(--im-text); font-size: 13px; }
+body.amigo-chat .empty-links { gap: 8px 18px; margin-top: 20px; }
+body.amigo-chat .empty-links a { color: var(--im-muted); font-weight: 550; text-underline-offset: 4px; }
+body.amigo-chat .empty-links a:hover { color: var(--im-accent); }
+
+/* The conversation uses crisp, opaque surfaces for evidence and long reading. */
+body.amigo-chat .thread { width: min(100%, 900px); gap: 22px; }
+body.amigo-chat .q {
+  max-width: min(78%, 680px);
+  padding: 13px 17px;
+  border: 1px solid color-mix(in srgb, var(--im-accent) 25%, var(--im-border));
+  border-radius: 20px 20px 7px 20px;
+  background: linear-gradient(135deg, var(--im-accent-soft), color-mix(in srgb, var(--im-accent-soft) 76%, var(--im-surface)));
+  color: var(--im-text);
+  box-shadow: 0 7px 18px -16px color-mix(in srgb, var(--im-accent) 60%, transparent);
+  line-height: 1.65;
+}
+body.amigo-chat .a {
+  padding: clamp(15px, 2vw, 22px);
+  border: 1px solid var(--im-border);
+  border-radius: 22px;
+  background: var(--im-surface);
+  box-shadow: var(--im-shadow-sm);
+}
+body.amigo-chat .a-body .md {
+  color: var(--im-muted);
+  font-size: 15.5px;
+  line-height: 1.78;
+}
+body.amigo-chat .a-body .md > p:first-child { color: var(--im-text); }
+body.amigo-chat .md h2,
+body.amigo-chat .md h3,
+body.amigo-chat .md h4 { color: var(--im-warm); }
+body.amigo-chat .md strong { color: var(--im-text); }
+body.amigo-chat .md a { color: var(--im-accent); text-decoration: underline; text-decoration-color: color-mix(in srgb, var(--im-accent) 45%, transparent); text-underline-offset: 3px; }
+body.amigo-chat .md code { background: var(--im-accent-soft); color: var(--im-text); }
+body.amigo-chat .cite { background: var(--im-accent-soft); color: var(--im-accent); }
+body.amigo-chat .cite:hover { background: var(--im-accent); color: #fff; }
+body.amigo-chat .a-meta .who { color: var(--im-text); }
+body.amigo-chat .a-meta .badge { background: var(--im-surface-2); border: 1px solid var(--im-border); color: var(--im-muted); }
+body.amigo-chat .src-card {
+  border: 1px solid var(--im-border);
+  border-radius: 14px;
+  background: var(--im-surface-2);
+  color: var(--im-text);
+  transition: border-color .16s ease, box-shadow .16s ease, transform .16s ease;
+}
+body.amigo-chat .src-card:hover {
+  border-color: var(--im-accent);
+  box-shadow: var(--im-shadow-sm);
+  transform: translateY(-1px);
+}
+body.amigo-chat .src-n { background: var(--im-accent-soft); color: var(--im-accent); }
+body.amigo-chat .src-d { color: var(--im-muted); }
+body.amigo-chat .a-actions button,
+body.amigo-chat .followups button {
+  border: 1px solid var(--im-border);
+  border-radius: 12px;
+  background: var(--im-surface-2);
+  color: var(--im-muted);
+}
+body.amigo-chat .a-actions button:hover,
+body.amigo-chat .followups button:hover {
+  border-color: var(--im-accent);
+  background: var(--im-accent-soft);
+  color: var(--im-accent);
+}
+body.amigo-chat .working {
+  border: 1px solid var(--im-border);
+  border-radius: 16px;
+  background: var(--im-surface);
+  box-shadow: var(--im-shadow-sm);
+}
+body.amigo-chat .note {
+  border-color: color-mix(in srgb, var(--im-warm) 35%, var(--im-border));
+  background: color-mix(in srgb, var(--im-warm) 8%, var(--im-surface));
+}
+
+/* A floating glass dock with a tactile, high-contrast input well. */
+body.amigo-chat .dock {
+  padding: 14px clamp(14px, 2.3vw, 28px) max(12px, env(safe-area-inset-bottom, 0px));
+  border-top: 1px solid color-mix(in srgb, var(--im-border) 82%, transparent);
+  background: linear-gradient(180deg, color-mix(in srgb, var(--im-bg) 78%, transparent), var(--im-glass) 28%);
+  -webkit-backdrop-filter: blur(22px) saturate(1.32);
+  backdrop-filter: blur(22px) saturate(1.32);
+}
+body.amigo-chat .dock-in { width: min(100%, 860px); }
+body.amigo-chat .composer {
+  gap: 9px;
+  padding: 9px 10px;
+  border: 1px solid var(--im-border-strong);
+  border-radius: 23px;
+  background: color-mix(in srgb, var(--im-surface) 96%, var(--im-accent-soft));
+  box-shadow: var(--im-inset-shadow), 0 12px 34px -27px color-mix(in srgb, var(--im-text) 50%, transparent), inset 0 1px 0 rgba(255,255,255,.62);
+}
+body.amigo-chat .composer:focus-within {
+  border-color: var(--im-accent);
+  box-shadow: var(--im-inset-shadow), 0 0 0 3px color-mix(in srgb, var(--im-accent) 18%, transparent), 0 14px 36px -26px color-mix(in srgb, var(--im-accent) 34%, transparent);
+}
+body.amigo-chat .composer textarea { color: var(--im-text); }
+body.amigo-chat .composer textarea::placeholder { color: var(--im-faint); }
+body.amigo-chat .composer .plus,
+body.amigo-chat .composer .mic {
+  border: 1px solid var(--im-border);
+  border-radius: 14px;
+  background: var(--im-surface-2);
+  color: var(--im-muted);
+  box-shadow: 0 2px 5px rgba(20, 28, 62, .04), inset 0 1px 0 rgba(255,255,255,.48);
+}
+body.amigo-chat .composer .plus:hover,
+body.amigo-chat .composer .mic:hover { border-color: var(--im-accent); color: var(--im-accent); background: var(--im-accent-soft); }
+body.amigo-chat .composer .plus[aria-expanded="true"] { border-color: var(--im-accent); color: var(--im-accent); background: var(--im-accent-soft); }
+body.amigo-chat .composer .send {
+  border: 1px solid color-mix(in srgb, var(--im-accent) 58%, transparent);
+  border-radius: 15px;
+  background: var(--amigo-accent-gradient);
+  color: #fff;
+  box-shadow: 0 8px 17px -11px color-mix(in srgb, var(--im-accent) 90%, transparent), inset 0 1px 0 rgba(255,255,255,.22);
+}
+html[data-theme="dark"] body.amigo-chat .composer .send { color: #10152a; }
+body.amigo-chat .composer .send:hover { filter: brightness(1.06); transform: translateY(-1px); }
+body.amigo-chat .composer .send:active { transform: translateY(0) scale(.96); }
+body.amigo-chat .composer .send:disabled { opacity: .48; filter: saturate(.55); box-shadow: none; }
+body.amigo-chat .options-panel {
+  border: 1px solid var(--im-border);
+  border-radius: 18px;
+  background: var(--im-surface);
+  box-shadow: var(--im-shadow-lg);
+}
+body.amigo-chat .options-panel select {
+  border: 1px solid var(--im-border);
+  border-radius: 11px;
+  background: var(--im-surface-2);
+  color: var(--im-text);
+}
+body.amigo-chat .meta-row { margin-top: 9px; }
+body.amigo-chat .meta-row .mchip {
+  border: 1px solid transparent;
+  border-radius: 999px;
+  color: var(--im-muted);
+}
+body.amigo-chat .meta-row .mchip:hover,
+body.amigo-chat .meta-row .mchip[aria-expanded="true"] {
+  border-color: var(--im-border);
+  background: var(--im-surface-2);
+  color: var(--im-accent);
+}
+body.amigo-chat .chat-note { color: var(--im-faint); line-height: 1.55; }
+
+/* Phone navigation is the compact glass layer; the chat composer stays above it. */
+body.amigo-chat .bottom-nav {
+  border-top: 1px solid var(--im-border);
+  background: var(--im-glass);
+  -webkit-backdrop-filter: blur(20px) saturate(1.3);
+  backdrop-filter: blur(20px) saturate(1.3);
+  box-shadow: 0 -8px 28px -25px color-mix(in srgb, var(--im-text) 40%, transparent);
+}
+body.amigo-chat .bottom-nav a { color: var(--im-muted); }
+body.amigo-chat .bottom-nav a[aria-current="page"] { color: var(--im-accent); background: var(--im-accent-soft); }
+
+/* If blur is unavailable, glass becomes a fully legible solid surface. */
+@supports not ((backdrop-filter: blur(1px))) {
+  body.amigo-chat .rail,
+  body.amigo-chat .top,
+  body.amigo-chat .dock,
+  body.amigo-chat .bottom-nav { background: var(--im-surface); }
+}
+[data-comfort="opaque"] body.amigo-chat .rail,
+[data-comfort="opaque"] body.amigo-chat .top,
+[data-comfort="opaque"] body.amigo-chat .dock,
+[data-comfort="opaque"] body.amigo-chat .bottom-nav {
+  background: var(--im-surface);
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+
+@media (max-width: 760px) {
+  body.amigo-chat .rail {
+    background: var(--im-glass);
+    -webkit-backdrop-filter: blur(24px) saturate(1.3);
+    backdrop-filter: blur(24px) saturate(1.3);
+  }
+  body.amigo-chat .dock { padding-inline: 10px; }
+  body.amigo-chat .empty { padding-inline: 14px; }
+  body.amigo-chat .empty-mark { width: 72px; height: 72px; border-radius: 24px; }
+  body.amigo-chat .empty-heading { font-size: clamp(29px, 7vw, 39px); }
+  body.amigo-chat .starters { grid-template-columns: 1fr; gap: 8px; }
+  body.amigo-chat .starters button { min-height: 50px; padding: 12px 14px; }
+  body.amigo-chat .welcome-trust { gap: 6px; margin-bottom: 18px; }
+  body.amigo-chat .welcome-trust span { font-size: 10px; padding-inline: 8px; }
+  body.amigo-chat .thread { padding-inline: 12px; }
+  body.amigo-chat .a { padding: 15px; border-radius: 18px; }
+  body.amigo-chat .q { max-width: 92%; }
+  body.amigo-chat .chat-note { font-size: 10px; }
+}
+
+@media (max-width: 390px) {
+  body.amigo-chat .top { padding-inline: 7px; }
+  body.amigo-chat .top-right { gap: 0; }
+  body.amigo-chat .ico,
+  body.amigo-chat .rail-toggle { width: 38px; min-width: 38px; height: 38px; }
+  body.amigo-chat .composer { gap: 5px; padding: 6px; }
+  body.amigo-chat .composer .plus,
+  body.amigo-chat .composer .mic,
+  body.amigo-chat .composer .send { width: 40px; height: 40px; flex-basis: 40px; }
+}
+
+@media (max-height: 720px) and (min-width: 761px) {
+  body.amigo-chat.is-empty .scroll { align-items: flex-start; }
+  body.amigo-chat.is-empty .stage { padding-block: 18px; }
+  body.amigo-chat .empty-mark { width: 64px; height: 64px; margin-bottom: 14px; }
+  body.amigo-chat .empty-heading { margin-top: 10px; font-size: clamp(29px, 3.6vw, 42px); }
+  body.amigo-chat .empty > p { margin-block: 10px 14px; }
+  body.amigo-chat .welcome-trust { margin-bottom: 14px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body.amigo-chat .empty-mark,
+  body.amigo-chat .starters button,
+  body.amigo-chat .src-card,
+  body.amigo-chat .rail-new,
+  body.amigo-chat .ico,
+  body.amigo-chat .rail-toggle,
+  body.amigo-chat .composer .send { animation: none !important; transition: none !important; }
+}
