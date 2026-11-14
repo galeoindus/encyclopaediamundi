@@ -55,7 +55,7 @@ function sourceList(sources) {
 
 /* ── home ───────────────────────────────────────────────────────────────── */
 
-export function homeView({ go, lang }) {
+export function homeView({ go, lang, articles = [] }) {
   const wrap = h('div', {});
   const hero = h('section', { class: 'em-hero' },
     h('div', { class: 'em-hero-eyebrow' }, h('span', { class: 'em-dot' }), 'Veridell'),
@@ -77,7 +77,7 @@ export function homeView({ go, lang }) {
   wrap.append(h('section', { class: 'em-section' }, sectionHead('Browse by subject'), categories));
 
   const written = h('div', { class: 'em-grid' });
-  for (const article of (window.__EM_ARTICLES__ || [])) {
+  for (const article of articles) {
     written.append(h('a', {
       class: 'em-card',
       href: `/articles/${article.slug}/`,
@@ -88,7 +88,7 @@ export function homeView({ go, lang }) {
     wrap.append(h('section', { class: 'em-section em-written' }, sectionHead('Written here', 'Complete pages, not summaries'), written));
   }
 
-  const feed = h('div', { class: 'em-grid' });
+  const feed = h('div', { class: 'em-grid em-grid--async' });
   wrap.append(h('section', { class: 'em-section' }, sectionHead('Most read yesterday'), feed));
   mostRead(lang).then((rows) => {
     for (const row of rows) {
@@ -210,7 +210,7 @@ export function exploreView({ go, lang }) {
   }
   wrap.append(grid);
 
-  const feed = h('div', { class: 'em-grid' });
+  const feed = h('div', { class: 'em-grid em-grid--async' });
   wrap.append(h('section', { class: 'em-section' }, sectionHead('Most read yesterday'), feed));
   mostRead(lang).then((rows) => {
     for (const row of rows) {

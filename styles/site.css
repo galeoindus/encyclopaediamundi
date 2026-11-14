@@ -233,6 +233,11 @@ h1, h2, h3, h4 { font-family: var(--em-font-display); font-weight: 600; letter-s
 .em-card strong { font-size: 15px; font-weight: 650; }
 .em-card span { font-size: 13px; color: var(--em-ink-3); line-height: 1.5; }
 
+/* A grid that fills in after the first paint keeps its height while it is
+ * empty, so the content below it does not jump down when the cards arrive.
+ * That jump is the layout shift a reader notices and a scoreboard counts. */
+.em-grid--async { min-height: 132px; }
+
 /* ── 7 · the answer ─────────────────────────────────────────────────────── */
 .em-answer { padding: 26px 0 10px; }
 .em-answer-head { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-bottom: 10px; }

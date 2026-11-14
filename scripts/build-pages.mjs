@@ -47,6 +47,10 @@ const FOOT = `<footer class="em-foot">
 
 function shell({ title, description, path, body, jsonLd = '', noindex = false }) {
   const url = `${ORIGIN}${path}`;
+  // Assets are addressed relative to the page, so the site works from the root
+  // of a host, from a sub-folder, and from a plain file:// open alike. An
+  // absolute "/styles/site.css" is the reason a page can arrive unstyled.
+  const up = '../'.repeat(path.split('/').filter(Boolean).length);
   return `<!doctype html>
 <html lang="en">
 <head>
@@ -65,9 +69,10 @@ function shell({ title, description, path, body, jsonLd = '', noindex = false })
 <meta property="og:description" content="${esc(description)}">
 <meta property="og:url" content="${url}">
 <meta name="twitter:card" content="summary">
-<link rel="icon" href="/assets/favicon.svg" type="image/svg+xml">
-<link rel="manifest" href="/manifest.webmanifest">
-<link rel="stylesheet" href="/styles/site.css">
+<link rel="icon" href="${up}assets/favicon.svg" type="image/svg+xml">
+<link rel="manifest" href="${up}manifest.webmanifest">
+<script src="${up}src/theme-boot.js"></script>
+<link rel="stylesheet" href="${up}styles/site.css">
 ${jsonLd ? `<script type="application/ld+json">${jsonLd}</script>` : ''}
 </head>
 <body data-page="static">
@@ -80,7 +85,7 @@ ${jsonLd ? `<script type="application/ld+json">${jsonLd}</script>` : ''}
 ${body}
 </main>
 ${FOOT}
-<script type="module" src="/src/static.js"></script>
+<script type="module" src="${up}src/static.js"></script>
 </body>
 </html>
 `;

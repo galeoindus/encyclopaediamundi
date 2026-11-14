@@ -104,10 +104,12 @@ async function render() {
 
   if (path === '/' || path === '') {
     document.title = 'Veridell — every answer, with its source';
-    mount(homeView({ go, lang: state.lang }));
-    loadArticleIndex().then((rows) => {
-      if (run === state.run && rows.length && !document.querySelector('.em-written')) render();
-    });
+    // The index is read before the first paint, not after it. Painting twice —
+    // once without the section and once with it — moved everything on the page
+    // down a beat later, which is a layout shift the reader can see.
+    const articles = await loadArticleIndex();
+    if (run !== state.run) return;
+    mount(homeView({ go, lang: state.lang, articles }));
     return;
   }
 
