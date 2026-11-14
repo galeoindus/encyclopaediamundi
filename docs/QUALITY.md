@@ -18,7 +18,7 @@ Verified locally on 14 November 2026 for v6.1.0, on Node.js 20.20.2 and npm 10.8
 
 ## Verification record
 
-- Repository: `galeoindus/veridell`
+- Repository: `galeoindus/veridellindo`
 - Branch: `main`
 - Product: Veridell 6.1.0
 - Node.js: `20.20.2`

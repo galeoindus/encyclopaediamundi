@@ -14,7 +14,7 @@ export const SITE = {
   // links, Open Graph, the sitemap — is built from this and nothing else, so a
   // single edit moves the whole site.
   origin: 'https://veridell.pages.dev',
-  repo: 'https://github.com/galeoindus/veridell',
+  repo: 'https://github.com/galeoindus/veridellindo',
   description:
     'Veridell is a Wikimedia knowledge research and discovery platform. Ask a question or open a topic and get a direct answer, the key points, the facts from the infobox and the sources behind them.',
   ogDescription:

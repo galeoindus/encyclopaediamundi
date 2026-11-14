@@ -54,7 +54,7 @@ remote: - Changes must be made through a pull request.
 
 Read the line after that block before assuming it failed — if it says
 `<old>..<new>  main -> main`, the push landed. Check with
-`git rev-parse HEAD` against `gh api repos/galeoindus/veridell/commits/main --jq .sha`
+`git rev-parse HEAD` against `gh api repos/galeoindus/veridellindo/commits/main --jq .sha`
 rather than trusting the warning.
 
 The `version` workflow is a different identity (the `github-actions[bot]`

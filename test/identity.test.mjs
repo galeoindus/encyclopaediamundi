@@ -100,7 +100,7 @@ test('the mark exists at every size the manifest and the icons ask for', () => {
 test('the package and the deployment agree on one name', () => {
   const pkg = JSON.parse(readFileSync(join(ROOT, 'package.json'), 'utf8'));
   assert.equal(pkg.name, 'veridell');
-  assert.equal(pkg.repository.url, 'https://github.com/galeoindus/veridell.git');
+  assert.equal(pkg.repository.url, 'https://github.com/galeoindus/veridellindo.git');
   assert.equal(pkg.homepage, 'https://veridell.pages.dev/');
 
   const wrangler = readFileSync(join(ROOT, 'wrangler.toml'), 'utf8');

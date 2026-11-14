@@ -82,7 +82,7 @@ repository name that was already published.
 
 - **One name everywhere** — product, package, Pages project, manifest, storage
   keys, meta tags and canonical host are all `veridell`; the repository stays
-  `galeoindus/veridell`.
+  `galeoindus/veridellindo`.
 - **One promise** — *Every answer, with its source.* replaces *From question to
   understanding* in the manifest, `config.js`, `i18n.js` and the structured
   data.

@@ -17,7 +17,7 @@ around it.
 
 **One name, everywhere.** The product, the package, the Pages project, the
 manifest, the storage keys, the meta tags and the canonical host are all
-`veridell`. The repository is `galeoindus/veridell` and nothing in the shipped
+`veridell`. The repository is `galeoindus/veridellindo` and nothing in the shipped
 tree names another one.
 
 **A new mark.** A faceted V on the forest-to-copper tile, with a single dot
