@@ -125,6 +125,20 @@ function scrollDown() {
   requestAnimationFrame(() => { scroller.scrollTop = scroller.scrollHeight; });
 }
 
+function liveParagraph(node) {
+  node.replaceChildren(h('div', { class: 'em-turn-a' }, h('div', { class: 'em-prose' })));
+  const prose = node.querySelector('.em-prose');
+  let text = '';
+  return {
+    update(chunk, kind) {
+      text = kind === 'replace' ? String(chunk) : text + String(chunk);
+      prose.innerHTML = markdown(text, { cites: 0 });
+      scrollDown();
+    },
+    get value() { return text; },
+  };
+}
+
 function thinking() {
   const node = h('div', { class: 'em-turn' },
     h('p', { class: 'em-thinking', html: '<i></i><i></i><i></i><span>Reading sources…</span>' }));
@@ -168,7 +182,7 @@ async function askLocalOllama(question) {
   return { text, provider: `Ollama · ${model}`, sources: [], plain: true };
 }
 
-async function askCloud(question, passages) {
+async function askCloud(question, passages, onDelta) {
   const response = await fetch('/api/ask', {
     method: 'POST',
     headers: { 'content-type': 'application/json' },
@@ -179,12 +193,70 @@ async function askCloud(question, passages) {
       depth: depthSelect.value,
       history: historyForModel(),
       passages,
+      stream: typeof onDelta === 'function',
     }),
   });
-  const data = await response.json().catch(() => null);
-  if (!response.ok || !data?.answer) {
+
+  if (!response.ok) {
+    const data = await response.json().catch(() => null);
     throw new Error(data?.message || 'The assistant is unavailable right now. Try again in a moment.');
   }
+
+  /* Server-sent events: the words are painted as they arrive, which is the
+   * difference between a chat and a spinner. */
+  if (response.headers.get('content-type')?.includes('text/event-stream')) {
+    const reader = response.body.getReader();
+    const decoder = new TextDecoder();
+    let buffer = '';
+    let accumulated = '';
+    let final = null;
+
+    const consume = (frame) => {
+      const payload = frame.split('\n')
+        .filter((line) => line.startsWith('data:'))
+        .map((line) => line.slice(5).trim())
+        .join('');
+      if (!payload) return;
+      let event;
+      try { event = JSON.parse(payload); } catch { return; }
+      if (event.type === 'delta' && event.text) {
+        accumulated += event.text;
+        onDelta?.(event.text, 'append');
+      } else if (event.type === 'replace') {
+        accumulated = String(event.text || '');
+        onDelta?.(accumulated, 'replace');
+      } else if (event.type === 'done') {
+        final = event;
+      } else if (event.type === 'error') {
+        throw new Error(event.message || 'The assistant could not finish this answer.');
+      }
+    };
+
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      buffer += decoder.decode(value, { stream: true });
+      const frames = buffer.split('\n\n');
+      buffer = frames.pop() || '';
+      for (const frame of frames) consume(frame);
+    }
+    if (buffer.trim()) consume(buffer);
+
+    const text = final?.answer || accumulated;
+    if (!text) throw new Error('The answer came back empty. Please try again.');
+    return {
+      text,
+      provider: final?.model ? `${final.provider} · ${final.model}` : 'Amigo',
+      sources: (final?.sources || []).map((source) => ({ title: source.title, url: source.url })),
+      plain: !(final?.sources || []).length,
+    };
+  }
+
+  const data = await response.json().catch(() => null);
+  if (!data?.answer) {
+    throw new Error(data?.message || 'The assistant is unavailable right now. Try again in a moment.');
+  }
+  onDelta?.(data.answer, 'replace');
   return {
     text: data.answer,
     provider: data.model ? `${data.provider} · ${data.model}` : data.provider || 'Amigo',
@@ -197,7 +269,8 @@ async function submit(raw) {
   const question = String(raw ?? '').trim();
   if (!question || busy) return;
   busy = true;
-  send.disabled = true;
+  send.setAttribute('aria-label', 'Stop');
+  send.classList.add('is-stop');
   prompt.value = '';
   prompt.style.height = 'auto';
   stage.querySelector('.em-chat-empty')?.remove();
@@ -230,7 +303,8 @@ async function submit(raw) {
           }
         }
       } catch { /* no sources is a valid state: answer as conversation */ }
-      reply = await askCloud(question, passages);
+      const live = liveParagraph(wait);
+      reply = await askCloud(question, passages, (chunk, kind) => live.update(chunk, kind));
     }
 
     wait.remove();
@@ -254,7 +328,8 @@ async function submit(raw) {
   } finally {
     controller = null;
     busy = false;
-    send.disabled = false;
+    send.setAttribute('aria-label', 'Send');
+    send.classList.remove('is-stop');
     prompt.focus();
   }
 }
@@ -273,7 +348,27 @@ prompt.addEventListener('keydown', (event) => {
     submit(prompt.value);
   }
 });
-send.addEventListener('click', () => submit(prompt.value));
+
+/* The composer is a form, so a click on Send submits it. Without this the
+ * browser navigates and the page reloads — which is exactly what "the chat does
+ * not work" looks like: you type, you press send, the page blinks and the
+ * question is gone. */
+document.getElementById('composer').addEventListener('submit', (event) => {
+  event.preventDefault();
+  submit(prompt.value);
+});
+
+/* Send becomes Stop while a request is in flight: the same button, the same
+ * place, no second control to find. */
+send.addEventListener('click', (event) => {
+  if (busy && controller) {
+    event.preventDefault();
+    controller.abort();
+    return;
+  }
+  event.preventDefault();
+  submit(prompt.value);
+});
 runtime.addEventListener('change', () => { write(KEY.runtime, runtime.value); paintRuntime(); });
 document.getElementById('clearChat').addEventListener('click', () => {
   turns = [];

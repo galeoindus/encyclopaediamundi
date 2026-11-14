@@ -50,7 +50,7 @@ function paintBar() {
           write(KEY.lang, state.lang);
           render();
         },
-      }, ...LANGS.map((lang) => new Option(lang.label, lang.code))),
+      }, ...LANGS.map((lang) => h('option', { value: lang.code, text: lang.label }))),
       h('button', { class: 'em-icon-btn', type: 'button', 'data-theme-toggle': '', 'aria-label': 'Switch theme',
         html: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" aria-hidden="true"><path d="M20.3 14.1A8.5 8.5 0 0 1 9.9 3.7 8.5 8.5 0 1 0 20.3 14.1Z"/></svg>' })));
 
@@ -85,6 +85,18 @@ function mount(node) {
   document.title = document.title.replace(/^.*?— /, '') || document.title;
 }
 
+async function loadArticleIndex() {
+  if (Array.isArray(window.__EM_ARTICLES__)) return window.__EM_ARTICLES__;
+  try {
+    const response = await fetch('/data/articles.json', { headers: { accept: 'application/json' } });
+    if (response.ok) {
+      const rows = await response.json();
+      window.__EM_ARTICLES__ = Array.isArray(rows) ? rows : [];
+    }
+  } catch { /* the home page works without the index */ }
+  return window.__EM_ARTICLES__ || [];
+}
+
 async function render() {
   const run = ++state.run;
   const { path, params } = parse();
@@ -93,6 +105,9 @@ async function render() {
   if (path === '/' || path === '') {
     document.title = 'Veridell — every answer, with its source';
     mount(homeView({ go, lang: state.lang }));
+    loadArticleIndex().then((rows) => {
+      if (run === state.run && rows.length && !document.querySelector('.em-written')) render();
+    });
     return;
   }
 

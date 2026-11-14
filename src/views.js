@@ -85,7 +85,7 @@ export function homeView({ go, lang }) {
     }, h('strong', { text: article.title }), h('span', { text: clip(article.description || article.lead, 110) })));
   }
   if (written.children.length) {
-    wrap.append(h('section', { class: 'em-section' }, sectionHead('Written here', 'Complete pages, not summaries'), written));
+    wrap.append(h('section', { class: 'em-section em-written' }, sectionHead('Written here', 'Complete pages, not summaries'), written));
   }
 
   const feed = h('div', { class: 'em-grid' });

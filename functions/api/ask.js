@@ -26,6 +26,10 @@ const MAX_QUESTION = 2000;
 const MAX_PASSAGES = 6;
 const MAX_PASSAGE_CHARS = 9000;
 
+const sourcesFor = (mode, passages) => (mode === 'grounded'
+  ? passages.map((passage, index) => ({ n: index + 1, title: passage.title, url: passage.url, sourceType: passage.sourceType }))
+  : []);
+
 const json = (body, status = 200) => new Response(JSON.stringify(body), {
   status,
   headers: { 'content-type': 'application/json; charset=utf-8', 'cache-control': 'no-store' },
@@ -133,6 +137,102 @@ async function askOpenRouter(env, messages, size) {
 
 /* ── the handler ────────────────────────────────────────────────────────── */
 
+
+/* ── streaming ────────────────────────────────────────────────────────────
+ * A chat that waits four seconds and then prints a paragraph feels broken,
+ * however good the paragraph is. Both runtimes can stream, so the endpoint
+ * does too: `stream: true` answers with server-sent events and the browser
+ * paints the words as they arrive.
+ */
+const sse = (event) => `data: ${JSON.stringify(event)}\n\n`;
+
+function streamResponse(run) {
+  const encoder = new TextEncoder();
+  const stream = new ReadableStream({
+    async start(controller) {
+      const send = (event) => controller.enqueue(encoder.encode(sse(event)));
+      try {
+        await run(send);
+      } catch (error) {
+        try {
+          send({ type: 'error', message: 'The assistant could not finish this answer.' });
+        } catch { /* the client is gone */ }
+      } finally {
+        try { controller.close(); } catch { /* already closed */ }
+      }
+    },
+  });
+  return new Response(stream, {
+    headers: {
+      'content-type': 'text/event-stream; charset=utf-8',
+      'cache-control': 'no-store',
+      'x-accel-buffering': 'no',
+    },
+  });
+}
+
+async function streamWorkersAI(env, messages, size, send) {
+  if (!env?.AI || typeof env.AI.run !== 'function') return false;
+  const model = text(env.WORKERS_AI_MODEL, 120) || WORKERS_MODEL;
+  let result;
+  try {
+    result = await env.AI.run(model, { messages, max_tokens: size.tokens, temperature: 0.35, stream: true });
+  } catch { return false; }
+  if (!result || typeof result[Symbol.asyncIterator] !== 'function') return false;
+  let any = false;
+  for await (const chunk of result) {
+    const piece = typeof chunk === 'string' ? chunk : chunk?.response;
+    if (piece) { any = true; send({ type: 'delta', text: String(piece) }); }
+  }
+  return any;
+}
+
+async function streamOpenRouter(env, messages, size, send) {
+  const keys = openRouterKeys(env);
+  if (!keys.length) return false;
+  const freeOnly = String(env?.OPENROUTER_FREE_ONLY || 'true').toLowerCase() !== 'false';
+  const configured = text(env?.OPENROUTER_MODEL, 120) || 'meta-llama/llama-3.3-70b-instruct:free';
+  const model = freeOnly && !configured.endsWith(FREE_SUFFIX) ? `${configured.replace(/:free$/, '')}${FREE_SUFFIX}` : configured;
+
+  let response;
+  try {
+    response = await fetch(OPENROUTER_ENDPOINT, {
+      method: 'POST',
+      headers: {
+        authorization: `Bearer ${keys[0]}`,
+        'content-type': 'application/json',
+        'x-title': 'Veridell',
+      },
+      body: JSON.stringify({ model, messages, max_tokens: size.tokens, temperature: 0.35, stream: true }),
+    });
+  } catch { return false; }
+  if (!response.ok || !response.body) return false;
+
+  const reader = response.body.getReader();
+  const decoder = new TextDecoder();
+  let buffer = '';
+  let any = false;
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    buffer += decoder.decode(value, { stream: true });
+    const lines = buffer.split('\n');
+    buffer = lines.pop() || '';
+    for (const line of lines) {
+      const trimmed = line.trim();
+      if (!trimmed.startsWith('data:')) continue;
+      const payload = trimmed.slice(5).trim();
+      if (!payload || payload === '[DONE]') continue;
+      try {
+        const parsed = JSON.parse(payload);
+        const piece = parsed?.choices?.[0]?.delta?.content;
+        if (piece) { any = true; send({ type: 'delta', text: String(piece) }); }
+      } catch { /* a keep-alive or a partial frame */ }
+    }
+  }
+  return any;
+}
+
 export async function onRequestPost({ request, env }) {
   let body;
   try {
@@ -153,6 +253,30 @@ export async function onRequestPost({ request, env }) {
 
   const size = DEPTHS[depth];
   const messages = messagesFor({ mode, question, passages, depth, history: body?.history });
+
+  if (body?.stream === true) {
+    return streamResponse(async (send) => {
+      let streamed = false;
+      try { streamed = await streamWorkersAI(env, messages, size, send); } catch { streamed = false; }
+      if (!streamed) {
+        try { streamed = await streamOpenRouter(env, messages, size, send); } catch { streamed = false; }
+      }
+      if (!streamed) {
+        // Neither runtime can stream right now: answer whole, once.
+        let reply = null;
+        try { reply = await askWorkersAI(env, messages, size); } catch { reply = null; }
+        if (!reply) { try { reply = await askOpenRouter(env, messages, size); } catch { reply = null; } }
+        if (!reply) {
+          send({ type: 'error', message: 'The assistant is unavailable right now. Please try again in a moment.' });
+          return;
+        }
+        send({ type: 'replace', text: reply.answer });
+        send({ type: 'done', answer: reply.answer, provider: reply.provider, model: reply.model, mode, depth, sources: sourcesFor(mode, passages) });
+        return;
+      }
+      send({ type: 'done', answer: '', provider: 'stream', model: '', mode, depth, sources: sourcesFor(mode, passages) });
+    });
+  }
 
   let reply = null;
   try {
@@ -181,9 +305,7 @@ export async function onRequestPost({ request, env }) {
     model: reply.model,
     mode,
     depth,
-    sources: mode === 'grounded'
-      ? passages.map((passage, index) => ({ n: index + 1, title: passage.title, url: passage.url, sourceType: passage.sourceType }))
-      : [],
+    sources: sourcesFor(mode, passages),
   });
 }
 

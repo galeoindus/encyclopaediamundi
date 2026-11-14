@@ -41,8 +41,15 @@ export function outline(root) {
     if (value.length > 40) current.paragraphs.push(value);
   };
 
-  for (const node of root.children) {
+  /* The parsed article wraps everything in `.mw-parser-output`, so walking
+   * only the top-level children of the container finds one <div> and nothing
+   * else — which is how an article page ended up with a title and no text.
+   * Select the blocks in document order instead, whatever they are nested in. */
+  const nodes = root.querySelectorAll('h2, h3, p, ul, ol, blockquote');
+
+  for (const node of nodes) {
     const tag = node.tagName;
+    if (node.closest('li, blockquote') && tag !== 'BLOCKQUOTE') continue;
     if (tag === 'H2' || tag === 'H3') {
       if (current.paragraphs.length || current.heading) blocks.push(current);
       current = { heading: String(node.textContent || '').replace(/\[\d+\]/g, '').trim(), paragraphs: [] };
@@ -85,7 +92,7 @@ export function keySentences(lead, question, count = 3) {
   for (const paragraph of lead) {
     for (const sentence of paragraph.split(/(?<=[.!?])\s+/)) {
       const text = sentence.trim();
-      if (text.length > 45) pool.push(text);
+      if (text.length > 24) pool.push(text);
     }
   }
   if (!pool.length) return [];
