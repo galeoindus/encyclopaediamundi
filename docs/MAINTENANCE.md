@@ -27,6 +27,34 @@ that do not fail the build are printed separately and do not change the code.
 | Every release | `npm run release` | bumps the version, stamps, verifies, commits and tags |
 | When a dependency alerts | `npm ci` then `npm run verify` | a lockfile that no longer installs, or an upgrade that breaks a test |
 
+## The Node floor
+
+The test DOM (`jsdom`) requires Node 20.19 or newer, so `package.json` now says
+so. The old `>=18` was a promise the dependency tree could not keep: a clean
+`npm ci` on Node 18 warned about an engine mismatch and four DOM tests failed to
+load. CI runs Node 20.
+
+```bash
+node -v      # expect v20.19.0 or newer
+npm ci       # must complete without an engine warning
+```
+
+## Which provider actually runs
+
+One answer, in one place, so the docs stop disagreeing:
+
+| Where | Value |
+|---|---|
+| `wrangler.toml` `[vars]` | `AI_PROVIDER = "openrouter"`, `OPENROUTER_FREE_ONLY = "true"` |
+| Dashboard secrets | `OPENROUTER_API_KEY_1..6` |
+| Result | answers come from OpenRouter's `:free` models |
+| Cost | nothing — a `:free` model needs no billing opt-in |
+| Workers AI | still available; set `AI_PROVIDER=workers-ai` to keep everything inside Cloudflare |
+
+A `:free` model is allowed to run with `ENABLE_PAID_AI=false`. Only a paid model
+id requires the paid opt-in, and it is refused at the last boundary before the
+request leaves the worker.
+
 ## What each failure means
 
 **`check: N problem(s)`** — the tree is internally inconsistent. The message

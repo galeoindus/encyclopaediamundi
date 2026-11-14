@@ -47,7 +47,7 @@ const STEPS = [
 if (full) {
   STEPS.push({
     name: 'tests',
-    what: 'the suite — 270 assertions over the behaviour that shipped',
+    what: 'the suite — every assertion over the behaviour that shipped',
     args: ['--test'],
     node: true,
   });

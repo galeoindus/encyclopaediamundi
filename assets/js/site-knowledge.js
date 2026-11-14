@@ -43,7 +43,7 @@ export const SITE_FACTS = {
   sources: 'Factual answers are built from Wikipedia article text, with Wikidata for facts and Wikimedia Commons for media. The Library and the Research Desk also read Crossref, OpenAlex, Europe PMC, DOAJ, Open Library, Project Gutenberg and the Internet Archive.',
   citations: 'Every research answer marks the passages it used with numbered citations. Each citation opens the exact source, so a claim can be checked instead of trusted.',
   privacy: 'Chat history, bookmarks and saved memory stay in this browser on this device. Nothing syncs across devices. Memory is used only when you switch it on, and you can export or clear it. Attached files are read in the browser, are not kept in saved history, and are limited to 4 MB each.',
-  ai: 'The assistant runs free first: Cloudflare Workers AI is the default. A paid OpenRouter pool can be enabled by the operator, and a local Ollama model can be connected on your own device. If no provider is configured or a call fails, the page shows an honest source excerpt instead of pretending an AI answered.',
+  ai: 'The assistant runs on free models only. A deployment answers through Cloudflare Workers AI or through OpenRouter\u2019s free models \u2014 both cost nothing per answer \u2014 and the operator picks which. Paid models are switched off unless the operator deliberately turns them on. A local Ollama model can also be connected on your own device, in which case nothing leaves it. If no provider is reachable, the page shows the source excerpt instead of pretending an AI answered.',
   routing: 'Auto reads the question first. Ordinary conversation, writing and creative requests go to the lightest model; factual and research questions go to the source-grounded path, which searches Wikipedia first and only then asks a model to explain those passages.',
   depth: 'Answer depth has three levels: Quick, Detailed and Deep. Quick answers briefly, Detailed explains in topics, and Deep opens every topic block extended.',
   languages: 'The interface is in English and हिन्दी. Content can be read in twelve languages: English, हिन्दी, বাংলা, தமிழ், తెలుగు, मराठी, ગુજરાતી, ಕನ್ನಡ, മലയാളം, ਪੰਜਾਬੀ, اردو and संस्कृतम्.',
@@ -52,24 +52,51 @@ export const SITE_FACTS = {
   reliability: 'Answers are extractive by default: the sentences come from the article and the ranking only chooses the order. Chat answers are labelled as conversation and are never dressed up as sourced fact.',
 };
 
-/** Words that mean "you are being asked about Veridell itself". */
-const SITE_SIGNAL = new RegExp([
-  'Veridell', 'वेरिडेल', 'veri dell', 'the dell',
-  'this (?:site|website|web ?site|app|platform|page)', 'the (?:site|website|platform)',
+/**
+ * What counts as "you are being asked about Veridell itself".
+ *
+ * Two tiers, because one flat list of words answered the wrong question. A
+ * message saying "privacy" or "amigo" used to be captured and answered with
+ * product facts — so "What is privacy engineering?" got a paragraph about this
+ * site's storage, and "Tell me about Amigo the film" was misrouted.
+ *
+ *   · STRONG  — a reference that can only mean this product. Enough on its own.
+ *   · WEAK    — a word that is about the product *only* next to one of those.
+ *
+ * A weak hit with no product context falls through to ordinary routing, which
+ * is the safe direction: a real product question still names the product.
+ */
+const SITE_STRONG = new RegExp([
+  'veridell', 'वेरिडेल', 'veri dell',
+  'this (?:site|website|web ?site|app|platform|page)',
+  'the (?:site|website|platform)',
   'your (?:site|website|app|platform|project)',
   'इस (?:साइट|वेबसाइट|ऐप|पेज)', 'आपकी (?:साइट|वेबसाइट)', 'साइट के बारे में',
   'who made (?:this|it|you)', 'who built (?:this|it|you)', 'who owns (?:this|it)',
-  'how (?:do|does) (?:this|it|you) work', 'what can (?:i|you) do (?:here|on this site)',
+  'how (?:do|does) (?:this|it) work', 'what can (?:i|you) do (?:here|on this site)',
   'is (?:this|it) free', 'do you (?:store|save|keep|track) (?:my )?',
-  'where (?:are|is) (?:the )?sources', 'which model', 'what model', 'how many sources',
-  'amigo', 'credits', 'privacy', 'कौन बनाता', 'किसने बनाया', 'फ्री है', 'स्रोत कहाँ',
+  'where (?:are|is) (?:the )?sources', 'how many sources',
+  'कौन बनाता', 'किसने बनाया', 'फ्री है', 'स्रोत कहाँ',
+].join('|'), 'iu');
+
+/** Words that mean the product only when something above is in the message. */
+const SITE_WEAK = /amigo|credits|privacy|which model|what model|इंद्रधनुष|मॉडल/iu;
+
+/** Something in the message that points at this product. */
+const SITE_CONTEXT_SIGNAL = new RegExp([
+  'veridell', 'वेरिडेल',
+  'this (?:site|website|web ?site|app|platform|page)',
+  'your (?:site|website|app|platform|project)',
+  'इस (?:साइट|वेबसाइट|ऐप|पेज)', 'आपकी (?:साइट|वेबसाइट)',
+  'do you', 'are you', 'you use', 'you run', 'यहाँ',
 ].join('|'), 'iu');
 
 /** Does this message ask about the product rather than the world? */
 export function isSiteQuestion(value) {
   const text = String(value ?? '').trim();
   if (!text || text.length > 400) return false;
-  return SITE_SIGNAL.test(text);
+  if (SITE_STRONG.test(text)) return true;
+  return SITE_WEAK.test(text) && SITE_CONTEXT_SIGNAL.test(text);
 }
 
 const PAGE_LINE = (page) => `- **[${page.label}](${page.path})** — ${page.what}`;

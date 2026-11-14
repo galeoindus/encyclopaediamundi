@@ -1,3 +1,38 @@
+# Independent audit — 14 November 2026 (v6.4.0)
+
+Scope: the fourteen findings of the external repository audit, applied in one
+release. Every fix below names the finding it answers and the test that now
+holds it in place.
+
+| # | Finding | Fix | Held by |
+|---|---|---|---|
+| F-01 | Free-only OpenRouter was gated by the paid flag | A `:free` model now runs with `ENABLE_PAID_AI=false`; only a paid id needs the opt-in, refused at the last boundary | `test/provider-free-only.test.mjs` |
+| F-02 | Fallback source card read an undefined `s.sourceType` | Reads `source.sourceType` through one formatter, so a Crossref card says Crossref | `test/chat-shell.test.mjs` |
+| F-03 | Image endpoint had no origin, size or rate controls | Same-origin check, JSON content type, 4 KB streamed body ceiling, per-caller burst and daily quota, `Retry-After` on 429 | `test/image-endpoint.test.mjs` |
+| F-04 | The picker listed models the request path ignored | A validated model is honoured in free-only mode too, not only when paid AI is on | `test/provider-free-only.test.mjs` |
+| F-05 | Site-help detector captured unrelated questions | Two tiers: a strong product reference, or a weak word that needs product context beside it | `test/site-knowledge.test.mjs` |
+| F-06 | Docs and runtime disagreed about the default provider | One contract in `docs/MAINTENANCE.md`; the env templates and product copy follow it | — |
+| F-07 | Throttles are per isolate, not global | Documented as a fast guard; WAF rate limiting named as the global layer | — |
+| F-08 | Node floor advertised 18, jsdom needs 20.19 | `engines.node` is `>=20.19.0`; CI runs Node 20 | `npm ci` |
+| F-09 | No product analytics | Deliberately unchanged: the privacy promise is the product decision. Recorded, not silently dropped | — |
+| F-10 | SSE data fields joined with a literal `\n` | New `assets/js/sse.js`, joined with a real newline, CRLF and chunk boundaries handled | `test/sse.test.mjs` |
+| F-11 | `Buffer` used for image bytes with no compat flag | Worker-native base64 over `btoa`; typed arrays accepted as well as `ArrayBuffer` | `test/image-endpoint.test.mjs` |
+| F-12 | Amigo is not a general tool-using agent | Out of scope for a static site with one bounded endpoint. Recorded as a product decision | — |
+| F-13 | Seventeen stacked chat CSS layers | Kept, but the order is now asserted in `test/chat-shell.test.mjs` and `refine.css` is documented as the last, layout-free layer | `test/chat-shell.test.mjs` |
+| F-14 | A personal mailbox shipped in browser source | The Crossref/OpenAlex `mailto` is gone; the feedback address stays, because the reader chooses to write to it | — |
+
+Two findings were not code defects and were not "fixed": F-09 and F-12 are
+product decisions, and F-07 is a platform limitation that needs WAF, not a
+patch. They are recorded here rather than quietly closed.
+
+## What was not verified
+
+No browser, device or Lighthouse run. The provider tests mock the network, so
+they prove the routing logic and the billing gate, not that OpenRouter answers
+today. The live check remains `npm run verify:live` after a deploy.
+
+---
+
 # Deep audit — 14 November 2026 (v6.0.0)
 
 Scope: the whole tree after the 6.0 rebuild — 22 HTML entry points, 48 ES
@@ -11,7 +46,7 @@ robots, `llms.txt` and the image set.
 |---|---|---|
 | Every module parses; every named import resolves | `npm run check` | pass — 48 modules |
 | Every page's local assets exist and share one build ID | `npm run check` (site audit) | pass — 22 pages, 53 JS files |
-| The suite | `npm test` | pass — 270 tests |
+| The suite | `npm test` | pass — 296 tests |
 | The identity suite | `node --test test/identity.test.mjs` | pass — 9 checks |
 | Build stamping and sitemap regeneration | `npm run stamp:build` | pass — 22 pages, 21 URLs |
 

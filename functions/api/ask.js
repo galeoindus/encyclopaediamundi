@@ -768,7 +768,16 @@ export async function modelMenu(env = {}) {
 }
 
 async function runOpenRouter(question, passages, depth, env, opts = {}) {
-  if (!paidAIEnabled(env)) return { ok: false, configured: false, reason: 'paid_ai_disabled' };
+  // A `:free` model costs nothing to run, so it needs no billing opt-in. Only a
+  // paid path does. This was the release blocker: with the documented
+  // production values (AI_PROVIDER=openrouter, OPENROUTER_FREE_ONLY=true,
+  // ENABLE_PAID_AI=false) every request was refused here before a free model
+  // was ever tried, and the reader saw "providers unavailable" while six free
+  // keys sat unused.
+  const freeOnly = openRouterFreeOnly(env);
+  if (!freeOnly && !paidAIEnabled(env)) {
+    return { ok: false, configured: false, reason: 'paid_ai_disabled' };
+  }
   const keys = getOpenRouterKeys(env);
   if (!keys.length) return { ok: false, configured: false, reason: 'not_configured' };
 
@@ -786,7 +795,6 @@ async function runOpenRouter(question, passages, depth, env, opts = {}) {
   // one turns out not to exist. This keeps the normal request to one round
   // trip and never opens an expensive model by default.
   const requested = text(opts.model, 120);
-  const freeOnly = openRouterFreeOnly(env);
   const first = isAllowedModel(env, requested) ? requested : autoModel(env, depth);
   // Belt and braces: the catalogue is already filtered, but a request body, an
   // operator allowlist or a stale cache must not smuggle a paid id through.
@@ -1094,7 +1102,10 @@ export async function onRequestPost({ request, env = {} }) {
     // word brief. `route.depth` chooses the model band; the token budget still
     // follows what the reader asked for.
     const route = routeFor({ question, mode: 'chat', depth });
-    const lightModel = paidAIEnabled(env) ? (requestedModel || text(env?.CHAT_MODEL, 120)) : '';
+    // The reader's pick was already validated against the active provider's
+    // catalogue above, so it is honoured whatever the billing mode: a :free
+    // model needs no paid opt-in.
+    const lightModel = requestedModel || text(env?.CHAT_MODEL, 120) || '';
     const opts = { messages, maxTokens: CHAT_TOKENS_BY_DEPTH[depth] || CHAT_TOKENS_BY_DEPTH.detailed, model: lightModel, depth: route.depth };
     if (wantsStream) {
       return streamResponse(async (send, isCancelled) => {
@@ -1318,6 +1329,7 @@ export const __test = Object.freeze({
   paidFallbackFor,
   openRouterFreeOnly,
   isFreeModelId,
+  runOpenRouter,
   FREE_OPENROUTER_MODELS,
   makeChatMessages,
   makeMessages,

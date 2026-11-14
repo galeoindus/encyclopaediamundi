@@ -189,25 +189,43 @@ test('Workers AI is always first and OpenRouter keys alone never trigger a paid 
   } finally { globalThis.fetch = originalFetch; }
 });
 
-test('paid OpenRouter routing requires both explicit server-side switches', async () => {
+test('free-only OpenRouter runs without the paid switch, and paid routing needs both switches', async () => {
   let calls = 0;
-  globalThis.fetch = async () => {
+  let sentModel = '';
+  globalThis.fetch = async (url, init) => {
     calls += 1;
-    return new Response(JSON.stringify({ choices: [{ message: { content: 'Paid answer [1].' } }] }), {
+    sentModel = JSON.parse(init.body).model;
+    return new Response(JSON.stringify({ choices: [{ message: { content: 'An answer [1].' } }] }), {
       status: 200, headers: { 'content-type': 'application/json' },
     });
   };
   try {
-    const disabled = await onRequestPost({
+    // Free-only is the default, and a :free model costs nothing — so it runs
+    // with ENABLE_PAID_AI absent. This is the audit's F-01: the endpoint used
+    // to refuse here and report "providers unavailable".
+    const freeOnly = await onRequestPost({
       request: request(payload),
       env: { AI_PROVIDER: 'openrouter', OPENROUTER_API_KEY_1: 'key' },
+    });
+    assert.equal(freeOnly.status, 200);
+    assert.equal(calls, 1);
+    assert.match(sentModel, /:free$/);
+
+    // With free-only explicitly off, a paid model needs the second switch.
+    calls = 0;
+    const disabled = await onRequestPost({
+      request: request(payload),
+      env: { AI_PROVIDER: 'openrouter', OPENROUTER_FREE_ONLY: 'false', OPENROUTER_API_KEY_1: 'key' },
     });
     assert.equal(disabled.status, 503);
     assert.equal(calls, 0);
 
     const enabled = await onRequestPost({
       request: request(payload),
-      env: { AI_PROVIDER: 'openrouter', ENABLE_PAID_AI: 'true', OPENROUTER_API_KEY_1: 'key' },
+      env: {
+        AI_PROVIDER: 'openrouter', OPENROUTER_FREE_ONLY: 'false',
+        ENABLE_PAID_AI: 'true', OPENROUTER_API_KEY_1: 'key',
+      },
     });
     assert.equal(enabled.status, 200);
     assert.equal(calls, 1);

@@ -216,18 +216,25 @@ const internetarchive = {
 
 /* ------------------------------------------------------------- research */
 
+/* Crossref and OpenAlex both accept a `mailto` that puts the caller in a
+ * "polite pool" with better limits. It is deliberately not sent: a mailto in
+ * browser source is a public, permanently cached address, and the audit was
+ * right that a personal mailbox should not be distributed that way. Both APIs
+ * answer without it; the cost is a shared rate limit, not a broken search. If
+ * the project ever has a role address it controls, put it here — and know that
+ * everything in this file is public the moment it ships. */
 const crossref = {
   id: 'crossref', name: 'Crossref', kind: 'Research papers', licence: 'Metadata: open',
   home: 'https://www.crossref.org/',
   async search(query, { limit = 6, signal } = {}) {
     const url = `https://api.crossref.org/works?query=${encodeURIComponent(query)}&rows=${limit}`
-      + '&select=DOI,title,author,abstract,container-title,issued,URL,type&mailto=bholasee8816@gmail.com';
+      + '&select=DOI,title,author,abstract,container-title,issued,URL,type';
     const data = await getJson(url, { signal });
     return (data.message?.items || []).map(crItem);
   },
   async get(id, { signal } = {}) {
     try {
-      const data = await getJson(`https://api.crossref.org/works/${encodeURIComponent(id)}?mailto=bholasee8816@gmail.com`, { signal });
+      const data = await getJson(`https://api.crossref.org/works/${encodeURIComponent(id)}`, { signal });
       return crItem(data.message);
     } catch { return null; }
   },
@@ -257,14 +264,14 @@ const openalex = {
   async search(query, { limit = 6, signal } = {}) {
     const url = `https://api.openalex.org/works?search=${encodeURIComponent(query)}&per-page=${limit}`
       + '&select=id,doi,title,publication_year,authorships,primary_location,abstract_inverted_index,type,cited_by_count'
-      + '&mailto=bholasee8816@gmail.com';
+      + '';
     const data = await getJson(url, { signal });
     return (data.results || []).map(oaItem);
   },
   async get(id, { signal } = {}) {
     try {
       const clean = id.replace('https://openalex.org/', '');
-      const data = await getJson(`https://api.openalex.org/works/${encodeURIComponent(clean)}?mailto=bholasee8816@gmail.com`, { signal });
+      const data = await getJson(`https://api.openalex.org/works/${encodeURIComponent(clean)}`, { signal });
       return oaItem(data);
     } catch { return null; }
   },

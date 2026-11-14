@@ -1,6 +1,6 @@
 {
   "name": "veridell",
-  "version": "6.3.0",
+  "version": "6.4.0",
   "private": true,
   "type": "module",
   "description": "Veridell — a privacy-first Wikimedia research and discovery platform with Amigo multi-turn AI conversation, cited answers and local chat history.",
@@ -20,7 +20,7 @@
     "pwa"
   ],
   "engines": {
-    "node": ">=18"
+    "node": ">=20.19.0"
   },
   "scripts": {
     "start": "python3 -m http.server 4173",

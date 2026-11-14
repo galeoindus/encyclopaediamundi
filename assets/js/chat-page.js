@@ -6,6 +6,7 @@ import { createMemoryManager, memoryEnabled, setMemoryEnabled } from './amigo-me
 import { extractFile, buildAttachmentMessages, MAX_IMAGE_COUNT, MAX_ATTACHMENT_COUNT, MAX_TOTAL_FILE_BYTES } from './amigo-files.js';
 import { askLocalOllama, listLocalModels, DEFAULT_OLLAMA_MODEL, toOllamaImage } from './ollama-client.js';
 import { searchLiveSources } from './live-research.js';
+import { parseJsonFrame, splitFrames } from './sse.js';
 import { isSiteQuestion, siteAnswerMarkdown, SITE_CONTEXT } from './site-knowledge.js';
 
 /* Veridell chat — one question box, one answer column.
@@ -499,11 +500,12 @@ async function askAI(question, passages, depth, signal, { mode = 'grounded', his
     let accumulated = '';
     let finalEvent = null;
     const consumeFrame = (frame) => {
-      const data = frame.split(/\r?\n/).filter((line) => line.startsWith('data:'))
-        .map((line) => line.slice(5).trimStart()).join('\\n');
-      if (!data) return;
-      let event;
-      try { event = JSON.parse(data); } catch { return; }
+      // Parsing lives in sse.js, where it is unit-tested without a network:
+      // multi-line data, CRLF, chunk boundaries and a final unterminated frame
+      // are all covered there.
+      const parsed = parseJsonFrame(frame);
+      if (!parsed) return;
+      const event = parsed.data;
       if (event.type === 'delta' && event.text) {
         accumulated += event.text;
         onDelta?.(event.text, 'append');
@@ -526,8 +528,8 @@ async function askAI(question, passages, depth, signal, { mode = 'grounded', his
       const { done, value } = await reader.read();
       if (done) break;
       buffer += decoder.decode(value, { stream: true });
-      const frames = buffer.split(/\r?\n\r?\n/);
-      buffer = frames.pop() || '';
+      const { frames, rest } = splitFrames(buffer);
+      buffer = rest;
       for (const frame of frames) consumeFrame(frame);
     }
     buffer += decoder.decode();
@@ -913,7 +915,10 @@ function renderAnswer(a, { store = false, animate = true } = {}) {
       body.append(el('span', 'src-t', esc(s.title)));
       const summary = s.description || s.extract || '';
       if (summary) body.append(el('span', 'src-excerpt', esc(clean(summary, 220))));
-      body.append(el('span', 'src-d', s.sourceType === 'Crossref' ? 'Crossref / DOI · Read publication ↗' : `${lang()}.wikipedia.org · Read article ↗`));
+      // `s` was never in scope here — the loop variable is `source`. The throw
+    // killed the whole fallback panel, so a reader whose two grounded attempts
+    // failed got nothing at all instead of the source list.
+    body.append(el('span', 'src-d', sourceTypeLine(source)));
       card.append(media, body);
       grid.append(card);
     }
@@ -1003,6 +1008,17 @@ function renderAnswer(a, { store = false, animate = true } = {}) {
     messages = messages.slice(-30);
     persist();
   }
+}
+
+/** The one line under a fallback source card, from whatever the source knows. */
+function sourceTypeLine(source) {
+  const kind = String(source?.sourceType || source?.kind || '').toLowerCase();
+  if (kind.includes('crossref') || kind.includes('doi')) return 'Crossref / DOI · Read publication ↗';
+  if (kind.includes('openalex')) return 'OpenAlex · Read publication ↗';
+  if (kind.includes('pubmed') || kind.includes('europepmc')) return 'Europe PMC · Read the paper ↗';
+  if (kind.includes('gutenberg') || kind.includes('openlibrary')) return 'Open Library · Read the book ↗';
+  if (kind.includes('archive')) return 'Internet Archive · Open the item ↗';
+  return `${lang()}.wikipedia.org · Read article ↗`;
 }
 
 function renderArticleResults(passages) {
