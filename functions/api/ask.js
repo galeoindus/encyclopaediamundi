@@ -122,32 +122,82 @@ export function openRouterKeys(env) {
   return keys;
 }
 
+/* ── the key pool ─────────────────────────────────────────────────────────
+ * Six OpenRouter keys are not six copies of the same thing: they are a rotation.
+ * Question one goes out on key 1, question two on key 2, and so on, so no single
+ * key carries the whole day and each one's free allowance lasts six times as
+ * long. A key that answers 401/402/429 is put on a cooldown that grows with each
+ * failure, and the next question starts one slot further round, so a dead key
+ * costs one failed request rather than every request after it.
+ *
+ * The state lives in the isolate: it is a hint, not a ledger. Nothing is stored
+ * anywhere, and no key ever leaves this file.
+ */
+const KEY_COOLDOWN_MS = 45_000;
+const KEY_COOLDOWN_MAX = 10 * 60_000;
+const keyHealth = new Map(); // key -> { fails, until }
+let keyCursor = 0;
+
+function liveKeySlots(env) {
+  const now = Date.now();
+  return openRouterKeys(env)
+    .map((key, slot) => ({ key, slot: slot + 1 }))
+    .filter(({ key }) => (keyHealth.get(key)?.until || 0) <= now);
+}
+
+/** The keys to try, in order, starting one slot further round each call. */
+export function keyRotation(env) {
+  const live = liveKeySlots(env);
+  if (!live.length) return [];
+  const start = keyCursor % live.length;
+  keyCursor = (keyCursor + 1) % Number.MAX_SAFE_INTEGER;
+  return [...live.slice(start), ...live.slice(0, start)];
+}
+
+function coolKey(key) {
+  const state = keyHealth.get(key) || { fails: 0, until: 0 };
+  state.fails += 1;
+  state.until = Date.now() + Math.min(KEY_COOLDOWN_MS * state.fails, KEY_COOLDOWN_MAX);
+  keyHealth.set(key, state);
+}
+
+function warmKey(key) {
+  if (keyHealth.get(key)?.fails) keyHealth.delete(key);
+}
+
 async function askOpenRouter(env, messages, size) {
-  const keys = openRouterKeys(env);
-  if (!keys.length) return null;
+  const rotation = keyRotation(env);
+  if (!rotation.length) return null;
   const freeOnly = String(env?.OPENROUTER_FREE_ONLY || 'true').toLowerCase() !== 'false';
   const configured = text(env?.OPENROUTER_MODEL, 120) || 'meta-llama/llama-3.3-70b-instruct:free';
   const model = freeOnly && !configured.endsWith(FREE_SUFFIX) ? `${configured.replace(/:free$/, '')}${FREE_SUFFIX}` : configured;
 
-  const response = await fetch(OPENROUTER_ENDPOINT, {
-    method: 'POST',
-    headers: {
-      authorization: `Bearer ${keys[0]}`,
-      'content-type': 'application/json',
-      'x-title': 'Veridell',
-    },
-    body: JSON.stringify({
-      model,
-      messages,
-      max_tokens: size.tokens,
-      temperature: 0.35,
-    }),
-  });
-  if (!response.ok) return null;
-  const data = await response.json().catch(() => null);
-  const answer = String(data?.choices?.[0]?.message?.content || '').trim();
-  if (!answer) return null;
-  return { answer: answer.slice(0, size.chars), provider: 'OpenRouter', model: data?.model || model };
+  for (const { key, slot } of rotation) {
+    let response;
+    try {
+      response = await fetch(OPENROUTER_ENDPOINT, {
+        method: 'POST',
+        headers: {
+          authorization: `Bearer ${key}`,
+          'content-type': 'application/json',
+          'x-title': 'Veridell',
+        },
+        body: JSON.stringify({ model, messages, max_tokens: size.tokens, temperature: 0.35 }),
+      });
+    } catch {
+      coolKey(key);
+      continue;
+    }
+
+    if (response.status === 400) return null;          // the request is wrong; another key will not fix it
+    if (!response.ok) { coolKey(key); continue; }      // 401/402/429/5xx: try the next key
+    const data = await response.json().catch(() => null);
+    const answer = String(data?.choices?.[0]?.message?.content || '').trim();
+    if (!answer) { coolKey(key); continue; }
+    warmKey(key);
+    return { answer: answer.slice(0, size.chars), provider: 'OpenRouter', model: data?.model || model, keySlot: slot };
+  }
+  return null;
 }
 
 /* ── the handler ────────────────────────────────────────────────────────── */
@@ -203,49 +253,55 @@ async function streamWorkersAI(env, messages, size, send) {
 }
 
 async function streamOpenRouter(env, messages, size, send) {
-  const keys = openRouterKeys(env);
-  if (!keys.length) return false;
+  const rotation = keyRotation(env);
+  if (!rotation.length) return false;
   const freeOnly = String(env?.OPENROUTER_FREE_ONLY || 'true').toLowerCase() !== 'false';
   const configured = text(env?.OPENROUTER_MODEL, 120) || 'meta-llama/llama-3.3-70b-instruct:free';
   const model = freeOnly && !configured.endsWith(FREE_SUFFIX) ? `${configured.replace(/:free$/, '')}${FREE_SUFFIX}` : configured;
 
-  let response;
-  try {
-    response = await fetch(OPENROUTER_ENDPOINT, {
-      method: 'POST',
-      headers: {
-        authorization: `Bearer ${keys[0]}`,
-        'content-type': 'application/json',
-        'x-title': 'Veridell',
-      },
-      body: JSON.stringify({ model, messages, max_tokens: size.tokens, temperature: 0.35, stream: true }),
-    });
-  } catch { return false; }
-  if (!response.ok || !response.body) return false;
+  for (const { key, slot } of rotation) {
+    let response;
+    try {
+      response = await fetch(OPENROUTER_ENDPOINT, {
+        method: 'POST',
+        headers: {
+          authorization: `Bearer ${key}`,
+          'content-type': 'application/json',
+          'x-title': 'Veridell',
+        },
+        body: JSON.stringify({ model, messages, max_tokens: size.tokens, temperature: 0.35, stream: true }),
+      });
+    } catch { coolKey(key); continue; }
 
-  const reader = response.body.getReader();
-  const decoder = new TextDecoder();
-  let buffer = '';
-  let any = false;
-  while (true) {
-    const { done, value } = await reader.read();
-    if (done) break;
-    buffer += decoder.decode(value, { stream: true });
-    const lines = buffer.split('\n');
-    buffer = lines.pop() || '';
-    for (const line of lines) {
-      const trimmed = line.trim();
-      if (!trimmed.startsWith('data:')) continue;
-      const payload = trimmed.slice(5).trim();
-      if (!payload || payload === '[DONE]') continue;
-      try {
-        const parsed = JSON.parse(payload);
-        const piece = parsed?.choices?.[0]?.delta?.content;
-        if (piece) { any = true; send({ type: 'delta', text: String(piece) }); }
-      } catch { /* a keep-alive or a partial frame */ }
+    if (response.status === 400) return false;
+    if (!response.ok || !response.body) { coolKey(key); continue; }
+
+    const reader = response.body.getReader();
+    const decoder = new TextDecoder();
+    let buffer = '';
+    let any = false;
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      buffer += decoder.decode(value, { stream: true });
+      const lines = buffer.split('\n');
+      buffer = lines.pop() || '';
+      for (const line of lines) {
+        const trimmed = line.trim();
+        if (!trimmed.startsWith('data:')) continue;
+        const payload = trimmed.slice(5).trim();
+        if (!payload || payload === '[DONE]') continue;
+        try {
+          const parsed = JSON.parse(payload);
+          const piece = parsed?.choices?.[0]?.delta?.content;
+          if (piece) { any = true; send({ type: 'delta', text: String(piece) }); }
+        } catch { /* a keep-alive or a partial frame */ }
+      }
     }
+    if (any) { warmKey(key); return true; }
+    coolKey(key);
   }
-  return any;
+  return false;
 }
 
 export async function onRequestPost({ request, env }) {
@@ -326,9 +382,21 @@ export async function onRequestPost({ request, env }) {
 }
 
 export async function onRequestGet({ env }) {
+  const keys = openRouterKeys(env);
+  const live = liveKeySlots(env);
   return json({
     ok: true,
-    runtime: env?.AI ? 'workers-ai' : openRouterKeys(env).length ? 'openrouter' : 'none',
+    // What will actually answer, in the order the endpoint tries them.
+    runtime: env?.AI && typeof env.AI.run === 'function' ? 'workers-ai' : live.length ? 'openrouter' : 'none',
+    workersAI: Boolean(env?.AI && typeof env.AI.run === 'function'),
+    openRouter: {
+      configured: keys.length,
+      live: live.length,
+      cooling: keys.length - live.length,
+      freeOnly: String(env?.OPENROUTER_FREE_ONLY || 'true').toLowerCase() !== 'false',
+      // Which slot is next, never the key itself.
+      nextSlot: live.length ? keyRotation(env)[0]?.slot ?? 0 : 0,
+    },
     modes: ['grounded', 'chat'],
     depths: Object.keys(DEPTHS),
   });
@@ -340,4 +408,4 @@ export async function onRequest({ request, env }) {
   return json({ error: 'method_not_allowed', message: 'Use GET or POST.' }, 405);
 }
 
-export const __test = { normalisePassages, normaliseAttachments, messagesFor, openRouterKeys, DEPTHS };
+export const __test = { normalisePassages, normaliseAttachments, messagesFor, openRouterKeys, keyRotation, liveKeySlots, DEPTHS };

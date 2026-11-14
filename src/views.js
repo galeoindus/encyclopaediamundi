@@ -526,12 +526,41 @@ export function sourcesView() {
  * licence each one is used under. This is that page.
  */
 export function creditsView({ go }) {
-  const row = (name, body, href) => h('li', { class: 'em-credit' },
+  /* A logo, and a monogram behind it. The image is the real mark of the
+   * project being credited; if the host will not serve it, the row keeps a
+   * letter in the project's own colour rather than a broken picture icon. */
+  const logo = (name, src, tint) => {
+    const badge = h('span', { class: 'em-credit-logo', 'aria-hidden': 'true' });
+    if (src) {
+      const img = h('img', { src, alt: '', loading: 'lazy', decoding: 'async' });
+      img.addEventListener('error', () => {
+        badge.replaceChildren(h('span', { class: 'em-credit-letter', text: name.slice(0, 1), style: `--tint:${tint}` }));
+      }, { once: true });
+      badge.append(img);
+    } else {
+      badge.append(h('span', { class: 'em-credit-letter', text: name.slice(0, 1), style: `--tint:${tint}` }));
+    }
+    return badge;
+  };
+
+  const row = (name, body, href, src = '', tint = '#1a7a52') => h('li', { class: 'em-credit' },
+    logo(name, src, tint),
     h('span', { class: 'em-credit-name', text: name }),
     h('span', { class: 'em-credit-body', text: body }),
     href ? h('a', { class: 'em-credit-link', href, target: '_blank', rel: 'noopener noreferrer', text: 'Open ↗' }) : null);
 
   const list = (items) => h('ul', { class: 'em-credit-list' }, ...items.map((item) => row(...item)));
+
+  const WIKI = 'https://upload.wikimedia.org/wikipedia/commons/thumb';
+  const LOGO = {
+    wikipedia: `${WIKI}/8/80/Wikipedia-logo-v2.svg/64px-Wikipedia-logo-v2.svg.png`,
+    commons: `${WIKI}/4/4a/Commons-logo.svg/64px-Commons-logo.svg.png`,
+    wikidata: `${WIKI}/f/ff/Wikidata-logo.svg/64px-Wikidata-logo.svg.png`,
+    wikiquote: `${WIKI}/2/24/Wikiquote-logo.svg/64px-Wikiquote-logo.svg.png`,
+    cloudflare: 'https://www.cloudflare.com/favicon.ico',
+    openrouter: 'https://openrouter.ai/favicon.ico',
+    ollama: 'https://ollama.com/public/ollama.png',
+  };
 
   return h('div', { class: 'em-page em-column' },
     h('h1', { text: 'Credits' }),
@@ -546,19 +575,19 @@ export function creditsView({ go }) {
     h('h2', { text: 'The knowledge' }),
     h('p', { text: 'Every sentence that carries a citation was written by a volunteer, not by this site. Those volunteers are the reason it works.' }),
     list([
-      ['Wikipedia', 'Article text, in twelve languages, by the Wikipedia community. Reused under CC BY-SA 4.0; each answer links to the article it came from.', 'https://www.wikipedia.org/'],
-      ['Wikimedia Commons', 'Pictures and their licence records. The picture of the day is shown with its photographer and licence.', 'https://commons.wikimedia.org/'],
-      ['Wikidata', 'Structured facts — dates, people, identifiers — released under CC0 1.0.', 'https://www.wikidata.org/'],
-      ['Wikiquote and Wikisource', 'Quotations and public-domain texts, read from their own APIs.', 'https://www.wikiquote.org/'],
+      ['Wikipedia', 'Article text, in twelve languages, by the Wikipedia community. Reused under CC BY-SA 4.0; each answer links to the article it came from.', 'https://www.wikipedia.org/', LOGO.wikipedia, '#3a3a3a'],
+      ['Wikimedia Commons', 'Pictures and their licence records. The picture of the day is shown with its photographer and licence.', 'https://commons.wikimedia.org/', LOGO.commons, '#0b57d0'],
+      ['Wikidata', 'Structured facts — dates, people, identifiers — released under CC0 1.0.', 'https://www.wikidata.org/', LOGO.wikidata, '#0b57d0'],
+      ['Wikiquote and Wikisource', 'Quotations and public-domain texts, read from their own APIs.', 'https://www.wikiquote.org/', LOGO.wikiquote, '#5a5a5a'],
     ]),
 
     h('h2', { text: 'The infrastructure' }),
     list([
-      ['Cloudflare Pages', 'Serves the site and runs the small functions behind the chat.', 'https://www.cloudflare.com/'],
-      ['Cloudflare Workers AI', 'The free model allocation that answers chat questions by default.', 'https://developers.cloudflare.com/workers-ai/'],
-      ['OpenRouter', 'Optional. Used only when an operator connects a key, and free models only unless they say otherwise.', 'https://openrouter.ai/'],
-      ['Ollama', 'Optional. Runs a model on the reader’s own machine, so the question never leaves the device.', 'https://ollama.com/'],
-      ['Wikimedia REST API', 'Search, article text, the front-page feed and pageviews.', 'https://api.wikimedia.org/'],
+      ['Cloudflare Pages', 'Serves the site and runs the small functions behind the chat.', 'https://www.cloudflare.com/', LOGO.cloudflare, '#f38020'],
+      ['Cloudflare Workers AI', 'The free model allocation that answers chat questions by default.', 'https://developers.cloudflare.com/workers-ai/', LOGO.cloudflare, '#f38020'],
+      ['OpenRouter', 'Optional. Six keys are rotated, one per question, so no single free allowance is spent first.', 'https://openrouter.ai/', LOGO.openrouter, '#6b57ff'],
+      ['Ollama', 'Optional. Runs a model on the reader’s own machine, so the question never leaves the device.', 'https://ollama.com/', LOGO.ollama, '#1f1f1f'],
+      ['Wikimedia REST API', 'Search, article text, the front-page feed and pageviews.', 'https://api.wikimedia.org/', LOGO.wikipedia, '#3a3a3a'],
     ]),
 
     h('h2', { text: 'The machine-written part' }),

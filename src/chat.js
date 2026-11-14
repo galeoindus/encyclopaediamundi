@@ -377,6 +377,47 @@ async function submit(raw) {
 
 /* ── wiring ─────────────────────────────────────────────────────────────── */
 
+/* ── Ollama, with a way to tell whether it is there ───────────────────────
+ * A local model is the one runtime this site cannot see: it runs on the
+ * reader's machine, so the only honest thing to do is ask it. The check lists
+ * the models that are actually installed and says exactly what to fix when the
+ * browser refuses the connection — which is almost always OLLAMA_ORIGINS.
+ */
+function setupOllama() {
+  const check = document.getElementById('ollamaCheck');
+  const status = document.getElementById('ollamaStatus');
+  const list = document.getElementById('ollamaModels');
+  if (!check || !status) return;
+
+  const say = (message) => {
+    status.hidden = false;
+    status.textContent = message;
+  };
+
+  check.addEventListener('click', async () => {
+    check.disabled = true;
+    say('Asking Ollama on this device…');
+    try {
+      const response = await fetch(`${OLLAMA}/api/tags`, { headers: { accept: 'application/json' } });
+      if (!response.ok) throw new Error(`Ollama answered HTTP ${response.status}`);
+      const data = await response.json();
+      const models = (data?.models || []).map((row) => String(row?.name || '')).filter(Boolean);
+      if (list) list.replaceChildren(...models.map((name) => h('option', { value: name })));
+      if (models.length && !models.includes(ollamaModel.value)) ollamaModel.value = models[0];
+      say(models.length
+        ? `Connected. ${models.length} model${models.length > 1 ? 's' : ''} installed: ${models.slice(0, 4).join(', ')}${models.length > 4 ? '…' : ''}`
+        : 'Connected, but no model is installed yet. Run: ollama pull qwen2.5:1.5b');
+    } catch (error) {
+      say('Ollama could not be reached. Start it with OLLAMA_ORIGINS=https://veridell.pages.dev ollama serve, then check again. '
+        + (error?.message ? `(${error.message})` : ''));
+    } finally {
+      check.disabled = false;
+    }
+  });
+}
+
+
+
 /* ── dictation ────────────────────────────────────────────────────────────
  * The browser's own speech recognition writes into the composer as you talk.
  * No audio is uploaded anywhere by this code: the recognition runs in the
@@ -511,6 +552,7 @@ document.getElementById('clearChat').addEventListener('click', () => {
   paintThread();
 });
 
+setupOllama();
 setupDictation();
 setupAttachments();
 paintTray();

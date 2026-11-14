@@ -110,12 +110,14 @@
         <span id="runtimeNote">Prompts go to this site’s server and the free Cloudflare Workers AI allocation.</span>
       </div>
 
-      <div class="em-chat-tools" id="ollamaRow" hidden>
-        <label for="ollamaModel">Model installed in Ollama</label>
-        <input id="ollamaModel" type="text" maxlength="120" value="qwen2.5:1.5b" autocomplete="off" spellcheck="false"
-               style="font:inherit;font-size:12px;padding:4px 8px;border:1px solid var(--em-rule);border-radius:8px;background:var(--em-paper-2);color:var(--em-ink-2)">
+      <div class="em-chat-tools em-ollama" id="ollamaRow" hidden>
+        <label for="ollamaModel">Model on this device</label>
+        <input id="ollamaModel" type="text" maxlength="120" value="qwen2.5:1.5b" autocomplete="off" spellcheck="false" list="ollamaModels">
+        <datalist id="ollamaModels"></datalist>
+        <button type="button" id="ollamaCheck">Check connection</button>
         <a href="https://ollama.com/" target="_blank" rel="noopener noreferrer">Get Ollama ↗</a>
       </div>
+      <p class="em-chat-tools" id="ollamaStatus" role="status" aria-live="polite" hidden></p>
     </div>
   </div>
 

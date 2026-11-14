@@ -1081,3 +1081,45 @@ html[data-theme="dark"] {
 
 .em-badge.is-machine { background: var(--em-brass-soft); color: var(--em-brass); }
 
+/* ── 17 · credit logos and the Ollama row ──────────────────────────────── */
+.em-credit { grid-template-columns: 40px minmax(110px, 20%) 1fr auto; align-items: center; }
+
+.em-credit-logo {
+  width: 34px; height: 34px;
+  display: grid; place-items: center;
+  border-radius: 10px;
+  background: var(--em-paper-3);
+  box-shadow: var(--em-neu-in);
+  overflow: hidden;
+}
+
+.em-credit-logo img { width: 100%; height: 100%; object-fit: contain; padding: 4px; }
+
+.em-credit-letter {
+  display: grid; place-items: center;
+  width: 100%; height: 100%;
+  font-size: 15px; font-weight: 750;
+  color: var(--tint, var(--em-green));
+  background: color-mix(in srgb, var(--tint, var(--em-green)) 14%, transparent);
+}
+
+.em-ollama button {
+  font: inherit; font-size: 12px; font-weight: 600;
+  padding: 5px 11px;
+  border: 1px solid var(--em-rule);
+  border-radius: 9px;
+  background: var(--em-paper-2);
+  color: var(--em-ink-2);
+  cursor: pointer;
+  box-shadow: var(--em-neu-out);
+}
+
+.em-ollama button:hover { border-color: var(--em-green); color: var(--em-ink); }
+.em-ollama button:disabled { opacity: .55; cursor: default; }
+
+#ollamaStatus { margin: 6px 0 0; font-size: 12px; line-height: 1.5; color: var(--em-ink-3); }
+
+@media (max-width: 720px) {
+  .em-credit { grid-template-columns: 34px 1fr; }
+  .em-credit-body, .em-credit-link { grid-column: 1 / -1; }
+}
