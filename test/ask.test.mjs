@@ -344,7 +344,9 @@ test('a chat turn carries the thread and needs no sources', () => {
   assert.deepEqual(messages.slice(1).map((m) => m.role), ['user', 'assistant', 'user']);
   assert.equal(messages.at(-1).content, 'what can you do?');
   const deep = __test.makeChatMessages('Explain this further.', [], 'deep');
-  assert.match(deep[0].content, /Go deeper: explain the reasoning/i);
+  // Deep asks for a long, organised answer rather than a padded one.
+  assert.match(deep[0].content, /Go deep\./);
+  assert.match(deep[0].content, /length is earned by substance/i);
   // nothing in a chat turn asks the model for citations
   assert.doesNotMatch(messages[0].content, /Add a source citation/);
 });
@@ -366,7 +368,11 @@ test('conversation mode respects Quick, Detailed and Deep answer length budgets'
       });
       assert.equal(res.status, 200);
     }
-    assert.deepEqual(limits, [420, 900, 1_500]);
+    // Raised in 6.5.0: a "detailed" answer that stops at 900 tokens was
+    // cutting off mid-sentence, and Deep had no room to earn its name.
+    assert.deepEqual(limits, [500, 1_100, 1_900]);
+    // Each depth must still be strictly larger than the one before it.
+    assert.ok(limits[0] < limits[1] && limits[1] < limits[2]);
   } finally { globalThis.fetch = originalFetch; }
 });
 

@@ -7,6 +7,7 @@ import { extractFile, buildAttachmentMessages, MAX_IMAGE_COUNT, MAX_ATTACHMENT_C
 import { askLocalOllama, listLocalModels, DEFAULT_OLLAMA_MODEL, toOllamaImage } from './ollama-client.js';
 import { searchLiveSources } from './live-research.js';
 import { parseJsonFrame, splitFrames } from './sse.js';
+import { siteFallback } from './site-fallback.js';
 import { isSiteQuestion, siteAnswerMarkdown, SITE_CONTEXT } from './site-knowledge.js';
 
 /* Veridell chat — one question box, one answer column.
@@ -1294,8 +1295,16 @@ async function ask(raw, depthOverride) {
         if (error?.name === 'AbortError') throw error;
         // A local greeting is useful offline; other requests must not pretend
         // that the model completed creative work it never received.
-        if (isSmallTalk(question)) data = { answer: localSmallTalkReply(question), provider: 'Amigo fallback' };
-        else throw error;
+        if (isSmallTalk(question)) {
+          data = { answer: localSmallTalkReply(question), provider: 'Amigo fallback' };
+        } else {
+          // The model could not be reached. Rather than an error box with a
+          // retry button, answer from the site's own library: the closest
+          // published articles, the three places a sourced answer comes from,
+          // and an honest line about why this is not a sourced answer.
+          const fallback = siteFallback(question, { lang: language, reason: 'offline' });
+          data = { answer: fallback.markdown, provider: 'Veridell library', model: '', fallback: true };
+        }
       }
       working.remove();
       livePreview?.remove();
@@ -1338,9 +1347,29 @@ async function ask(raw, depthOverride) {
       ].slice(0, limit + 2);
     }
     if (!passages.length) {
-      // No citable page: answer it as conversation instead of stopping at an
-      // empty shelf. The reader asked a question, not for a search result.
-      await converse('no-sources');
+      // No citable page. Try the conversation path first — a model may still
+      // answer from general knowledge — and if that is unreachable too, answer
+      // from the site's own library rather than showing an error box.
+      try {
+        await converse('no-sources');
+      } catch (error) {
+        if (error?.name === 'AbortError') throw error;
+        working.remove();
+        const fallback = siteFallback(question, { lang: language, reason: 'no-source' });
+        const reply = {
+          question,
+          title: '',
+          answer: fallback.markdown,
+          sources: [],
+          provider: 'Veridell library',
+          model: '',
+          fallback: true,
+        };
+        renderAnswer(reply, { store: true, animate: false });
+        attachments = []; renderAttachmentTray();
+        attachAnswer(question, reply);
+        syncDeleteButton();
+      }
       return;
     }
 
@@ -1413,7 +1442,22 @@ async function ask(raw, depthOverride) {
     if (err.name === 'AbortError') {
       renderNote(t('failed'), 'The request took too long and was stopped.', question, depth);
     } else {
-      renderNote(t('failed'), t('failedBody'), question, depth);
+      // Even a failure the reader did not cause should end in something they
+      // can use. The site's own library is always available, so the answer is
+      // a list of what Veridell does hold, not an apology and a retry button.
+      const fallback = siteFallback(question, { lang: language, reason: 'offline' });
+      const reply = {
+        question,
+        title: '',
+        answer: fallback.markdown,
+        sources: [],
+        provider: 'Veridell library',
+        model: '',
+        fallback: true,
+      };
+      renderAnswer(reply, { store: true, animate: false });
+      attachAnswer(question, reply);
+      syncDeleteButton();
     }
   } finally {
     clearTimeout(timer);
